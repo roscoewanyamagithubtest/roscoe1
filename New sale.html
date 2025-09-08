@@ -1,511 +1,1238 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sales System</title>
-<style>
-  /* Reset & Base */
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: url('2.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: #333;
-    font-size: 18px;
-    line-height: 1.6;
-  }
-
-  header {
-    position: relative;
-    padding: 20px;
-  }
-
-  /* Globe-style Logo */
-  .logo-container {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: blink 2s infinite;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  }
-
-  .logo-text {
-    font-size: 13px;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px #000;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* Navigation */
-  nav {
-    background-color: #222;
-    padding: 12px 10px;
-    text-align: center;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-  }
-
-  nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1rem;
-    padding: 8px 12px;
-    transition: background 0.3s ease;
-  }
-
-  nav a:hover {
-    background: #444;
-    border-radius: 5px;
-  }
-
-  nav button {
-    background-color: #dc3545;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-
-  nav button a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1rem;
-  }
-
-  /* Main Container */
-  main {
-    margin: 40px auto;
-    max-width: 1000px;
-    background: rgba(255, 255, 255, 0.97);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  }
-
-  h2, h3 {
-    margin-top: 0;
-    font-size: 1.5rem;
-    color: #222;
-  }
-
-  /* Forms */
-  .form-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-
-  .form-group {
-    flex: 1;
-    min-width: 250px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  label {
-    margin-bottom: 6px;
-    font-weight: 600;
-    font-size: 1rem;
-  }
-
-  input[type="text"],
-  input[type="date"],
-  input[type="number"],
-  textarea {
-    padding: 12px;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #fafafa;
-  }
-
-  textarea {
-    resize: vertical;
-    height: 100px;
-  }
-
-  button {
-    padding: 12px 20px;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    font-size: 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-
-  button:hover {
-    background-color: #0056b3;
-  }
-
-  /* Items Table */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  th, td {
-    border: 1px solid #ddd;
-    padding: 12px 10px;
-    text-align: center;
-    font-size: 1rem;
-  }
-
-  th {
-    background: #f8f8f8;
-    font-weight: bold;
-  }
-
-  input.subtotal {
-    background-color: #eee;
-    cursor: not-allowed;
-  }
-
-  #add-item {
-    margin-top: 15px;
-    background-color: #28a745;
-  }
-
-  #add-item:hover {
-    background-color: #1e7e34;
-  }
-
-  #process-sale {
-    background-color: #ffc107;
-    color: #000;
-  }
-
-  #process-sale:hover {
-    background-color: #e0a800;
-  }
-
-  #print-receipt {
-    background-color: #6c757d;
-    margin-left: 10px;
-  }
-
-  #print-receipt:hover {
-    background-color: #5a6268;
-  }
-
-  /* Footer */
-  footer {
-    text-align: center;
-    margin: 30px 10px 20px;
-    color: #fff;
-    font-size: 16px;
-  }
-
-  /* Responsive Styling */
-  @media (max-width: 768px) {
-    body {
-      font-size: 16px;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sales System — All-in-One (Responsive)</title>
+  <style>
+    /* =========================
+       RESET + BASE
+    ========================= */
+    :root{
+      --bg:#0f1724;
+      --panel:#0b1220;
+      --muted:#94a3b8;
+      --accent:#06b6d4;
+      --accent-2:#7c3aed;
+      --card:#0f1724;
+      --glass: rgba(255,255,255,0.03);
+      --danger:#ef4444;
+      --success:#10b981;
+      --radius:12px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color-scheme: dark;
     }
-
-    nav {
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#021024 0%, #061428 100%);color:#e6eef8}
+    a{color:inherit}
+    button{font:inherit}
+    /* =========================
+       LAYOUT
+    ========================= */
+    .app {
+      display:flex;
+      min-height:100vh;
+      gap:20px;
+      padding:20px;
     }
-
-    main {
-      margin: 15px;
-      padding: 20px;
+    /* Sidebar */
+    .sidebar{
+      width:280px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: 0 6px 24px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      flex-shrink:0;
     }
-
-    h2, h3 {
-      font-size: 1.3rem;
+    .logo{
+      display:flex;align-items:center;gap:12px;margin-bottom:14px;
     }
-
-    .form-row {
-      flex-direction: column;
+    .logo .mark{
+      width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:white;
+      box-shadow:0 6px 20px rgba(124,58,237,0.18);
     }
-
-    .form-group {
-      min-width: 100%;
+    .logo h1{margin:0;font-size:18px;line-height:1}
+    nav { display:flex;flex-direction:column;gap:8px;margin-top:8px; }
+    .nav-item{
+      display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;cursor:pointer;
+      transition:all .18s; color:var(--muted)
     }
-
-    input, textarea, button {
-      font-size: 1rem;
+    .nav-item.active{ background: linear-gradient(90deg, rgba(6,182,212,0.06), rgba(124,58,237,0.04)); color:#e8f9ff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02) }
+    .nav-item:hover{ transform:translateY(-2px) }
+    .nav-item .icon{width:34px;height:34;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,0.02)}
+    .nav-divider{height:1px;background:rgba(255,255,255,0.02);margin:10px 0;border-radius:4px}
+    /* Main Panel */
+    .main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      min-width:0;
     }
-
-    /* Mobile-friendly table */
-    table, thead, tbody, th, td, tr {
-      display: block;
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
     }
-
-    table {
-      border: none;
+    .searchbar{
+      display:flex;gap:12px;align-items:center;background:var(--glass);padding:10px;border-radius:12px;flex:1;
     }
-
-    thead {
-      display: none;
+    .searchbar input{flex:1;background:transparent;border:0;outline:none;color:inherit;font-size:15px}
+    .btn{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      border:0;color:white;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer;
+      box-shadow:0 8px 30px rgba(6,182,212,0.08);
     }
-
-    tr {
-      margin-bottom: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
+    .secondary{
+      background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:var(--muted);
+      cursor:pointer;
     }
-
-    td {
-      border: none;
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
+    /* CARD */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border-radius:14px;padding:14px;box-shadow: 0 6px 30px rgba(2,6,23,0.6);
     }
-
-    td::before {
-      content: attr(data-label);
-      font-weight: bold;
-      flex-basis: 40%;
-      text-align: left;
+    .grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
     }
-  }
-</style>
+    .stat{
+      padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      display:flex;flex-direction:column;gap:6px;
+    }
+    .stat .value{font-size:20px;font-weight:700}
+    .stat .label{font-size:12px;color:var(--muted)}
+    /* Responsive forms & tables */
+    .table{
+      width:100%;border-collapse:collapse;margin-top:8px;
+    }
+    .table thead tr th{
+      text-align:left;padding:10px 8px;font-size:13px;color:var(--muted);border-bottom:1px dashed rgba(255,255,255,0.02)
+    }
+    .table tbody tr td{
+      padding:10px 8px;border-bottom:1px dashed rgba(255,255,255,0.02);font-size:14px;
+    }
+    .actions{display:flex;gap:8px}
+    .chip{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);font-size:13px}
+    /* Forms */
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"], input[type="number"], input[type="date"], select, textarea{
+      width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;
+      outline:none;font-size:14px;
+    }
+    textarea{min-height:80px;resize:vertical}
+    .form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .form-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .small{font-size:13px;color:var(--muted)}
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+    .modal{width:100%;max-width:920px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px}
+    .modal.show{display:flex}
+    /* tiny responsive */
+    @media (max-width:980px){
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .sidebar{width:220px}
+    }
+    @media (max-width:760px){
+      .app{padding:12px}
+      .sidebar{display:none}
+      .grid{grid-template-columns:1fr}
+      .form-row{grid-template-columns:1fr}
+      .form-row-3{grid-template-columns:1fr}
+      .nav-mini{display:flex;gap:8px;align-items:center}
+      .topbar{flex-direction:column;align-items:stretch}
+    }
+    /* Tiny buttons */
+    .icon-btn{background:transparent;border:0;padding:6px;border-radius:8px;cursor:pointer}
+    .danger{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--danger);padding:8px 10px;border-radius:8px}
+    .success{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--success);padding:8px 10px;border-radius:8px}
+    /* pretty table for mobile */
+    .responsive-list{display:none}
+    @media (max-width:760px){
+      .table{display:none}
+      .responsive-list{display:block}
+      .responsive-card{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;margin-bottom:10px}
+    }
+    /* tiny helpers */
+    .muted{color:var(--muted)}
+    .right{text-align:right}
+    .flex{display:flex;gap:8px;align-items:center}
+    .mb8{margin-bottom:8px}
+    .mt8{margin-top:8px}
+    .small-muted{font-size:12px;color:var(--muted)}
+  </style>
 </head>
 <body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar card" aria-label="sidebar">
+      <div class="logo">
+        <div class="mark">SS</div>
+        <div>
+          <h1>SALES SYSTEM</h1>
+          <div class="small-muted">All-in-one point of sale</div>
+        </div>
+      </div>
 
-  <!-- Header -->
-  <header>
-    <div class="logo-container">
-      <div class="logo-text">SALES<br>SYSTEM</div>
+      <nav id="navList">
+        <div class="nav-item active" data-view="dashboard"><div class="icon">🏠</div><div>Dashboard</div></div>
+        <div class="nav-item" data-view="sales"><div class="icon">🧾</div><div>Sales</div></div>
+        <div class="nav-item" data-view="inventory"><div class="icon">📦</div><div>Inventory</div></div>
+        <div class="nav-item" data-view="employees"><div class="icon">👥</div><div>Employees</div></div>
+        <div class="nav-item" data-view="suppliers"><div class="icon">🚚</div><div>Suppliers</div></div>
+        <div class="nav-item" data-view="expenses"><div class="icon">💸</div><div>Expenses</div></div>
+        <div class="nav-item" data-view="deposits"><div class="icon">🏦</div><div>Deposits</div></div>
+        <div class="nav-divider"></div>
+        <div class="nav-item" data-view="settings"><div class="icon">⚙️</div><div>Settings / Backup</div></div>
+      </nav>
+
+      <div style="margin-top:14px">
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="addQuickSale">Quick Sale</button>
+          <button class="secondary" id="exportData">Export</button>
+        </div>
+        <div class="small-muted mt8">Tip: data is saved in your browser (localStorage).</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="searchbar card">
+          <input id="globalSearch" placeholder="Search sales, inventory, employees... (try typing product name or customer)" />
+          <div class="small-muted">Filter: <select id="globalFilter"><option value="all">All</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="year">This Year</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="secondary" id="importBtn">Import</button>
+          <button class="btn" id="openSettings">Settings</button>
+        </div>
+      </div>
+
+      <!-- VIEWS -->
+      <div id="views" style="min-height:400px">
+        <!-- Dashboard -->
+        <section data-view="dashboard" class="view card">
+          <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
+            <div>
+              <h2 style="margin:0 0 6px 0">Dashboard</h2>
+              <div class="small-muted">Overview of sales, inventory and expenses</div>
+            </div>
+            <div class="flex">
+              <div class="small-muted">Range:</div>
+              <select id="dashboardRange" class="secondary">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="365">Last year</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid mt8">
+            <div class="card stat">
+              <div class="label">Total Sales</div>
+              <div class="value" id="statTotalSales">UGX 0</div>
+              <div class="small-muted">Gross sales in selected range</div>
+            </div>
+            <div class="card stat">
+              <div class="label">Total Expenses</div>
+              <div class="value" id="statExpenses">UGX 0</div>
+              <div class="small-muted">Paid expenses</div>
+            </div>
+            <div class="card stat">
+              <div class="label">Net</div>
+              <div class="value" id="statNet">UGX 0</div>
+              <div class="small-muted">Sales − Expenses</div>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <h3 style="margin:0 0 8px 0">Recent Sales</h3>
+            <table class="table" id="recentSalesTable">
+              <thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Qty</th><th>Amount</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="responsive-list" id="recentSalesList"></div>
+          </div>
+
+          <div class="card mt8">
+            <h3 style="margin:0 0 8px 0">Low Stock Items</h3>
+            <table class="table" id="lowStockTable">
+              <thead><tr><th>SKU</th><th>Product</th><th>Stock</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="responsive-list" id="lowStockList"></div>
+          </div>
+        </section>
+
+        <!-- Sales -->
+        <section data-view="sales" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Sales</h2>
+              <div class="small-muted">Add, edit, view and filter sales</div>
+            </div>
+            <div class="flex">
+              <button class="secondary" id="filterSalesBtn">Filter</button>
+              <button class="btn" id="addSaleBtn">Add Sale</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="saleSearch" placeholder="Search sales by product/customer/sku" />
+                <select id="saleTimeFilter" class="secondary">
+                  <option value="all">All time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                  <option value="year">This Year</option>
+                </select>
+              </div>
+              <div class="small-muted">Total: <span id="salesTotalText">UGX 0</span></div>
+            </div>
+
+            <table class="table" id="salesTable">
+              <thead>
+                <tr><th>Date</th><th>SKU</th><th>Product</th><th>Customer</th><th>Qty</th><th>Price</th><th>Total</th><th>Actions</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+
+            <div class="responsive-list" id="salesList"></div>
+          </div>
+        </section>
+
+        <!-- Inventory -->
+        <section data-view="inventory" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Inventory</h2>
+              <div class="small-muted">Manage products</div>
+            </div>
+            <div class="flex">
+              <button class="secondary" id="importInventory">Import</button>
+              <button class="btn" id="addProductBtn">Add Product</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="inventorySearch" placeholder="Search inventory by name or sku" />
+                <select id="inventorySort" class="secondary">
+                  <option value="name">Sort: Name</option>
+                  <option value="stock">Sort: Stock</option>
+                  <option value="price">Sort: Price</option>
+                </select>
+              </div>
+              <div class="small-muted">Items: <span id="inventoryCount">0</span></div>
+            </div>
+
+            <table class="table" id="inventoryTable">
+              <thead><tr><th>SKU</th><th>Product</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+
+            <div class="responsive-list" id="inventoryList"></div>
+          </div>
+        </section>
+
+        <!-- Employees -->
+        <section data-view="employees" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Employees</h2>
+              <div class="small-muted">Manage employee records</div>
+            </div>
+            <div>
+              <button class="btn" id="addEmployeeBtn">Add Employee</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <table class="table" id="employeesTable">
+              <thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="responsive-list" id="employeesList"></div>
+          </div>
+        </section>
+
+        <!-- Suppliers -->
+        <section data-view="suppliers" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Suppliers</h2>
+              <div class="small-muted">Add and manage suppliers</div>
+            </div>
+            <div>
+              <button class="btn" id="addSupplierBtn">Add Supplier</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <table class="table" id="suppliersTable">
+              <thead><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Notes</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="responsive-list" id="suppliersList"></div>
+          </div>
+        </section>
+
+        <!-- Expenses -->
+        <section data-view="expenses" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Expenses</h2>
+              <div class="small-muted">Record and manage expenses</div>
+            </div>
+            <div>
+              <button class="btn" id="addExpenseBtn">Add Expense</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <table class="table" id="expensesTable">
+              <thead><tr><th>Date</th><th>Category</th><th>Notes</th><th>Amount</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="responsive-list" id="expensesList"></div>
+          </div>
+        </section>
+
+        <!-- Deposits -->
+        <section data-view="deposits" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Deposits</h2>
+              <div class="small-muted">Bank / cash deposits</div>
+            </div>
+            <div>
+              <button class="btn" id="addDepositBtn">Add Deposit</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <table class="table" id="depositsTable">
+              <thead><tr><th>Date</th><th>Account</th><th>Amount</th><th>Notes</th><th>Actions</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="responsive-list" id="depositsList"></div>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section data-view="settings" class="view card" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0">Settings & Data</h2>
+              <div class="small-muted">Backup, restore or clear data</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="secondary" id="downloadBackup">Download Backup</button>
+              <button class="danger" id="clearAllData">Clear All</button>
+            </div>
+          </div>
+
+          <div class="card mt8">
+            <h3>Import / Export</h3>
+            <div class="small-muted">You can export a JSON backup or import it again. Importing overwrites current data.</div>
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <input type="file" id="importFile" accept="application/json" />
+              <button class="btn" id="doImport">Import</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div id="modal" class="modal card">
+      <!-- dynamic -->
     </div>
-  </header>
+  </div>
 
-  <!-- Navigation -->
-  <nav>
-    <a href="New sale.html">NEW SALE</a>
-    <a href="home.html">MAKE DEPOSIT</a>
-    <a href="invoice.html">INVOICE</a>
-    <a href="Expenses.html">EXPENSES</a>
-    <a href="Records.html">Daily Records</a>
-    <button><a href="Log In.html">Log Out</a></button>
-  </nav>
-
-  <!-- Main Content -->
-  <main>
-    <h2>NEW SALE</h2>
-
-    <!-- Customer Info -->
-    <section>
-      <h3>Customer Information</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="cust-name">Customer Name:</label>
-          <input type="text" id="cust-name" placeholder="Enter full name">
-        </div>
-        <div class="form-group">
-          <label for="cust-contact">Contact:</label>
-          <input type="text" id="cust-contact" placeholder="Phone / Email">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="cust-address">Address:</label>
-          <input type="text" id="cust-address" placeholder="Enter address">
-        </div>
-      </div>
-    </section>
-
-    <!-- Date Range -->
-    <section>
-      <h3>Date Range</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="from-date">From:</label>
-          <input type="date" id="from-date" name="from-date">
-        </div>
-        <div class="form-group">
-          <label for="to-date">To:</label>
-          <input type="date" id="to-date" name="to-date">
-        </div>
-        <div class="form-group">
-          <button onclick="search()">Search</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Items -->
-    <section>
-      <h3>Items</h3>
-      <table id="items-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Description</th>
-            <th>Price (UGX)</th>
-            <th>Quantity</th>
-            <th>Subtotal (UGX)</th>
-          </tr>
-        </thead>
-        <tbody id="items-body">
-          <tr class="item">
-            <td data-label="#">1</td>
-            <td data-label="Description"><input type="text" class="description" required></td>
-            <td data-label="Price (UGX)"><input type="number" class="price" required></td>
-            <td data-label="Quantity"><input type="number" class="quantity" value="1" required></td>
-            <td data-label="Subtotal (UGX)"><input type="text" class="subtotal" value="0.00" readonly></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <button id="add-item">Add Item</button>
-      <h2>Total: <span id="total">0</span> UGX</h2>
-      <button id="process-sale">Process Sale</button>
-      <button id="print-receipt" style="display:none;">Print Receipt</button>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer>
-    &copy; 2025 My Shop | Sales System Demo
-  </footer>
-
-  <!-- Scripts -->
   <script>
-    function search() {
-      const fromDate = document.getElementById("from-date").value;
-      const toDate = document.getElementById("to-date").value;
+  /* =====================================================
+     DATA STRUCTURES & STORAGE
+     - We keep arrays in localStorage under "ss_data_v1"
+     - Entities: products, sales, employees, suppliers, expenses, deposits
+  ===================================================== */
 
-      if (!fromDate || !toDate) {
-        alert("Please select both From and To dates.");
-        return;
-      }
-      if (fromDate > toDate) {
-        alert("From date cannot be after To date.");
-        return;
-      }
-      alert(`Date Range:\nFrom: ${fromDate}\nTo: ${toDate}`);
-    }
+  const STORAGE_KEY = 'ss_data_v1';
 
-    let total = 0;
-    function updateSubtotal(row) {
-      const price = parseFloat(row.querySelector('.price').value) || 0;
-      const quantity = parseInt(row.querySelector('.quantity').value) || 0;
-      const subtotal = price * quantity;
-      row.querySelector('.subtotal').value = subtotal.toFixed(2);
-      return subtotal;
+  // default seed (only created first time)
+  const defaultData = {
+    products: [
+      { id: idf(), sku: 'P-001', name:'Sample Widget', price:20000, stock:25, category:'General' },
+      { id: idf(), sku: 'P-002', name:'Gadget Pro', price:45000, stock:6, category:'Electronics' },
+    ],
+    sales: [
+      // { id, date, sku, productName, qty, price, customer, notes }
+    ],
+    employees: [
+      { id: idf(), name:'Jane Doe', role:'Sales', phone:'+256700000000', email:'jane@example.com' }
+    ],
+    suppliers: [],
+    expenses: [],
+    deposits: []
+  };
+
+  // load/save
+  function loadData(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+      return deepClone(defaultData);
     }
-    function updateTotal() {
-      total = 0;
-      document.querySelectorAll('#items-body .item').forEach(row => {
-        total += updateSubtotal(row);
+    try{
+      return JSON.parse(raw);
+    }catch(e){
+      console.error('Failed to parse storage, resetting', e);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+      return deepClone(defaultData);
+    }
+  }
+  function saveData(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // initialize app state
+  let state = loadData();
+
+  /* =====================================================
+     UTIL
+  ===================================================== */
+  function idf(){ return 'id_' + Math.random().toString(36).slice(2,10) }
+  function deepClone(v){ return JSON.parse(JSON.stringify(v)) }
+  function formatUGX(n){ return 'UGX ' + Number(n||0).toLocaleString() }
+  function parseDateInput(s){
+    if(!s) return new Date();
+    // Accept YYYY-MM-DD or Date object
+    if(s instanceof Date) return s;
+    const p = s.split('-');
+    if(p.length===3) return new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+    return new Date(s);
+  }
+  function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x }
+  function endOfDay(d){ const x=new Date(d); x.setHours(23,59,59,999); return x }
+  function withinRange(date, range){ // range: 'today','week','month','year', or days number for last N days
+    const d = new Date(date);
+    const now = new Date();
+    if(range === 'today'){
+      return startOfDay(now) <= d && d <= endOfDay(now);
+    }
+    if(range === 'week'){
+      const start = new Date();
+      start.setDate(now.getDate() - 6); // last 7 days
+      return startOfDay(start) <= d && d <= endOfDay(now);
+    }
+    if(range === 'month'){
+      const start = new Date(); start.setMonth(now.getMonth()-1);
+      return startOfDay(start) <= d && d <= endOfDay(now);
+    }
+    if(range === 'year'){
+      const start = new Date(); start.setFullYear(now.getFullYear()-1);
+      return startOfDay(start) <= d && d <= endOfDay(now);
+    }
+    if(typeof range === 'number'){
+      const start = new Date(); start.setDate(now.getDate() - range);
+      return startOfDay(start) <= d && d <= endOfDay(now);
+    }
+    return true; // all
+  }
+  function moneySum(items, prop){ return items.reduce((s,i)=>(s + (Number(i[prop])||0)), 0) }
+
+  /* =====================================================
+     UI: VIEW SWITCHING
+  ===================================================== */
+  const navItems = document.querySelectorAll('.nav-item');
+  const viewSections = document.querySelectorAll('.view');
+
+  navItems.forEach(n=>{
+    n.addEventListener('click', ()=> {
+      navItems.forEach(x=>x.classList.remove('active'));
+      n.classList.add('active');
+      const v = n.dataset.view;
+      showView(v);
+    });
+  });
+
+  function showView(view){
+    viewSections.forEach(sec=>{
+      if(sec.dataset.view === view) sec.style.display = '';
+      else sec.style.display = 'none';
+    });
+    renderAll(); // refresh content when view changes
+  }
+
+  /* =====================================================
+     RENDERERS
+  ===================================================== */
+
+  function renderAll(){
+    renderDashboard();
+    renderSales();
+    renderInventory();
+    renderEmployees();
+    renderSuppliers();
+    renderExpenses();
+    renderDeposits();
+  }
+
+  // DASHBOARD
+  function renderDashboard(){
+    // stats for selected range
+    const days = Number(document.getElementById('dashboardRange').value) || 30;
+    const salesRange = state.sales.filter(s => withinRange(s.date, days));
+    const totalSales = moneySum(salesRange, 'total');
+    const expensesRange = state.expenses.filter(e => withinRange(e.date, days));
+    const totalExpenses = moneySum(expensesRange, 'amount');
+    document.getElementById('statTotalSales').textContent = formatUGX(totalSales);
+    document.getElementById('statExpenses').textContent = formatUGX(totalExpenses);
+    document.getElementById('statNet').textContent = formatUGX(totalSales - totalExpenses);
+
+    // recent sales table
+    const rsTBody = document.querySelector('#recentSalesTable tbody'); rsTBody.innerHTML='';
+    const last = state.sales.slice().sort((a,b)=> new Date(b.date) - new Date(a.date)).slice(0,7);
+    last.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${new Date(s.date).toLocaleString()}</td><td>${escapeHtml(s.productName)}</td><td>${escapeHtml(s.customer||'Walk-in')}</td><td>${s.qty}</td><td>${formatUGX(s.total)}</td>`;
+      rsTBody.appendChild(tr);
+    });
+    // mobile list rendering
+    const rsList = document.getElementById('recentSalesList'); rsList.innerHTML='';
+    last.forEach(s=>{
+      const d = document.createElement('div'); d.className='responsive-card';
+      d.innerHTML = `<div style="display:flex;justify-content:space-between"><strong>${escapeHtml(s.productName)}</strong><div>${formatUGX(s.total)}</div></div><div class="small-muted">${new Date(s.date).toLocaleString()} • ${s.qty} pcs • ${escapeHtml(s.customer||'Walk-in')}</div>`;
+      rsList.appendChild(d);
+    });
+
+    // low stock items
+    const low = state.products.filter(p => Number(p.stock) <= 10).sort((a,b)=>a.stock-b.stock).slice(0,8);
+    const lowT = document.querySelector('#lowStockTable tbody'); lowT.innerHTML='';
+    const lowList = document.getElementById('lowStockList'); lowList.innerHTML='';
+    low.forEach(p=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(p.sku)}</td><td>${escapeHtml(p.name)}</td><td>${p.stock}</td><td><button class="secondary" onclick="openEditProduct('${p.id}')">Edit</button></td>`;
+      lowT.appendChild(tr);
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(p.name)}</strong><div class="small-muted">SKU ${escapeHtml(p.sku)}</div></div><div class="chip">${p.stock} left</div></div>`;
+      lowList.appendChild(card);
+    });
+  }
+
+  // SALES
+  function renderSales(){
+    const tbody = document.querySelector('#salesTable tbody'); tbody.innerHTML='';
+    const listMobile = document.getElementById('salesList'); listMobile.innerHTML='';
+
+    const term = (document.getElementById('saleSearch')||{}).value?.toLowerCase?.() || '';
+    const tf = (document.getElementById('saleTimeFilter')||{}).value || 'all';
+    const filtered = state.sales.filter(s=>{
+      if(term){
+        const match = (s.productName||'') + ' ' + (s.customer||'') + ' ' + (s.sku||'');
+        if(!match.toLowerCase().includes(term)) return false;
+      }
+      if(tf !== 'all' && !withinRange(s.date, tf)) return false;
+      return true;
+    }).sort((a,b)=> new Date(b.date) - new Date(a.date));
+
+    filtered.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${new Date(s.date).toLocaleString()}</td>
+        <td>${escapeHtml(s.sku||'')}</td>
+        <td>${escapeHtml(s.productName)}</td>
+        <td>${escapeHtml(s.customer||'Walk-in')}</td>
+        <td>${s.qty}</td>
+        <td>${formatUGX(s.price)}</td>
+        <td>${formatUGX(s.total)}</td>
+        <td class="actions">
+          <button class="secondary" onclick="openEditSale('${s.id}')">Edit</button>
+          <button class="danger" onclick="deleteSale('${s.id}')">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(s.productName)}</strong><div class="small-muted">${new Date(s.date).toLocaleString()} • ${s.qty} pcs</div></div><div>${formatUGX(s.total)}</div></div>`;
+      listMobile.appendChild(card);
+    });
+
+    const total = moneySum(filtered, 'total');
+    document.getElementById('salesTotalText').textContent = formatUGX(total);
+  }
+
+  // INVENTORY
+  function renderInventory(){
+    const tbody = document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
+    const listMobile = document.getElementById('inventoryList'); listMobile.innerHTML='';
+
+    const term = (document.getElementById('inventorySearch')||{}).value?.toLowerCase?.() || '';
+    const sortBy = (document.getElementById('inventorySort')||{}).value || 'name';
+    let items = state.products.filter(p=>{
+      if(!term) return true;
+      return (p.name + ' ' + p.sku + ' ' + (p.category||'')).toLowerCase().includes(term);
+    });
+    if(sortBy==='stock') items.sort((a,b)=>b.stock - a.stock);
+    else if(sortBy==='price') items.sort((a,b)=>b.price - a.price);
+    else items.sort((a,b)=> a.name.localeCompare(b.name));
+
+    document.getElementById('inventoryCount').textContent = items.length;
+
+    items.forEach(p=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(p.sku)}</td><td>${escapeHtml(p.name)}</td><td>${formatUGX(p.price)}</td><td>${p.stock}</td><td>${escapeHtml(p.category||'')}</td>
+        <td class="actions">
+          <button class="secondary" onclick="openEditProduct('${p.id}')">Edit</button>
+          <button class="danger" onclick="deleteProduct('${p.id}')">Delete</button>
+        </td>`;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(p.name)}</strong><div class="small-muted">SKU ${escapeHtml(p.sku)} • ${escapeHtml(p.category||'')}</div></div><div><div>${formatUGX(p.price)}</div><div class="chip">${p.stock} left</div></div></div>`;
+      listMobile.appendChild(card);
+    });
+  }
+
+  // EMPLOYEES
+  function renderEmployees(){
+    const tbody = document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
+    const listMobile = document.getElementById('employeesList'); listMobile.innerHTML='';
+
+    state.employees.forEach(emp=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(emp.name)}</td><td>${escapeHtml(emp.role)}</td><td>${escapeHtml(emp.phone||'')}</td><td>${escapeHtml(emp.email||'')}</td>
+        <td class="actions">
+          <button class="secondary" onclick="openEditEmployee('${emp.id}')">Edit</button>
+          <button class="danger" onclick="deleteEmployee('${emp.id}')">Delete</button>
+        </td>`;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(emp.name)}</strong><div class="small-muted">${escapeHtml(emp.role)}</div></div><div class="small-muted">${escapeHtml(emp.phone||'')}</div></div>`;
+      listMobile.appendChild(card);
+    });
+  }
+
+  // SUPPLIERS
+  function renderSuppliers(){
+    const tbody = document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
+    const listMobile = document.getElementById('suppliersList'); listMobile.innerHTML='';
+
+    state.suppliers.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(s.company)}</td><td>${escapeHtml(s.contact)}</td><td>${escapeHtml(s.phone||'')}</td><td>${escapeHtml(s.notes||'')}</td>
+        <td class="actions"><button class="secondary" onclick="openEditSupplier('${s.id}')">Edit</button><button class="danger" onclick="deleteSupplier('${s.id}')">Delete</button></td>`;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(s.company)}</strong><div class="small-muted">${escapeHtml(s.contact)}</div></div><div class="small-muted">${escapeHtml(s.phone||'')}</div></div>`;
+      listMobile.appendChild(card);
+    });
+  }
+
+  // EXPENSES
+  function renderExpenses(){
+    const tbody = document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
+    const listMobile = document.getElementById('expensesList'); listMobile.innerHTML='';
+
+    const items = state.expenses.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+    items.forEach(e=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${new Date(e.date).toLocaleDateString()}</td><td>${escapeHtml(e.category)}</td><td>${escapeHtml(e.notes||'')}</td><td>${formatUGX(e.amount)}</td>
+        <td class="actions"><button class="secondary" onclick="openEditExpense('${e.id}')">Edit</button><button class="danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(e.category)}</strong><div class="small-muted">${escapeHtml(e.notes||'')}</div></div><div>${formatUGX(e.amount)}</div></div>`;
+      listMobile.appendChild(card);
+    });
+  }
+
+  // DEPOSITS
+  function renderDeposits(){
+    const tbody = document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
+    const listMobile = document.getElementById('depositsList'); listMobile.innerHTML='';
+
+    const items = state.deposits.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+    items.forEach(d=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${new Date(d.date).toLocaleDateString()}</td><td>${escapeHtml(d.account)}</td><td>${formatUGX(d.amount)}</td><td>${escapeHtml(d.notes||'')}</td>
+        <td class="actions"><button class="secondary" onclick="openEditDeposit('${d.id}')">Edit</button><button class="danger" onclick="deleteDeposit('${d.id}')">Delete</button></td>`;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div'); card.className='responsive-card';
+      card.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(d.account)}</strong><div class="small-muted">${escapeHtml(d.notes||'')}</div></div><div>${formatUGX(d.amount)}</div></div>`;
+      listMobile.appendChild(card);
+    });
+  }
+
+  /* =====================================================
+     ESCAPE helper
+  ===================================================== */
+  function escapeHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  /* =====================================================
+     CRUD: PRODUCTS
+  ===================================================== */
+  window.openEditProduct = function(id){
+    const prod = state.products.find(p=>p.id===id);
+    openModal(`<h3>Edit Product</h3>
+      <div class="form-row mt8">
+        <div><label>SKU</label><input id="m_sku" value="${escapeHtml(prod.sku)}" /></div>
+        <div><label>Name</label><input id="m_name" value="${escapeHtml(prod.name)}" /></div>
+      </div>
+      <div class="form-row mt8">
+        <div><label>Price</label><input id="m_price" type="number" value="${prod.price}" /></div>
+        <div><label>Stock</label><input id="m_stock" type="number" value="${prod.stock}" /></div>
+      </div>
+      <div class="mt8"><label>Category</label><input id="m_cat" value="${escapeHtml(prod.category||'')}" /></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveProd">Save</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveProd').onclick = ()=>{
+        prod.sku = document.getElementById('m_sku').value.trim();
+        prod.name = document.getElementById('m_name').value.trim();
+        prod.price = Number(document.getElementById('m_price').value)||0;
+        prod.stock = Number(document.getElementById('m_stock').value)||0;
+        prod.category = document.getElementById('m_cat').value.trim();
+        saveData(); closeModal(); renderInventory(); renderDashboard();
+      }
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function openAddProduct(){
+    openModal(`<h3>Add Product</h3>
+      <div class="form-row mt8">
+        <div><label>SKU</label><input id="m_sku" placeholder="e.g. P-003" /></div>
+        <div><label>Name</label><input id="m_name" /></div>
+      </div>
+      <div class="form-row mt8">
+        <div><label>Price</label><input id="m_price" type="number" /></div>
+        <div><label>Stock</label><input id="m_stock" type="number" /></div>
+      </div>
+      <div class="mt8"><label>Category</label><input id="m_cat" /></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveProd">Add</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveProd').onclick = ()=>{
+        const newP = {
+          id: idf(),
+          sku: document.getElementById('m_sku').value.trim() || ('SKU-' + Math.random().toString(36).slice(2,6)),
+          name: document.getElementById('m_name').value.trim() || 'Untitled',
+          price: Number(document.getElementById('m_price').value)||0,
+          stock: Number(document.getElementById('m_stock').value)||0,
+          category: document.getElementById('m_cat').value.trim()
+        };
+        state.products.push(newP);
+        saveData(); closeModal(); renderInventory(); renderDashboard();
+      }
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function deleteProduct(id){
+    if(!confirm('Delete product? This cannot be undone.')) return;
+    state.products = state.products.filter(p=>p.id!==id);
+    saveData(); renderInventory(); renderDashboard();
+  }
+
+  /* =====================================================
+     CRUD: SALES
+  ===================================================== */
+  window.openEditSale = function(id){
+    const s = state.sales.find(x=>x.id===id);
+    openModal(`<h3>Edit Sale</h3>
+      <div class="form-row mt8">
+        <div><label>Date</label><input id="m_date" type="date" value="${new Date(s.date).toISOString().slice(0,10)}" /></div>
+        <div><label>Product SKU</label><select id="m_sku">${state.products.map(p=>`<option value="${p.sku}" ${p.sku===s.sku?'selected':''}>${p.sku} — ${escapeHtml(p.name)}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row mt8">
+        <div><label>Qty</label><input id="m_qty" type="number" value="${s.qty}" /></div>
+        <div><label>Price</label><input id="m_price" type="number" value="${s.price}" /></div>
+      </div>
+      <div class="mt8"><label>Customer</label><input id="m_customer" value="${escapeHtml(s.customer||'')}" /></div>
+      <div class="mt8"><label>Notes</label><textarea id="m_notes">${escapeHtml(s.notes||'')}</textarea></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveSale">Save</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveSale').onclick = ()=>{
+        s.date = document.getElementById('m_date').value;
+        s.sku = document.getElementById('m_sku').value;
+        const pr = Number(document.getElementById('m_price').value)||0;
+        const q = Number(document.getElementById('m_qty').value)||1;
+        s.qty = q; s.price = pr; s.total = pr * q;
+        s.customer = document.getElementById('m_customer').value.trim();
+        s.notes = document.getElementById('m_notes').value.trim();
+        saveData(); closeModal(); renderSales(); renderInventory(); renderDashboard();
+      }
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function openAddSale(prefSKU){
+    openModal(`<h3>New Sale</h3>
+      <div class="form-row mt8">
+        <div><label>Date</label><input id="m_date" type="date" value="${new Date().toISOString().slice(0,10)}" /></div>
+        <div><label>Product</label><select id="m_sku">${state.products.map(p=>`<option value="${p.sku}">${p.sku} — ${escapeHtml(p.name)}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row mt8">
+        <div><label>Qty</label><input id="m_qty" type="number" value="1" /></div>
+        <div><label>Price</label><input id="m_price" type="number" value="0" /></div>
+      </div>
+      <div class="mt8"><label>Customer</label><input id="m_customer" placeholder="Name or phone" /></div>
+      <div class="mt8"><label>Notes</label><textarea id="m_notes"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveSale">Save Sale</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      const skuSelect = document.getElementById('m_sku');
+      if(prefSKU) skuSelect.value = prefSKU;
+      // when product changes, update price suggestion
+      skuSelect.addEventListener('change', ()=>{
+        const p = state.products.find(x=>x.sku===skuSelect.value);
+        if(p) document.getElementById('m_price').value = p.price;
       });
-      document.getElementById('total').innerText = total.toFixed(2);
-    }
-
-    document.getElementById('add-item').addEventListener('click', function () {
-      const rowCount = document.querySelectorAll('#items-body .item').length + 1;
-      const newRow = document.createElement('tr');
-      newRow.classList.add('item');
-      newRow.innerHTML = `
-        <td data-label="#">${rowCount}</td>
-        <td data-label="Description"><input type="text" class="description" required></td>
-        <td data-label="Price (UGX)"><input type="number" class="price" required></td>
-        <td data-label="Quantity"><input type="number" class="quantity" value="1" required></td>
-        <td data-label="Subtotal (UGX)"><input type="text" class="subtotal" value="0.00" readonly></td>
-      `;
-      document.getElementById('items-body').appendChild(newRow);
-
-      newRow.querySelector('.price').addEventListener('input', updateTotal);
-      newRow.querySelector('.quantity').addEventListener('input', updateTotal);
-      updateTotal();
-    });
-
-    document.getElementById('items-body').addEventListener('input', function (event) {
-      if (event.target.classList.contains('price') || event.target.classList.contains('quantity')) {
-        updateTotal();
+      if(skuSelect.value){
+        const p0 = state.products.find(x=>x.sku===skuSelect.value);
+        if(p0) document.getElementById('m_price').value = p0.price;
       }
+      document.getElementById('saveSale').onclick = ()=>{
+        const sku = document.getElementById('m_sku').value;
+        const price = Number(document.getElementById('m_price').value)||0;
+        const qty = Number(document.getElementById('m_qty').value)||1;
+        const product = state.products.find(x=>x.sku===sku);
+        const sale = {
+          id: idf(),
+          date: document.getElementById('m_date').value,
+          sku, productName: product ? product.name : sku,
+          qty, price, total: price * qty,
+          customer: document.getElementById('m_customer').value.trim(),
+          notes: document.getElementById('m_notes').value.trim()
+        };
+        // reduce stock if product exists
+        if(product){ product.stock = Number(product.stock) - qty; if(product.stock < 0) product.stock = 0; }
+        state.sales.push(sale);
+        saveData(); closeModal(); renderSales(); renderInventory(); renderDashboard();
+      };
+      document.getElementById('cancel').onclick = closeModal;
     });
+  }
 
-    document.getElementById('process-sale').addEventListener('click', function () {
-      alert('Sale processed! Total: ' + total.toFixed(2) + ' UGX');
-      document.getElementById('print-receipt').style.display = 'inline-block';
+  function deleteSale(id){
+    if(!confirm('Delete sale?')) return;
+    state.sales = state.sales.filter(s=>s.id !== id);
+    saveData(); renderSales(); renderDashboard();
+  }
+
+  /* =====================================================
+     CRUD: EMPLOYEES
+  ===================================================== */
+  window.openEditEmployee = function(id){
+    const e = state.employees.find(x=>x.id===id);
+    openModal(`<h3>Edit Employee</h3>
+      <div class="form-row mt8"><div><label>Name</label><input id="e_name" value="${escapeHtml(e.name)}" /></div><div><label>Role</label><input id="e_role" value="${escapeHtml(e.role)}" /></div></div>
+      <div class="form-row mt8"><div><label>Phone</label><input id="e_phone" value="${escapeHtml(e.phone||'')}" /></div><div><label>Email</label><input id="e_email" value="${escapeHtml(e.email||'')}" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveEmp">Save</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveEmp').onclick = ()=>{
+        e.name = document.getElementById('e_name').value.trim();
+        e.role = document.getElementById('e_role').value.trim();
+        e.phone = document.getElementById('e_phone').value.trim();
+        e.email = document.getElementById('e_email').value.trim();
+        saveData(); closeModal(); renderEmployees();
+      }
+      document.getElementById('cancel').onclick = closeModal;
     });
+  }
 
-    document.getElementById('print-receipt').addEventListener('click', function () {
-      const custName = document.getElementById('cust-name').value || 'N/A';
-      const custContact = document.getElementById('cust-contact').value || 'N/A';
-      const custAddress = document.getElementById('cust-address').value || 'N/A';
-
-      const rows = document.querySelectorAll('#items-body .item');
-      let receiptHTML = `
-        <h2 style="text-align:center;">Receipt</h2>
-        <p><strong>Customer Name:</strong> ${custName}</p>
-        <p><strong>Contact:</strong> ${custContact}</p>
-        <p><strong>Address:</strong> ${custAddress}</p>
-        <table border="1" cellspacing="0" cellpadding="6" width="100%" style="border-collapse:collapse;font-family:Arial,sans-serif;">
-          <thead>
-            <tr style="background:#f2f2f2;">
-              <th>#</th>
-              <th>Description</th>
-              <th>Price (UGX)</th>
-              <th>Quantity</th>
-              <th>Subtotal (UGX)</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-      rows.forEach((row, index) => {
-        const description = row.querySelector('.description').value || 'No Description';
-        const price = parseFloat(row.querySelector('.price').value).toFixed(2);
-        const quantity = parseInt(row.querySelector('.quantity').value);
-        const subtotal = parseFloat(row.querySelector('.subtotal').value).toFixed(2);
-        receiptHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${description}</td>
-            <td>${price}</td>
-            <td>${quantity}</td>
-            <td>${subtotal}</td>
-          </tr>
-        `;
-      });
-      receiptHTML += `
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="4" style="text-align:right;font-weight:bold;">TOTAL:</td>
-              <td style="font-weight:bold;">${total.toFixed(2)} UGX</td>
-            </tr>
-          </tfoot>
-        </table>
-        <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>
-      `;
-
-      const printWindow = window.open('', '', 'height=600,width=600');
-      printWindow.document.write(receiptHTML);
-      printWindow.document.close();
-      printWindow.print();
+  function openAddEmployee(){
+    openModal(`<h3>Add Employee</h3>
+      <div class="form-row mt8"><div><label>Name</label><input id="e_name" /></div><div><label>Role</label><input id="e_role" /></div></div>
+      <div class="form-row mt8"><div><label>Phone</label><input id="e_phone" /></div><div><label>Email</label><input id="e_email" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveEmp">Add</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveEmp').onclick = ()=>{
+        const newE = { id: idf(), name: document.getElementById('e_name').value.trim() || 'Unnamed', role: document.getElementById('e_role').value.trim(), phone: document.getElementById('e_phone').value.trim(), email: document.getElementById('e_email').value.trim() };
+        state.employees.push(newE); saveData(); closeModal(); renderEmployees();
+      };
+      document.getElementById('cancel').onclick = closeModal;
     });
+  }
+
+  function deleteEmployee(id){
+    if(!confirm('Delete employee?')) return;
+    state.employees = state.employees.filter(e=>e.id!==id);
+    saveData(); renderEmployees();
+  }
+
+  /* =====================================================
+     CRUD: SUPPLIERS
+  ===================================================== */
+  window.openEditSupplier = function(id){
+    const s = state.suppliers.find(x=>x.id===id);
+    openModal(`<h3>Edit Supplier</h3>
+      <div class="form-row mt8"><div><label>Company</label><input id="s_company" value="${escapeHtml(s.company)}" /></div><div><label>Contact</label><input id="s_contact" value="${escapeHtml(s.contact)}" /></div></div>
+      <div class="form-row mt8"><div><label>Phone</label><input id="s_phone" value="${escapeHtml(s.phone||'')}" /></div><div><label>Notes</label><input id="s_notes" value="${escapeHtml(s.notes||'')}" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveSup">Save</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveSup').onclick = ()=>{
+        s.company = document.getElementById('s_company').value.trim();
+        s.contact = document.getElementById('s_contact').value.trim();
+        s.phone = document.getElementById('s_phone').value.trim();
+        s.notes = document.getElementById('s_notes').value.trim();
+        saveData(); closeModal(); renderSuppliers();
+      };
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function openAddSupplier(){
+    openModal(`<h3>Add Supplier</h3>
+      <div class="form-row mt8"><div><label>Company</label><input id="s_company" /></div><div><label>Contact</label><input id="s_contact" /></div></div>
+      <div class="form-row mt8"><div><label>Phone</label><input id="s_phone" /></div><div><label>Notes</label><input id="s_notes" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveSup">Add</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveSup').onclick = ()=>{
+        state.suppliers.push({ id:idf(), company: document.getElementById('s_company').value.trim() || 'Company', contact: document.getElementById('s_contact').value.trim(), phone: document.getElementById('s_phone').value.trim(), notes: document.getElementById('s_notes').value.trim() });
+        saveData(); closeModal(); renderSuppliers();
+      };
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function deleteSupplier(id){
+    if(!confirm('Delete supplier?')) return;
+    state.suppliers = state.suppliers.filter(s=>s.id!==id);
+    saveData(); renderSuppliers();
+  }
+
+  /* =====================================================
+     CRUD: EXPENSES
+  ===================================================== */
+  window.openEditExpense = function(id){
+    const e = state.expenses.find(x=>x.id===id);
+    openModal(`<h3>Edit Expense</h3>
+      <div class="form-row mt8"><div><label>Date</label><input id="ex_date" type="date" value="${new Date(e.date).toISOString().slice(0,10)}" /></div><div><label>Category</label><input id="ex_cat" value="${escapeHtml(e.category)}" /></div></div>
+      <div class="form-row mt8"><div><label>Amount</label><input id="ex_amt" type="number" value="${e.amount}" /></div><div><label>Notes</label><input id="ex_notes" value="${escapeHtml(e.notes||'')}" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveExp">Save</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveExp').onclick = ()=>{
+        e.date = document.getElementById('ex_date').value;
+        e.category = document.getElementById('ex_cat').value.trim();
+        e.amount = Number(document.getElementById('ex_amt').value) || 0;
+        e.notes = document.getElementById('ex_notes').value.trim();
+        saveData(); closeModal(); renderExpenses(); renderDashboard();
+      }
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function openAddExpense(){
+    openModal(`<h3>Add Expense</h3>
+      <div class="form-row mt8"><div><label>Date</label><input id="ex_date" type="date" value="${new Date().toISOString().slice(0,10)}" /></div><div><label>Category</label><input id="ex_cat" /></div></div>
+      <div class="form-row mt8"><div><label>Amount</label><input id="ex_amt" type="number" /></div><div><label>Notes</label><input id="ex_notes" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveExp">Add</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveExp').onclick = ()=>{
+        state.expenses.push({ id:idf(), date: document.getElementById('ex_date').value, category: document.getElementById('ex_cat').value.trim(), amount: Number(document.getElementById('ex_amt').value)||0, notes: document.getElementById('ex_notes').value.trim() });
+        saveData(); closeModal(); renderExpenses(); renderDashboard();
+      };
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function deleteExpense(id){
+    if(!confirm('Delete expense?')) return;
+    state.expenses = state.expenses.filter(x=>x.id!==id);
+    saveData(); renderExpenses(); renderDashboard();
+  }
+
+  /* =====================================================
+     CRUD: DEPOSITS
+  ===================================================== */
+  window.openEditDeposit = function(id){
+    const d = state.deposits.find(x=>x.id===id);
+    openModal(`<h3>Edit Deposit</h3>
+      <div class="form-row mt8"><div><label>Date</label><input id="d_date" type="date" value="${new Date(d.date).toISOString().slice(0,10)}" /></div><div><label>Account</label><input id="d_acc" value="${escapeHtml(d.account)}" /></div></div>
+      <div class="form-row mt8"><div><label>Amount</label><input id="d_amt" type="number" value="${d.amount}" /></div><div><label>Notes</label><input id="d_notes" value="${escapeHtml(d.notes||'')}" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveDep">Save</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveDep').onclick = ()=>{
+        d.date = document.getElementById('d_date').value;
+        d.account = document.getElementById('d_acc').value.trim();
+        d.amount = Number(document.getElementById('d_amt').value)||0;
+        d.notes = document.getElementById('d_notes').value.trim();
+        saveData(); closeModal(); renderDeposits();
+      };
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function openAddDeposit(){
+    openModal(`<h3>Add Deposit</h3>
+      <div class="form-row mt8"><div><label>Date</label><input id="d_date" type="date" value="${new Date().toISOString().slice(0,10)}" /></div><div><label>Account</label><input id="d_acc" /></div></div>
+      <div class="form-row mt8"><div><label>Amount</label><input id="d_amt" type="number" /></div><div><label>Notes</label><input id="d_notes" /></div></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" id="saveDep">Add</button><button class="secondary" id="cancel">Cancel</button></div>
+    `, ()=>{
+      document.getElementById('saveDep').onclick = ()=>{
+        state.deposits.push({ id:idf(), date: document.getElementById('d_date').value, account: document.getElementById('d_acc').value.trim(), amount: Number(document.getElementById('d_amt').value)||0, notes: document.getElementById('d_notes').value.trim() });
+        saveData(); closeModal(); renderDeposits();
+      };
+      document.getElementById('cancel').onclick = closeModal;
+    });
+  }
+
+  function deleteDeposit(id){
+    if(!confirm('Delete deposit?')) return;
+    state.deposits = state.deposits.filter(x=>x.id!==id);
+    saveData(); renderDeposits();
+  }
+
+  /* =====================================================
+     Modal helpers
+  ===================================================== */
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modal = document.getElementById('modal');
+  function openModal(html, onShow){
+    modal.innerHTML = html;
+    modalBackdrop.style.display = 'flex';
+    // small timeout to allow transition if needed
+    setTimeout(()=>{ if(onShow) onShow(); }, 20);
+  }
+  function closeModal(){ modalBackdrop.style.display = 'none'; modal.innerHTML=''; }
+
+  // close on backdrop click
+  modalBackdrop.addEventListener('click', (e)=>{ if(e.target === modalBackdrop) closeModal(); });
+
+  /* =====================================================
+     Settings: backup / restore / clear
+  ===================================================== */
+  document.getElementById('downloadBackup').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'ss-backup.json'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('importFile').addEventListener('change', (ev)=>{
+    const f = ev.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ()=> {
+      try{
+        const data = JSON.parse(reader.result);
+        if(typeof data !== 'object') throw new Error('Invalid file');
+        if(!confirm('Importing will overwrite current local data. Continue?')) return;
+        state = data;
+        saveData(); renderAll(); alert('Import successful');
+      }catch(e){ alert('Failed to import: ' + e.message) }
+    };
+    reader.readAsText(f);
+  });
+
+  document.getElementById('doImport').addEventListener('click', ()=>{
+    const fileInput = document.getElementById('importFile');
+    if(fileInput.files.length === 0) return alert('Choose a JSON backup file first.');
+    fileInput.dispatchEvent(new Event('change'));
+  });
+
+  document.getElementById('clearAllData').addEventListener('click', ()=>{
+    if(!confirm('Clear ALL data from this browser? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    state = loadData();
+    renderAll();
+  });
+
+  /* =====================================================
+     Export / Import & Quick actions
+  ===================================================== */
+  document.getElementById('exportData').addEventListener('click', ()=>{
+    const csvParts = [];
+    // quick export of sales as CSV
+    const sales = state.sales;
+    if(sales.length === 0) return alert('No sales to export');
+    csvParts.push('date,sku,product,qty,price,total,customer,notes');
+    sales.forEach(s => csvParts.push(`"${s.date}","${s.sku}","${(s.productName||'').replace(/"/g,'""')}",${s.qty},${s.price},${s.total},"${(s.customer||'').replace(/"/g,'""')}","${(s.notes||'').replace(/"/g,'""')}"`));
+    const blob = new Blob([csvParts.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'sales-export.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('importBtn').addEventListener('click', ()=>{ document.getElementById('importFile').click(); });
+
+  // quick sale
+  document.getElementById('addQuickSale').addEventListener('click', ()=> openAddSale());
+
+  /* =====================================================
+     Wire up buttons to open forms
+  ===================================================== */
+  document.getElementById('addProductBtn').addEventListener('click', openAddProduct);
+  document.getElementById('addSaleBtn').addEventListener('click', ()=> openAddSale());
+  document.getElementById('addEmployeeBtn').addEventListener('click', openAddEmployee);
+  document.getElementById('addSupplierBtn').addEventListener('click', openAddSupplier);
+  document.getElementById('addExpenseBtn').addEventListener('click', openAddExpense);
+  document.getElementById('addDepositBtn').addEventListener('click', openAddDeposit);
+
+  // dashboard range change
+  document.getElementById('dashboardRange').addEventListener('change', renderDashboard);
+
+  // search inputs re-render on input
+  document.getElementById('saleSearch').addEventListener('input', renderSales);
+  document.getElementById('saleTimeFilter').addEventListener('change', renderSales);
+  document.getElementById('inventorySearch').addEventListener('input', renderInventory);
+  document.getElementById('inventorySort').addEventListener('change', renderInventory);
+
+  // global search filters across views
+  document.getElementById('globalSearch').addEventListener('input', (e)=>{
+    const v = e.target.value.toLowerCase();
+    // simple behavior: when typing, switch to sales if it matches sales or product
+    if(v.length>0) showView('sales');
+    // populate sale search and inventory search to match
+    document.getElementById('saleSearch').value = v;
+    document.getElementById('inventorySearch').value = v;
+    renderAll();
+  });
+  document.getElementById('globalFilter').addEventListener('change', (e)=>{
+    const val = e.target.value;
+    // map to saleTimeFilter
+    let map = 'all';
+    if(val==='today') map='today'; else if(val==='week') map='week'; else if(val==='month') map='month'; else if(val==='year') map='year';
+    document.getElementById('saleTimeFilter').value = map;
+    renderSales();
+  });
+
+  /* =====================================================
+     Misc UI helpers
+  ===================================================== */
+  function confirmAction(message){ return confirm(message); }
+
+  // escape for attribute injection safety used above
+
+  /* =====================================================
+     Settings open
+  ===================================================== */
+  document.getElementById('openSettings').addEventListener('click', ()=> { showView('settings'); document.querySelector('[data-view="settings"]').scrollIntoView({behavior:'smooth'}); });
+
+  /* =====================================================
+     Initial render
+  ===================================================== */
+  renderAll();
+
+  /* =====================================================
+     Extra: small convenience functions used by inline onclick
+  ===================================================== */
+  window.deleteSale = deleteSale;
+  window.deleteProduct = deleteProduct;
+  window.deleteEmployee = deleteEmployee;
+  window.deleteSupplier = deleteSupplier;
+  window.deleteExpense = deleteExpense;
+  window.deleteDeposit = deleteDeposit;
+
+  // small polyfills / safeguards for older browsers
+  (function(){ if(!Element.prototype.matches){ Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector } })();
+
   </script>
 </body>
 </html>
