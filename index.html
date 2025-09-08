@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* Globe-style logo container */
+    .logo-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: blink 2s infinite;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .logo-text {
+      font-size: 12px;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    /* Blink animation */
+    @keyframes blink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* Main content */
+    .main-content {
+      margin-top: 150px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Globe Logo -->
+  <div class="logo-container">
+    <div class="logo-text">
+      SALES<br>SYSTEM
+    </div>
+  </div>
+
+  <!-- Page Content -->
+  <div class="main-content">
+    <h1>Welcome to Sales System</h1>
+    <p class="subtitle">Your smart solution for sales management</p>
+  </div>
+
+</body>
+</html>
+
+  <meta charset="UTF-8">
+  <title>Sales System</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    h1{
+      background-color: greenyellow;
+    }
+
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.9);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .form-container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .toggle-btn {
+      margin: 10px 0;
+      color: blue;
+      cursor: pointer;
+    }
+    .section {
+      margin: 20px auto;
+      max-width: 600px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    label, input, textarea, button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+    }
+    button {
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .record-log {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="form-container" id="auth-box">
+      <h2 id="formTitle">Sign In</h2>
+      <form id="authForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required>
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+        <button><a href="New sale.html">Sign In</a></button>
+      </form>
+      <div class="toggle-btn" id="toggleAuth">New user? Sign Up</div>
+    </div>
+
+    <div class="section" id="mainApp" style="display:none;">
+      <h2>Sales System Dashboard</h2>
+
+      <!-- Invoice Section -->
+      <div>
+        <h3>New Invoice</h3>
+        <input type="text" id="invoiceDetails" placeholder="Invoice details">
+        <button onclick="saveRecord('Invoice', invoiceDetails.value)">Save Invoice</button>
+      </div>
+
+      <!-- Expense Section -->
+      <div>
+        <h3>New Expense</h3>
+        <input type="text" id="expenseDetails" placeholder="Expense details">
+        <button onclick="saveRecord('Expense', expenseDetails.value)">Save Expense</button>
+      </div>
+
+      <!-- Sales Section -->
+      <div>
+        <h3>New Sale</h3>
+        <input type="text" id="saleDetails" placeholder="Sale details">
+        <button onclick="saveRecord('Sale', saleDetails.value)">Save Sale</button>
+      </div>
+
+      <!-- Record Tracking Section -->
+      <div class="section">
+        <h3>Record Tracking</h3>
+        <div class="record-log" id="recordLog"></div>
+      </div>
+
+      <!-- Receipt Generator Section -->
+      <div class="section">
+        <h3>Generate Receipt</h3>
+        <textarea id="receiptContent" placeholder="Enter receipt text..."></textarea>
+        <button onclick="generateReceipt()">Generate Receipt</button>
+        <pre id="receiptOutput" style="background:#fff;padding:10px;border:1px solid #ccc;margin-top:10px;"></pre>
+      </div>
+    </div>
+  </div>
+
+ 
+</body>
+</html>

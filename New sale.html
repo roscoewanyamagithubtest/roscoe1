@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales System</title>
+  <style>
+    /* General Styling */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+
+    header {
+      position: relative;
+      padding: 20px;
+    }
+
+    /* Globe-style logo */
+    .logo-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: blink 2s infinite;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .logo-text {
+      font-size: 12px;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Navigation */
+    nav {
+      background-color: #444;
+      padding: 10px;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    nav button {
+      background-color: #dc3545;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+    }
+    nav button a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    /* Main container */
+    main {
+      margin: 40px auto;
+      max-width: 1000px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    /* Date Range */
+    .calendar-container {
+      margin-bottom: 30px;
+    }
+    .form-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      flex: 1;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="date"], input[type="text"], input[type="number"], textarea {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Items Section */
+    .item {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #f9f9f9;
+    }
+    .item h3 {
+      margin-top: 0;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin: 30px 0 10px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .form-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-text">SALES<br>SYSTEM</div>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="New sale.html">NEW SALE</a>
+    <a href="invoice.html">INVOICE</a>
+    <a href="Expenses.html">EXPENSES</a>
+    <a href="Records.html">Daily Records</a>
+    <button><a href="Log In.html">Log Out</a></button>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Date Range -->
+    <section class="calendar-container">
+      <h2>NEW SALE</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="from-date">From:</label>
+          <input type="date" id="from-date" name="from-date">
+        </div>
+        <div class="form-group">
+          <label for="to-date">To:</label>
+          <input type="date" id="to-date" name="to-date">
+        </div>
+        <div class="button-container">
+          <button onclick="search()">Search</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Items -->
+    <section>
+      <div id="items-container">
+        <div class="item">
+          <h3>Item 1</h3>
+          <label>Description:</label>
+          <input type="text" class="description" required>
+
+          <label>Price (UGX):</label>
+          <input type="number" class="price" required>
+
+          <label>Quantity:</label>
+          <input type="number" class="quantity" value="1" required>
+
+          <label>Subtotal (UGX):</label>
+          <input type="text" class="subtotal" value="0.00" readonly>
+        </div>
+      </div>
+
+      <button id="add-item">Add Item</button>
+      <h2>Total: <span id="total">0</span> UGX</h2>
+      <button id="process-sale">Process Sale</button>
+      <button id="print-receipt" style="display:none;">Print Receipt</button>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 My Shop | Sales System Demo
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    function search() {
+      const fromDate = document.getElementById("from-date").value;
+      const toDate = document.getElementById("to-date").value;
+
+      if (!fromDate || !toDate) {
+        alert("Please select both From and To dates.");
+        return;
+      }
+      if (fromDate > toDate) {
+        alert("From date cannot be after To date.");
+        return;
+      }
+      alert(`Date Range:\nFrom: ${fromDate}\nTo: ${toDate}`);
+    }
+
+    let total = 0;
+    function updateSubtotal(item) {
+      const price = parseFloat(item.querySelector('.price').value) || 0;
+      const quantity = parseInt(item.querySelector('.quantity').value) || 0;
+      const subtotal = price * quantity;
+      item.querySelector('.subtotal').value = subtotal.toFixed(2);
+      return subtotal;
+    }
+    function updateTotal() {
+      total = 0;
+      const items = document.querySelectorAll('.item');
+      items.forEach(item => { total += updateSubtotal(item); });
+      document.getElementById('total').innerText = total.toFixed(2);
+    }
+
+    document.getElementById('add-item').addEventListener('click', function () {
+      const newItem = document.createElement('div');
+      newItem.classList.add('item');
+      newItem.innerHTML = `
+        <h3>Item ${document.querySelectorAll('.item').length + 1}</h3>
+        <label>Description:</label>
+        <input type="text" class="description" required>
+        <label>Price (UGX):</label>
+        <input type="number" class="price" required>
+        <label>Quantity:</label>
+        <input type="number" class="quantity" value="1" required>
+        <label>Subtotal (UGX):</label>
+        <input type="text" class="subtotal" value="0.00" readonly>
+      `;
+      document.getElementById('items-container').appendChild(newItem);
+
+      newItem.querySelector('.price').addEventListener('input', updateTotal);
+      newItem.querySelector('.quantity').addEventListener('input', updateTotal);
+      updateTotal();
+    });
+
+    document.getElementById('items-container').addEventListener('input', function (event) {
+      if (event.target.classList.contains('price') || event.target.classList.contains('quantity')) {
+        updateTotal();
+      }
+    });
+
+    document.getElementById('process-sale').addEventListener('click', function () {
+      alert('Sale processed! Total: ' + total.toFixed(2) + ' UGX');
+      document.getElementById('print-receipt').style.display = 'inline-block';
+    });
+
+    document.getElementById('print-receipt').addEventListener('click', function () {
+      const items = document.querySelectorAll('.item');
+      let receipt = '*** Receipt ***\n\n';
+      items.forEach((item, index) => {
+        const description = item.querySelector('.description').value || 'No Description';
+        const price = parseFloat(item.querySelector('.price').value).toFixed(2);
+        const quantity = parseInt(item.querySelector('.quantity').value);
+        const subtotal = parseFloat(item.querySelector('.subtotal').value).toFixed(2);
+        receipt += `Item ${index + 1}:\n`;
+        receipt += `  Description: ${description}\n`;
+        receipt += `  Price: ${price} UGX\n`;
+        receipt += `  Quantity: ${quantity}\n`;
+        receipt += `  Subtotal: ${subtotal} UGX\n\n`;
+      });
+      receipt += `TOTAL: ${total.toFixed(2)} UGX\n\nThank you for your purchase!`;
+
+      const printWindow = window.open('', '', 'height=600,width=600');
+      printWindow.document.write('<pre>' + receipt + '</pre>');
+      printWindow.document.close();
+      printWindow.print();
+    });
+  </script>
+</body>
+</html>

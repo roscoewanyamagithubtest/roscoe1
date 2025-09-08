@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales System</title>
+  <style>
+    /* ============================
+       GLOBAL STYLES
+    ============================ */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: url('2.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+    }
+
+    main {
+      padding: 30px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    /* ============================
+       HEADER & LOGO
+    ============================ */
+    header {
+      position: relative;
+      background: rgba(51, 51, 51, 0.9);
+      padding: 20px 0;
+      color: white;
+      text-align: center;
+    }
+
+    .logo-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: blink 2s infinite;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .logo-text {
+      font-size: 12px;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ============================
+       NAVIGATION
+    ============================ */
+    nav {
+      background-color: rgba(34, 34, 34, 0.95);
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    nav button {
+      padding: 5px 10px;
+      margin-left: 10px;
+      background-color: red;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    nav button a {
+      color: white;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      nav a {
+        display: block;
+        margin: 10px 0;
+      }
+    }
+
+    /* ============================
+       FORMS
+    ============================ */
+    form {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .button, button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover, .button:hover {
+      background-color: #0056b3;
+    }
+
+    /* ============================
+       TABLES
+    ============================ */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f1f1f1;
+    }
+
+    .no-stock {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .total-section {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-text">SALES<br>SYSTEM</div>
+    </div>
+    
+  </header>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="New sale.html">NEW SALE</a>
+    <a href="invoice.html">INVOICE</a>
+    <a href="Expenses.html">EXPENSES</a>
+    <a href="Records.html">Daily Records</a>
+    <button><a href="Log In.html">Log Out</a></button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- INVOICE SECTION -->
+    <div class="section">
+      <h2>New Invoice Entry</h2>
+      <form id="invoiceForm">
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" required>
+
+        <label for="companyAddress">Company Address</label>
+        <textarea id="companyAddress" rows="2"></textarea>
+
+        <label for="invoiceNumber">Invoice Number</label>
+        <input type="text" id="invoiceNumber" required>
+
+        <label for="invoiceDate">Invoice Date</label>
+        <input type="date" id="invoiceDate" required>
+
+        <label for="customerName">Customer Name</label>
+        <input type="text" id="customerName" required>
+
+        <label for="customerAddress">Customer Address</label>
+        <textarea id="customerAddress" rows="2"></textarea>
+
+        <label for="invoiceDetails">Invoice Details</label>
+        <textarea id="invoiceDetails" rows="3"></textarea>
+
+        <label for="subtotal">Subtotal</label>
+        <input type="number" id="subtotal" step="0.01" required>
+
+        <label for="taxRate">Tax Rate (%)</label>
+        <input type="number" id="taxRate" step="0.01" value="18" required>
+
+        <label for="paymentMethod">Payment Method</label>
+        <select id="paymentMethod">
+          <option>Cash</option>
+          <option>Credit Card</option>
+          <option>Bank Transfer</option>
+          <option>Mobile Money</option>
+        </select>
+
+        <label for="notes">Additional Notes</label>
+        <textarea id="notes" rows="2"></textarea>
+
+        <div id="invoicePreviewArea"></div>
+
+        <button type="submit">Save Invoice</button>
+        <button type="button" onclick="downloadInvoice()">Download</button>
+        <button type="button" onclick="printInvoice()">Print</button>
+      </form>
+
+      <h3>Saved Invoices</h3>
+      <table id="invoiceTable">
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Subtotal</th>
+            <th>Tax</th>
+            <th>Total</th>
+            <th>Payment Method</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceBody"></tbody>
+      </table>
+    </div>
+
+    <!-- STOCK SECTION -->
+    <div class="section">
+      <h2>Stock Management</h2>
+      <form id="stockForm">
+        <label for="itemName">Item Name</label>
+        <input type="text" id="itemName" required>
+
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity" required>
+
+        <label for="category">Category</label>
+        <input type="text" id="category" required>
+
+        <input type="hidden" id="editingIndex" value="-1">
+        <div id="stockPreviewArea"></div>
+        <button type="submit">Add / Update Stock</button>
+      </form>
+
+      <table id="stockTable">
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="stockBody"></tbody>
+      </table>
+    </div>
+
+    <!-- INVOICE SEARCH -->
+    <div class="section">
+      <h2>Invoice Search by Date</h2>
+      <form onsubmit="event.preventDefault(); searchInvoices();">
+        <label for="fromDate">From:</label>
+        <input type="date" id="fromDate">
+
+        <label for="toDate">To:</label>
+        <input type="date" id="toDate">
+
+        <button type="submit">Search</button>
+      </form>
+      <ul id="searchResults"></ul>
+    </div>
+  </main>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    let stockItems = JSON.parse(localStorage.getItem('stockItems')) || [];
+    let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+
+    /* ---------- STOCK FUNCTIONS ---------- */
+    function renderStock() {
+      const stockBody = document.getElementById('stockBody');
+      stockBody.innerHTML = '';
+      stockItems.forEach((item, index) => {
+        stockBody.innerHTML += `
+          <tr>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>${item.category}</td>
+            <td>
+              <button onclick="editStock(${index})">Edit</button>
+              <button style="background:red;" onclick="deleteStock(${index})">Delete</button>
+            </td>
+          </tr>`;
+      });
+    }
+
+    document.getElementById('stockForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('itemName').value;
+      const quantity = document.getElementById('quantity').value;
+      const category = document.getElementById('category').value;
+      const index = document.getElementById('editingIndex').value;
+      const newItem = { name, quantity, category };
+
+      if (index == -1) stockItems.push(newItem);
+      else {
+        stockItems[index] = newItem;
+        document.getElementById('editingIndex').value = -1;
+      }
+
+      localStorage.setItem('stockItems', JSON.stringify(stockItems));
+      renderStock();
+      this.reset();
+      document.getElementById('stockPreviewArea').innerHTML = '';
+    });
+
+    function editStock(index) {
+      const item = stockItems[index];
+      document.getElementById('itemName').value = item.name;
+      document.getElementById('quantity').value = item.quantity;
+      document.getElementById('category').value = item.category;
+      document.getElementById('editingIndex').value = index;
+    }
+
+    function deleteStock(index) {
+      if (confirm("Delete this item?")) {
+        stockItems.splice(index, 1);
+        localStorage.setItem('stockItems', JSON.stringify(stockItems));
+        renderStock();
+      }
+    }
+
+    /* ---------- INVOICE FUNCTIONS ---------- */
+    document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const subtotal = parseFloat(document.getElementById('subtotal').value);
+      const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+      const tax = subtotal * taxRate;
+      const total = subtotal + tax;
+
+      const invoice = {
+        company: document.getElementById('companyName').value,
+        companyAddress: document.getElementById('companyAddress').value,
+        number: document.getElementById('invoiceNumber').value,
+        date: document.getElementById('invoiceDate').value,
+        customer: document.getElementById('customerName').value,
+        customerAddress: document.getElementById('customerAddress').value,
+        details: document.getElementById('invoiceDetails').value,
+        subtotal, tax, total,
+        paymentMethod: document.getElementById('paymentMethod').value,
+        notes: document.getElementById('notes').value
+      };
+
+      invoices.push(invoice);
+      localStorage.setItem('invoices', JSON.stringify(invoices));
+      renderInvoices();
+      this.reset();
+      document.getElementById('invoicePreviewArea').innerHTML = '';
+    });
+
+    function renderInvoices() {
+      const body = document.getElementById('invoiceBody');
+      body.innerHTML = '';
+      invoices.forEach(inv => {
+        body.innerHTML += `
+          <tr>
+            <td>${inv.number}</td>
+            <td>${inv.date}</td>
+            <td>${inv.customer}</td>
+            <td>${inv.subtotal.toFixed(2)}</td>
+            <td>${inv.tax.toFixed(2)}</td>
+            <td>${inv.total.toFixed(2)}</td>
+            <td>${inv.paymentMethod}</td>
+          </tr>`;
+      });
+    }
+
+    function downloadInvoice() {
+      if (invoices.length === 0) return alert("No invoice to download.");
+      const inv = invoices[invoices.length - 1];
+      const content = `
+Company: ${inv.company}
+Address: ${inv.companyAddress}
+Invoice #: ${inv.number}
+Date: ${inv.date}
+Customer: ${inv.customer}
+Customer Address: ${inv.customerAddress}
+Details: ${inv.details}
+Subtotal: ${inv.subtotal}
+Tax: ${inv.tax}
+Total: ${inv.total}
+Payment Method: ${inv.paymentMethod}
+Notes: ${inv.notes}`;
+      const blob = new Blob([content], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `invoice_${inv.number}.txt`;
+      link.click();
+    }
+
+    function printInvoice() {
+      if (invoices.length === 0) return alert("No invoice to print.");
+      const inv = invoices[invoices.length - 1];
+      const win = window.open("", "PRINT", "height=600,width=800");
+      win.document.write(`<pre>${JSON.stringify(inv, null, 2)}</pre>`);
+      win.document.close();
+      win.print();
+    }
+
+    function searchInvoices() {
+      const from = new Date(document.getElementById('fromDate').value);
+      const to = new Date(document.getElementById('toDate').value);
+      const results = invoices.filter(inv => {
+        const invDate = new Date(inv.date);
+        return (!isNaN(from) && invDate >= from) && (!isNaN(to) && invDate <= to);
+      });
+
+      const resultList = document.getElementById('searchResults');
+      resultList.innerHTML = results.length
+        ? results.map(inv => `<li>Invoice #${inv.number} - ${inv.date} - ${inv.customer}</li>`).join("")
+        : '<li>No invoices found.</li>';
+    }
+
+    /* ---------- INITIAL RENDER ---------- */
+    renderStock();
+    renderInvoices();
+  </script>
+</body>
+</html>
