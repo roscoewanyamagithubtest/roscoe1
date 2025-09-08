@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sales System</title>
 <style>
-  /* Base Styling */
+  /* Reset & Base */
   * {
     box-sizing: border-box;
   }
@@ -25,13 +25,13 @@
     padding: 20px;
   }
 
-  /* Globe-style logo */
+  /* Globe-style Logo */
   .logo-container {
     position: absolute;
     top: 20px;
     left: 20px;
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
     display: flex;
@@ -42,7 +42,7 @@
   }
 
   .logo-text {
-    font-size: 14px;
+    font-size: 13px;
     color: white;
     text-align: center;
     font-weight: bold;
@@ -57,12 +57,12 @@
   /* Navigation */
   nav {
     background-color: #222;
-    padding: 15px 10px;
+    padding: 12px 10px;
     text-align: center;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
   }
 
   nav a {
@@ -70,16 +70,19 @@
     text-decoration: none;
     font-weight: bold;
     font-size: 1rem;
+    padding: 8px 12px;
+    transition: background 0.3s ease;
   }
 
   nav a:hover {
-    text-decoration: underline;
+    background: #444;
+    border-radius: 5px;
   }
 
   nav button {
     background-color: #dc3545;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 16px;
     border-radius: 5px;
     cursor: pointer;
   }
@@ -94,8 +97,8 @@
   main {
     margin: 40px auto;
     max-width: 1000px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 30px;
+    background: rgba(255, 255, 255, 0.97);
+    padding: 25px;
     border-radius: 12px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
   }
@@ -163,6 +166,8 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
   }
 
   th, td {
@@ -173,7 +178,7 @@
   }
 
   th {
-    background: #f0f0f0;
+    background: #f8f8f8;
     font-weight: bold;
   }
 
@@ -226,11 +231,11 @@
     nav {
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     main {
-      margin: 20px 15px;
+      margin: 15px;
       padding: 20px;
     }
 
@@ -250,27 +255,41 @@
       font-size: 1rem;
     }
 
+    /* Mobile-friendly table */
     table, thead, tbody, th, td, tr {
       display: block;
     }
 
     table {
-      overflow-x: auto;
+      border: none;
     }
 
-    td, th {
-      text-align: left;
-      border: none;
-      padding: 8px 0;
+    thead {
+      display: none;
     }
 
     tr {
       margin-bottom: 15px;
-      border-bottom: 1px solid #ddd;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    td {
+      border: none;
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      flex-basis: 40%;
+      text-align: left;
     }
   }
 </style>
-
 </head>
 <body>
 
@@ -349,11 +368,11 @@
         </thead>
         <tbody id="items-body">
           <tr class="item">
-            <td>1</td>
-            <td><input type="text" class="description" required></td>
-            <td><input type="number" class="price" required></td>
-            <td><input type="number" class="quantity" value="1" required></td>
-            <td><input type="text" class="subtotal" value="0.00" readonly></td>
+            <td data-label="#">1</td>
+            <td data-label="Description"><input type="text" class="description" required></td>
+            <td data-label="Price (UGX)"><input type="number" class="price" required></td>
+            <td data-label="Quantity"><input type="number" class="quantity" value="1" required></td>
+            <td data-label="Subtotal (UGX)"><input type="text" class="subtotal" value="0.00" readonly></td>
           </tr>
         </tbody>
       </table>
@@ -408,11 +427,11 @@
       const newRow = document.createElement('tr');
       newRow.classList.add('item');
       newRow.innerHTML = `
-        <td>${rowCount}</td>
-        <td><input type="text" class="description" required></td>
-        <td><input type="number" class="price" required></td>
-        <td><input type="number" class="quantity" value="1" required></td>
-        <td><input type="text" class="subtotal" value="0.00" readonly></td>
+        <td data-label="#">${rowCount}</td>
+        <td data-label="Description"><input type="text" class="description" required></td>
+        <td data-label="Price (UGX)"><input type="number" class="price" required></td>
+        <td data-label="Quantity"><input type="number" class="quantity" value="1" required></td>
+        <td data-label="Subtotal (UGX)"><input type="text" class="subtotal" value="0.00" readonly></td>
       `;
       document.getElementById('items-body').appendChild(newRow);
 
@@ -490,4 +509,3 @@
   </script>
 </body>
 </html>
-
