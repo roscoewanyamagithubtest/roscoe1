@@ -48,38 +48,32 @@
       50% { opacity: 0; }
     }
 
-    
- /* Navigation Bar */
+    /* Navigation */
     nav {
       background-color: #444;
       padding: 10px;
       text-align: center;
-      margin-top: 140px; /* below logo */
     }
-
-    nav a, nav button {
-      margin: 0 15px;
+    nav a {
       color: white;
+      margin: 0 15px;
       text-decoration: none;
       font-weight: bold;
     }
-
-    nav button {
-      background: #ff4d4d;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
+    nav a:hover {
+      text-decoration: underline;
     }
-
+    nav button {
+      background-color: #dc3545;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+    }
     nav button a {
-      color: white;
+      color: #fff;
       text-decoration: none;
     }
 
-    nav button:hover {
-      background: #cc0000;
-    }
     /* Main container */
     main {
       margin: 40px auto;
@@ -173,7 +167,7 @@
     <a href="invoice.html">INVOICE</a>
     <a href="Expenses.html">EXPENSES</a>
     <a href="Records.html">Daily Records</a>
-    <button><a href="index.html">Log Out</a></button>
+    <button><a href="Log In.html">Log Out</a></button>
   </nav>
 
   <!-- Main Content -->
@@ -293,28 +287,52 @@
 
     document.getElementById('print-receipt').addEventListener('click', function () {
       const items = document.querySelectorAll('.item');
-      let receipt = '*** Receipt ***\n\n';
+      let receiptHTML = `
+        <h2 style="text-align:center;">Receipt</h2>
+        <table border="1" cellspacing="0" cellpadding="6" width="100%" style="border-collapse:collapse;font-family:Arial,sans-serif;">
+          <thead>
+            <tr style="background:#f2f2f2;">
+              <th>Item</th>
+              <th>Description</th>
+              <th>Price (UGX)</th>
+              <th>Quantity</th>
+              <th>Subtotal (UGX)</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
       items.forEach((item, index) => {
         const description = item.querySelector('.description').value || 'No Description';
         const price = parseFloat(item.querySelector('.price').value).toFixed(2);
         const quantity = parseInt(item.querySelector('.quantity').value);
         const subtotal = parseFloat(item.querySelector('.subtotal').value).toFixed(2);
-        receipt += `Item ${index + 1}:\n`;
-        receipt += `  Description: ${description}\n`;
-        receipt += `  Price: ${price} UGX\n`;
-        receipt += `  Quantity: ${quantity}\n`;
-        receipt += `  Subtotal: ${subtotal} UGX\n\n`;
+        receiptHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${description}</td>
+            <td>${price}</td>
+            <td>${quantity}</td>
+            <td>${subtotal}</td>
+          </tr>
+        `;
       });
-      receipt += `TOTAL: ${total.toFixed(2)} UGX\n\nThank you for your purchase!`;
+      receiptHTML += `
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" style="text-align:right;font-weight:bold;">TOTAL:</td>
+              <td style="font-weight:bold;">${total.toFixed(2)} UGX</td>
+            </tr>
+          </tfoot>
+        </table>
+        <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>
+      `;
 
       const printWindow = window.open('', '', 'height=600,width=600');
-      printWindow.document.write('<pre>' + receipt + '</pre>');
+      printWindow.document.write(receiptHTML);
       printWindow.document.close();
       printWindow.print();
     });
   </script>
 </body>
 </html>
-
-
-
