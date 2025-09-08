@@ -7,7 +7,6 @@
     <div class="logo-container">
       <div class="logo-text">SALES<br>SYSTEM</div>
     </div>
-    
   </header>
   <style>
     body {
@@ -17,14 +16,13 @@
       background-size: cover;
       color: #333;
     }
-header {
+    header {
       position: relative;
       background: rgba(51, 51, 51, 0.9);
       padding: 20px 0;
       color: white;
       text-align: center;
     }
-
     .logo-container {
       position: absolute;
       top: 10px;
@@ -39,84 +37,30 @@ header {
       animation: blink 2s infinite;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
+    .logo-text { font-size: 12px; color: white; font-weight: bold; text-align: center; text-shadow: 1px 1px 2px #000; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    .logo-text {
-      font-size: 12px;
-      color: white;
-      font-weight: bold;
-      text-align: center;
-      text-shadow: 1px 1px 2px #000;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    nav {
-      background-color: #444;
-      padding: 12px;
-      text-align: center;
-    }
-
+    nav { background-color: #444; padding: 12px; text-align: center; }
     nav a, nav button {
-      color: white;
-      margin: 0 12px;
-      text-decoration: none;
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
+      color: white; margin: 0 12px; text-decoration: none; background: none;
+      border: none; font-size: 16px; cursor: pointer;
     }
+    nav a:hover, nav button:hover { text-decoration: underline; }
 
-    nav a:hover, nav button:hover {
-      text-decoration: underline;
-    }
-
-    h1, h2 {
-      text-align: center;
-      margin-top: 20px;
-      color: #222;
-    }
-
+    h1, h2 { text-align: center; margin-top: 20px; color: #222; }
     .container {
-      max-width: 1100px;
-      margin: 30px auto;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: 8px;
+      max-width: 1100px; margin: 30px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px; border-radius: 8px;
     }
 
-    form, table {
-      width: 100%;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.2);
-    }
-
-    label {
-      font-weight: bold;
-    }
-
+    .controls { text-align: center; margin-bottom: 20px; }
     input, select {
-      padding: 10px;
-      margin: 8px 0;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px;
     }
-
     button {
-      padding: 10px 16px;
-      margin: 5px;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
+      padding: 8px 14px; margin: 4px; border: none; border-radius: 4px; color: white; cursor: pointer;
     }
-
     .btn-add { background-color: #28a745; }
     .btn-delete { background-color: #dc3545; }
     .btn-edit { background-color: #ffc107; color: black; }
@@ -124,20 +68,12 @@ header {
     .btn-download { background-color: #17a2b8; }
 
     table {
-      border-collapse: collapse;
-      margin-top: 20px;
+      width: 100%; border-collapse: collapse; margin-top: 10px;
     }
-
     th, td {
-      border: 1px solid #ccc;
-      padding: 12px;
-      text-align: center;
+      border: 1px solid #ccc; padding: 10px; text-align: center;
     }
-
-    th {
-      background-color: #007bff;
-      color: white;
-    }
+    th { background-color: #007bff; color: white; }
   </style>
 </head>
 <body>
@@ -149,109 +85,81 @@ header {
     <a href="invoice.html">INVOICE</a>
     <a href="Expenses.html">EXPENSES</a>
     <a href="Records.html">RECORDS</a>
-    <button><a href="index.html">Log Out</a></button>
+    <button onclick="logout()">Log Out</button>
   </nav>
 
   <div class="container">
     <h1>Business Records</h1>
 
-    <!-- Sales Record Form -->
-    <h2>Sales Record</h2>
-    <form id="salesForm">
-      <label for="customer">Customer Name:</label>
-      <input type="text" id="customer" required>
+    <!-- Search & Filters -->
+    <div class="controls">
+      <input type="text" id="searchBar" placeholder="Search sales, expenses, employees...">
+      <select id="timeFilter">
+        <option value="all">All Time</option>
+        <option value="daily">Today</option>
+        <option value="weekly">This Week</option>
+        <option value="monthly">This Month</option>
+        <option value="yearly">This Year</option>
+      </select>
+      <button onclick="filterRecords()">Apply Filter</button>
+    </div>
 
-      <label for="product">Product:</label>
-      <input type="text" id="product" required>
-
-      <label for="quantity">Quantity:</label>
-      <input type="number" id="quantity" min="1" required>
-
-      <label for="price">Price per Unit:</label>
-      <input type="number" id="price" min="0.01" step="0.01" required>
-
-      <label for="date">Date:</label>
-      <input type="date" id="date" required>
-
-      <button type="submit" class="btn-add">Add Sale</button>
-    </form>
-
+    <!-- Sales Records -->
+    <h2>Sales Records</h2>
     <table id="salesTable">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Customer</th>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Price/Unit</th>
-          <th>Total</th>
-          <th>Date</th>
-          <th>Actions</th>
+          <th>#</th><th>Customer</th><th>Product</th><th>Quantity</th>
+          <th>Price/Unit</th><th>Total</th><th>Date</th><th>Actions</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        <tr><td>1</td><td>Alice</td><td>Laptop</td><td>2</td><td>600</td><td>1200</td><td>2025-09-07</td><td></td></tr>
+        <tr><td>2</td><td>Bob</td><td>Keyboard</td><td>5</td><td>20</td><td>100</td><td>2025-09-08</td><td></td></tr>
+      </tbody>
     </table>
 
-    <!-- Extra Business Tables -->
+    <!-- Expenses -->
     <h2>Expenses</h2>
+    <button class="btn-add" onclick="addRow('expensesTable')">Add Expense</button>
     <table id="expensesTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Description</th>
-          <th>Amount</th>
-          <th>Date</th>
-        </tr>
-      </thead>
+      <thead><tr><th>#</th><th>Description</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Office Rent</td><td>$500</td><td>2025-09-01</td></tr>
-        <tr><td>2</td><td>Utilities</td><td>$120</td><td>2025-09-02</td></tr>
+        <tr><td>1</td><td>Office Rent</td><td>500</td><td>2025-09-01</td><td></td></tr>
+        <tr><td>2</td><td>Utilities</td><td>120</td><td>2025-09-02</td><td></td></tr>
       </tbody>
     </table>
 
+    <!-- Employees -->
     <h2>Employees</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Position</th>
-          <th>Salary</th>
-        </tr>
-      </thead>
+    <button class="btn-add" onclick="addRow('employeesTable')">Add Employee</button>
+    <table id="employeesTable">
+      <thead><tr><th>#</th><th>Name</th><th>Position</th><th>Salary</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>John Doe</td><td>Manager</td><td>$2000</td></tr>
-        <tr><td>2</td><td>Jane Smith</td><td>Cashier</td><td>$1000</td></tr>
+        <tr><td>1</td><td>John Doe</td><td>Manager</td><td>2000</td><td></td></tr>
+        <tr><td>2</td><td>Jane Smith</td><td>Cashier</td><td>1000</td><td></td></tr>
       </tbody>
     </table>
 
+    <!-- Suppliers -->
     <h2>Suppliers</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Supplier</th>
-          <th>Contact</th>
-        </tr>
-      </thead>
+    <button class="btn-add" onclick="addRow('suppliersTable')">Add Supplier</button>
+    <table id="suppliersTable">
+      <thead><tr><th>#</th><th>Supplier</th><th>Contact</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>ABC Supplies</td><td>+123456789</td></tr>
-        <tr><td>2</td><td>XYZ Wholesalers</td><td>+987654321</td></tr>
+        <tr><td>1</td><td>ABC Supplies</td><td>+123456789</td><td></td></tr>
+        <tr><td>2</td><td>XYZ Wholesalers</td><td>+987654321</td><td></td></tr>
       </tbody>
     </table>
 
+    <!-- Inventory -->
     <h2>Inventory</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Item</th>
-          <th>Stock</th>
-        </tr>
-      </thead>
+    <button class="btn-add" onclick="addRow('inventoryTable')">Add Item</button>
+    <table id="inventoryTable">
+      <thead><tr><th>#</th><th>Item</th><th>Stock</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Laptops</td><td>50</td></tr>
-        <tr><td>2</td><td>Keyboards</td><td>200</td></tr>
+        <tr><td>1</td><td>Laptops</td><td>50</td><td></td></tr>
+        <tr><td>2</td><td>Keyboards</td><td>200</td><td></td></tr>
       </tbody>
     </table>
 
@@ -263,56 +171,58 @@ header {
   </div>
 
   <script>
-    let recordCount = 0;
-    const salesForm = document.getElementById('salesForm');
-    const salesTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
+    // Add edit/delete to every table dynamically
+    document.querySelectorAll("table tbody tr").forEach((row) => addActions(row));
 
-    salesForm.addEventListener('submit', function(event) {
-      event.preventDefault();
+    function addRow(tableId) {
+      const table = document.getElementById(tableId).getElementsByTagName("tbody")[0];
+      const rowCount = table.rows.length + 1;
+      const row = table.insertRow();
+      const cols = document.getElementById(tableId).rows[0].cells.length;
+      for (let i = 0; i < cols; i++) {
+        row.insertCell(i).innerText = i === 0 ? rowCount : "New";
+      }
+      addActions(row);
+    }
 
-      const customer = document.getElementById('customer').value;
-      const product = document.getElementById('product').value;
-      const quantity = parseInt(document.getElementById('quantity').value);
-      const price = parseFloat(document.getElementById('price').value);
-      const date = document.getElementById('date').value;
+    function addActions(row) {
+      const lastCell = row.cells[row.cells.length - 1];
+      if (!lastCell) return;
 
-      const total = quantity * price;
-      recordCount++;
-
-      const row = salesTable.insertRow();
-      row.insertCell(0).innerText = recordCount;
-      row.insertCell(1).innerText = customer;
-      row.insertCell(2).innerText = product;
-      row.insertCell(3).innerText = quantity;
-      row.insertCell(4).innerText = price.toFixed(2);
-      row.insertCell(5).innerText = total.toFixed(2);
-      row.insertCell(6).innerText = date;
-
-      const actionsCell = row.insertCell(7);
-      const delBtn = document.createElement("button");
-      delBtn.innerText = "Delete";
-      delBtn.className = "btn-delete";
-      delBtn.onclick = () => row.remove();
+      lastCell.innerHTML = "";
 
       const editBtn = document.createElement("button");
       editBtn.innerText = "Edit";
       editBtn.className = "btn-edit";
       editBtn.onclick = () => editRow(row);
 
-      actionsCell.appendChild(editBtn);
-      actionsCell.appendChild(delBtn);
+      const delBtn = document.createElement("button");
+      delBtn.innerText = "Delete";
+      delBtn.className = "btn-delete";
+      delBtn.onclick = () => row.remove();
 
-      salesForm.reset();
-    });
+      lastCell.appendChild(editBtn);
+      lastCell.appendChild(delBtn);
+    }
 
     function editRow(row) {
-      const cells = row.getElementsByTagName("td");
-      document.getElementById("customer").value = cells[1].innerText;
-      document.getElementById("product").value = cells[2].innerText;
-      document.getElementById("quantity").value = cells[3].innerText;
-      document.getElementById("price").value = cells[4].innerText;
-      document.getElementById("date").value = cells[6].innerText;
-      row.remove();
+      for (let i = 1; i < row.cells.length - 1; i++) {
+        const currentValue = row.cells[i].innerText;
+        row.cells[i].innerHTML = `<input value="${currentValue}">`;
+      }
+      const saveBtn = document.createElement("button");
+      saveBtn.innerText = "Save";
+      saveBtn.className = "btn-add";
+      saveBtn.onclick = () => saveRow(row);
+      row.cells[row.cells.length - 1].appendChild(saveBtn);
+    }
+
+    function saveRow(row) {
+      for (let i = 1; i < row.cells.length - 1; i++) {
+        const input = row.cells[i].querySelector("input");
+        if (input) row.cells[i].innerText = input.value;
+      }
+      addActions(row);
     }
 
     function logout() {
@@ -329,16 +239,25 @@ header {
         cols.forEach(col => rowData.push(col.innerText));
         csv.push(rowData.join(","));
       });
-
       const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
       const downloadLink = document.createElement("a");
       downloadLink.download = "records.csv";
       downloadLink.href = window.URL.createObjectURL(csvFile);
       downloadLink.click();
     }
+
+    function filterRecords() {
+      const filter = document.getElementById("timeFilter").value;
+      const search = document.getElementById("searchBar").value.toLowerCase();
+
+      document.querySelectorAll("table tbody tr").forEach((row) => {
+        let text = row.innerText.toLowerCase();
+        let show = text.includes(search);
+        // Future: filter by date if needed
+        row.style.display = show ? "" : "none";
+      });
+    }
   </script>
 
 </body>
 </html>
-
-
