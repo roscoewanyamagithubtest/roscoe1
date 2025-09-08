@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Business Records</title>
-  <header>
-    <div class="logo-container">
-      <div class="logo-text">SALES<br>SYSTEM</div>
-    </div>
-  </header>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       margin: 0;
@@ -16,6 +13,7 @@
       background-size: cover;
       color: #333;
     }
+
     header {
       position: relative;
       background: rgba(51, 51, 51, 0.9);
@@ -23,12 +21,13 @@
       color: white;
       text-align: center;
     }
+
     .logo-container {
       position: absolute;
       top: 10px;
       left: 10px;
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
       display: flex;
@@ -37,30 +36,85 @@
       animation: blink 2s infinite;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    .logo-text { font-size: 12px; color: white; font-weight: bold; text-align: center; text-shadow: 1px 1px 2px #000; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-    nav { background-color: #444; padding: 12px; text-align: center; }
-    nav a, nav button {
-      color: white; margin: 0 12px; text-decoration: none; background: none;
-      border: none; font-size: 16px; cursor: pointer;
+    .logo-text { 
+      font-size: 12px; 
+      color: white; 
+      font-weight: bold; 
+      text-align: center; 
+      text-shadow: 1px 1px 2px #000; 
     }
+
+    @keyframes blink { 
+      0%, 100% { opacity: 1; } 
+      50% { opacity: 0; } 
+    }
+
+    nav { 
+      background-color: #444; 
+      padding: 12px; 
+      text-align: center; 
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a, nav button {
+      color: white; 
+      margin: 5px 10px; 
+      text-decoration: none; 
+      background: none;
+      border: none; 
+      font-size: 16px; 
+      cursor: pointer;
+    }
+
     nav a:hover, nav button:hover { text-decoration: underline; }
 
-    h1, h2 { text-align: center; margin-top: 20px; color: #222; }
-    .container {
-      max-width: 1100px; margin: 30px auto;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px; border-radius: 8px;
+    h1, h2 { 
+      text-align: center; 
+      margin-top: 20px; 
+      color: #222; 
+      font-size: 1.6rem;
     }
 
-    .controls { text-align: center; margin-bottom: 20px; }
+    .container {
+      max-width: 1100px; 
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px; 
+      border-radius: 8px;
+      width: 95%;
+      box-sizing: border-box;
+    }
+
+    .controls { 
+      text-align: center; 
+      margin-bottom: 20px; 
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
     input, select {
-      padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px;
+      padding: 10px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px;
+      font-size: 1rem;
+      flex: 1 1 200px;
     }
+
     button {
-      padding: 8px 14px; margin: 4px; border: none; border-radius: 4px; color: white; cursor: pointer;
+      padding: 10px 16px; 
+      margin: 4px; 
+      border: none; 
+      border-radius: 4px; 
+      color: white; 
+      cursor: pointer;
+      font-size: 1rem;
     }
+
     .btn-add { background-color: #28a745; }
     .btn-delete { background-color: #dc3545; }
     .btn-edit { background-color: #ffc107; color: black; }
@@ -68,15 +122,76 @@
     .btn-download { background-color: #17a2b8; }
 
     table {
-      width: 100%; border-collapse: collapse; margin-top: 10px;
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 10px;
+      font-size: 0.95rem;
     }
+
     th, td {
-      border: 1px solid #ccc; padding: 10px; text-align: center;
+      border: 1px solid #ccc; 
+      padding: 8px; 
+      text-align: center;
+      word-wrap: break-word;
     }
-    th { background-color: #007bff; color: white; }
+
+    th { 
+      background-color: #007bff; 
+      color: white; 
+    }
+
+    /* Responsive tables */
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        display: none;
+      }
+      tr {
+        margin-bottom: 15px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 8px;
+      }
+      td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+        text-align: left;
+      }
+    }
+
+    /* Smaller text on very small devices */
+    @media (max-width: 480px) {
+      nav a, nav button {
+        font-size: 14px;
+        margin: 4px;
+      }
+      h1, h2 {
+        font-size: 1.2rem;
+      }
+      button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body>
+
+  <header>
+    <div class="logo-container">
+      <div class="logo-text">SALES<br>SYSTEM</div>
+    </div>
+  </header>
 
   <!-- Navigation -->
   <nav>
@@ -114,8 +229,26 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>1</td><td>Alice</td><td>Laptop</td><td>2</td><td>600</td><td>1200</td><td>2025-09-07</td><td></td></tr>
-        <tr><td>2</td><td>Bob</td><td>Keyboard</td><td>5</td><td>20</td><td>100</td><td>2025-09-08</td><td></td></tr>
+        <tr>
+          <td data-label="#">1</td>
+          <td data-label="Customer">Alice</td>
+          <td data-label="Product">Laptop</td>
+          <td data-label="Quantity">2</td>
+          <td data-label="Price/Unit">600</td>
+          <td data-label="Total">1200</td>
+          <td data-label="Date">2025-09-07</td>
+          <td data-label="Actions"></td>
+        </tr>
+        <tr>
+          <td data-label="#">2</td>
+          <td data-label="Customer">Bob</td>
+          <td data-label="Product">Keyboard</td>
+          <td data-label="Quantity">5</td>
+          <td data-label="Price/Unit">20</td>
+          <td data-label="Total">100</td>
+          <td data-label="Date">2025-09-08</td>
+          <td data-label="Actions"></td>
+        </tr>
       </tbody>
     </table>
 
@@ -125,8 +258,12 @@
     <table id="expensesTable">
       <thead><tr><th>#</th><th>Description</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Office Rent</td><td>500</td><td>2025-09-01</td><td></td></tr>
-        <tr><td>2</td><td>Utilities</td><td>120</td><td>2025-09-02</td><td></td></tr>
+        <tr>
+          <td data-label="#">1</td><td data-label="Description">Office Rent</td><td data-label="Amount">500</td><td data-label="Date">2025-09-01</td><td data-label="Actions"></td>
+        </tr>
+        <tr>
+          <td data-label="#">2</td><td data-label="Description">Utilities</td><td data-label="Amount">120</td><td data-label="Date">2025-09-02</td><td data-label="Actions"></td>
+        </tr>
       </tbody>
     </table>
 
@@ -136,8 +273,12 @@
     <table id="employeesTable">
       <thead><tr><th>#</th><th>Name</th><th>Position</th><th>Salary</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>John Doe</td><td>Manager</td><td>2000</td><td></td></tr>
-        <tr><td>2</td><td>Jane Smith</td><td>Cashier</td><td>1000</td><td></td></tr>
+        <tr>
+          <td data-label="#">1</td><td data-label="Name">John Doe</td><td data-label="Position">Manager</td><td data-label="Salary">2000</td><td data-label="Actions"></td>
+        </tr>
+        <tr>
+          <td data-label="#">2</td><td data-label="Name">Jane Smith</td><td data-label="Position">Cashier</td><td data-label="Salary">1000</td><td data-label="Actions"></td>
+        </tr>
       </tbody>
     </table>
 
@@ -147,8 +288,8 @@
     <table id="suppliersTable">
       <thead><tr><th>#</th><th>Supplier</th><th>Contact</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>ABC Supplies</td><td>+123456789</td><td></td></tr>
-        <tr><td>2</td><td>XYZ Wholesalers</td><td>+987654321</td><td></td></tr>
+        <tr><td data-label="#">1</td><td data-label="Supplier">ABC Supplies</td><td data-label="Contact">+123456789</td><td data-label="Actions"></td></tr>
+        <tr><td data-label="#">2</td><td data-label="Supplier">XYZ Wholesalers</td><td data-label="Contact">+987654321</td><td data-label="Actions"></td></tr>
       </tbody>
     </table>
 
@@ -158,8 +299,8 @@
     <table id="inventoryTable">
       <thead><tr><th>#</th><th>Item</th><th>Stock</th><th>Actions</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>Laptops</td><td>50</td><td></td></tr>
-        <tr><td>2</td><td>Keyboards</td><td>200</td><td></td></tr>
+        <tr><td data-label="#">1</td><td data-label="Item">Laptops</td><td data-label="Stock">50</td><td data-label="Actions"></td></tr>
+        <tr><td data-label="#">2</td><td data-label="Item">Keyboards</td><td data-label="Stock">200</td><td data-label="Actions"></td></tr>
       </tbody>
     </table>
 
@@ -253,7 +394,6 @@
       document.querySelectorAll("table tbody tr").forEach((row) => {
         let text = row.innerText.toLowerCase();
         let show = text.includes(search);
-        // Future: filter by date if needed
         row.style.display = show ? "" : "none";
       });
     }
