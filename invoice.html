@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sales System</title>
   <style>
     /* ============================
@@ -12,15 +13,17 @@
       font-family: Arial, sans-serif;
       background: url('2.jpg') no-repeat center center fixed;
       background-size: cover;
+      color: #333;
     }
 
     h1, h2, h3 {
       text-align: center;
+      margin-top: 0;
     }
 
     main {
-      padding: 30px;
-      max-width: 1100px;
+      padding: 20px;
+      max-width: 1200px;
       margin: auto;
     }
 
@@ -30,7 +33,7 @@
     header {
       position: relative;
       background: rgba(51, 51, 51, 0.9);
-      padding: 20px 0;
+      padding: 20px;
       color: white;
       text-align: center;
     }
@@ -39,8 +42,8 @@
       position: absolute;
       top: 10px;
       left: 10px;
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
       display: flex;
@@ -51,7 +54,7 @@
     }
 
     .logo-text {
-      font-size: 12px;
+      font-size: 10px;
       color: white;
       font-weight: bold;
       text-align: center;
@@ -69,39 +72,38 @@
     nav {
       background-color: rgba(34, 34, 34, 0.95);
       padding: 10px;
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
     }
 
-    nav a {
+    nav a, nav button {
       color: white;
-      margin: 0 15px;
       text-decoration: none;
       font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 4px;
+      transition: background 0.3s;
     }
 
     nav a:hover {
-      text-decoration: underline;
+      background: #444;
     }
 
     nav button {
-      padding: 5px 10px;
-      margin-left: 10px;
       background-color: red;
       border: none;
-      border-radius: 3px;
       cursor: pointer;
+    }
+
+    nav button:hover {
+      background: darkred;
     }
 
     nav button a {
       color: white;
       text-decoration: none;
-    }
-
-    @media (max-width: 768px) {
-      nav a {
-        display: block;
-        margin: 10px 0;
-      }
     }
 
     /* ============================
@@ -111,32 +113,34 @@
       background: rgba(255, 255, 255, 0.95);
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-bottom: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
 
     label {
       font-weight: bold;
-      margin-bottom: 5px;
+      margin: 8px 0 5px;
       display: block;
     }
 
     input, select, textarea {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-bottom: 15px;
       border-radius: 4px;
       border: 1px solid #ccc;
       box-sizing: border-box;
+      font-size: 14px;
     }
 
-    .button, button {
+    button, .button {
       padding: 10px 20px;
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      transition: background 0.3s;
     }
 
     button:hover, .button:hover {
@@ -151,16 +155,25 @@
       border-collapse: collapse;
       margin-top: 20px;
       background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       padding: 12px;
       text-align: left;
+      font-size: 14px;
     }
 
     th {
-      background-color: #f1f1f1;
+      background-color: #f9f9f9;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fdfdfd;
     }
 
     .no-stock {
@@ -169,12 +182,44 @@
       text-align: center;
     }
 
-    .section {
-      margin-bottom: 30px;
-    }
+    /* ============================
+       RESPONSIVENESS
+    ============================ */
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
 
-    .total-section {
-      text-align: right;
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        padding: 10px;
+        background: #fff;
+        border-radius: 6px;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border: none;
+        border-bottom: 1px solid #f1f1f1;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        flex: 1;
+      }
+
+      td:last-child {
+        border-bottom: none;
+      }
     }
   </style>
 </head>
@@ -185,7 +230,6 @@
     <div class="logo-container">
       <div class="logo-text">SALES<br>SYSTEM</div>
     </div>
-    
   </header>
 
   <!-- NAVIGATION -->
@@ -200,7 +244,6 @@
 
   <!-- MAIN CONTENT -->
   <main>
-
     <!-- INVOICE SECTION -->
     <div class="section">
       <h2>New Invoice Entry</h2>
@@ -243,8 +286,6 @@
         <label for="notes">Additional Notes</label>
         <textarea id="notes" rows="2"></textarea>
 
-        <div id="invoicePreviewArea"></div>
-
         <button type="submit">Save Invoice</button>
         <button type="button" onclick="downloadInvoice()">Download</button>
         <button type="button" onclick="printInvoice()">Print</button>
@@ -281,7 +322,6 @@
         <input type="text" id="category" required>
 
         <input type="hidden" id="editingIndex" value="-1">
-        <div id="stockPreviewArea"></div>
         <button type="submit">Add / Update Stock</button>
       </form>
 
@@ -326,10 +366,10 @@
       stockItems.forEach((item, index) => {
         stockBody.innerHTML += `
           <tr>
-            <td>${item.name}</td>
-            <td>${item.quantity}</td>
-            <td>${item.category}</td>
-            <td>
+            <td data-label="Item Name">${item.name}</td>
+            <td data-label="Quantity">${item.quantity}</td>
+            <td data-label="Category">${item.category}</td>
+            <td data-label="Actions">
               <button onclick="editStock(${index})">Edit</button>
               <button style="background:red;" onclick="deleteStock(${index})">Delete</button>
             </td>
@@ -354,7 +394,6 @@
       localStorage.setItem('stockItems', JSON.stringify(stockItems));
       renderStock();
       this.reset();
-      document.getElementById('stockPreviewArea').innerHTML = '';
     });
 
     function editStock(index) {
@@ -398,7 +437,6 @@
       localStorage.setItem('invoices', JSON.stringify(invoices));
       renderInvoices();
       this.reset();
-      document.getElementById('invoicePreviewArea').innerHTML = '';
     });
 
     function renderInvoices() {
@@ -407,13 +445,13 @@
       invoices.forEach(inv => {
         body.innerHTML += `
           <tr>
-            <td>${inv.number}</td>
-            <td>${inv.date}</td>
-            <td>${inv.customer}</td>
-            <td>${inv.subtotal.toFixed(2)}</td>
-            <td>${inv.tax.toFixed(2)}</td>
-            <td>${inv.total.toFixed(2)}</td>
-            <td>${inv.paymentMethod}</td>
+            <td data-label="Invoice #">${inv.number}</td>
+            <td data-label="Date">${inv.date}</td>
+            <td data-label="Customer">${inv.customer}</td>
+            <td data-label="Subtotal">${inv.subtotal.toFixed(2)}</td>
+            <td data-label="Tax">${inv.tax.toFixed(2)}</td>
+            <td data-label="Total">${inv.total.toFixed(2)}</td>
+            <td data-label="Payment Method">${inv.paymentMethod}</td>
           </tr>`;
       });
     }
@@ -470,5 +508,3 @@ Notes: ${inv.notes}`;
   </script>
 </body>
 </html>
-
-
