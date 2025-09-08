@@ -84,18 +84,16 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
 
-    /* Date Range */
-    .calendar-container {
-      margin-bottom: 30px;
-    }
+    /* Form Rows */
     .form-row {
       display: flex;
       gap: 20px;
       flex-wrap: wrap;
+      margin-bottom: 15px;
     }
     .form-group {
       flex: 1;
-      min-width: 150px;
+      min-width: 200px;
       display: flex;
       flex-direction: column;
     }
@@ -127,15 +125,18 @@
     }
 
     /* Items Section */
-    .item {
-      margin-bottom: 20px;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: #f9f9f9;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
     }
-    .item h3 {
-      margin-top: 0;
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background: #f2f2f2;
     }
 
     /* Footer */
@@ -172,9 +173,32 @@
 
   <!-- Main Content -->
   <main>
+    <h2>NEW SALE</h2>
+
+    <!-- Customer Info -->
+    <section>
+      <h3>Customer Information</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cust-name">Customer Name:</label>
+          <input type="text" id="cust-name" placeholder="Enter full name">
+        </div>
+        <div class="form-group">
+          <label for="cust-contact">Contact:</label>
+          <input type="text" id="cust-contact" placeholder="Phone / Email">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cust-address">Address:</label>
+          <input type="text" id="cust-address" placeholder="Enter address">
+        </div>
+      </div>
+    </section>
+
     <!-- Date Range -->
-    <section class="calendar-container">
-      <h2>NEW SALE</h2>
+    <section>
+      <h3>Date Range</h3>
       <div class="form-row">
         <div class="form-group">
           <label for="from-date">From:</label>
@@ -184,7 +208,7 @@
           <label for="to-date">To:</label>
           <input type="date" id="to-date" name="to-date">
         </div>
-        <div class="button-container">
+        <div class="form-group">
           <button onclick="search()">Search</button>
         </div>
       </div>
@@ -192,22 +216,27 @@
 
     <!-- Items -->
     <section>
-      <div id="items-container">
-        <div class="item">
-          <h3>Item 1</h3>
-          <label>Description:</label>
-          <input type="text" class="description" required>
-
-          <label>Price (UGX):</label>
-          <input type="number" class="price" required>
-
-          <label>Quantity:</label>
-          <input type="number" class="quantity" value="1" required>
-
-          <label>Subtotal (UGX):</label>
-          <input type="text" class="subtotal" value="0.00" readonly>
-        </div>
-      </div>
+      <h3>Items</h3>
+      <table id="items-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th>Price (UGX)</th>
+            <th>Quantity</th>
+            <th>Subtotal (UGX)</th>
+          </tr>
+        </thead>
+        <tbody id="items-body">
+          <tr class="item">
+            <td>1</td>
+            <td><input type="text" class="description" required></td>
+            <td><input type="number" class="price" required></td>
+            <td><input type="number" class="quantity" value="1" required></td>
+            <td><input type="text" class="subtotal" value="0.00" readonly></td>
+          </tr>
+        </tbody>
+      </table>
 
       <button id="add-item">Add Item</button>
       <h2>Total: <span id="total">0</span> UGX</h2>
@@ -239,42 +268,40 @@
     }
 
     let total = 0;
-    function updateSubtotal(item) {
-      const price = parseFloat(item.querySelector('.price').value) || 0;
-      const quantity = parseInt(item.querySelector('.quantity').value) || 0;
+    function updateSubtotal(row) {
+      const price = parseFloat(row.querySelector('.price').value) || 0;
+      const quantity = parseInt(row.querySelector('.quantity').value) || 0;
       const subtotal = price * quantity;
-      item.querySelector('.subtotal').value = subtotal.toFixed(2);
+      row.querySelector('.subtotal').value = subtotal.toFixed(2);
       return subtotal;
     }
     function updateTotal() {
       total = 0;
-      const items = document.querySelectorAll('.item');
-      items.forEach(item => { total += updateSubtotal(item); });
+      document.querySelectorAll('#items-body .item').forEach(row => {
+        total += updateSubtotal(row);
+      });
       document.getElementById('total').innerText = total.toFixed(2);
     }
 
     document.getElementById('add-item').addEventListener('click', function () {
-      const newItem = document.createElement('div');
-      newItem.classList.add('item');
-      newItem.innerHTML = `
-        <h3>Item ${document.querySelectorAll('.item').length + 1}</h3>
-        <label>Description:</label>
-        <input type="text" class="description" required>
-        <label>Price (UGX):</label>
-        <input type="number" class="price" required>
-        <label>Quantity:</label>
-        <input type="number" class="quantity" value="1" required>
-        <label>Subtotal (UGX):</label>
-        <input type="text" class="subtotal" value="0.00" readonly>
+      const rowCount = document.querySelectorAll('#items-body .item').length + 1;
+      const newRow = document.createElement('tr');
+      newRow.classList.add('item');
+      newRow.innerHTML = `
+        <td>${rowCount}</td>
+        <td><input type="text" class="description" required></td>
+        <td><input type="number" class="price" required></td>
+        <td><input type="number" class="quantity" value="1" required></td>
+        <td><input type="text" class="subtotal" value="0.00" readonly></td>
       `;
-      document.getElementById('items-container').appendChild(newItem);
+      document.getElementById('items-body').appendChild(newRow);
 
-      newItem.querySelector('.price').addEventListener('input', updateTotal);
-      newItem.querySelector('.quantity').addEventListener('input', updateTotal);
+      newRow.querySelector('.price').addEventListener('input', updateTotal);
+      newRow.querySelector('.quantity').addEventListener('input', updateTotal);
       updateTotal();
     });
 
-    document.getElementById('items-container').addEventListener('input', function (event) {
+    document.getElementById('items-body').addEventListener('input', function (event) {
       if (event.target.classList.contains('price') || event.target.classList.contains('quantity')) {
         updateTotal();
       }
@@ -286,13 +313,20 @@
     });
 
     document.getElementById('print-receipt').addEventListener('click', function () {
-      const items = document.querySelectorAll('.item');
+      const custName = document.getElementById('cust-name').value || 'N/A';
+      const custContact = document.getElementById('cust-contact').value || 'N/A';
+      const custAddress = document.getElementById('cust-address').value || 'N/A';
+
+      const rows = document.querySelectorAll('#items-body .item');
       let receiptHTML = `
         <h2 style="text-align:center;">Receipt</h2>
+        <p><strong>Customer Name:</strong> ${custName}</p>
+        <p><strong>Contact:</strong> ${custContact}</p>
+        <p><strong>Address:</strong> ${custAddress}</p>
         <table border="1" cellspacing="0" cellpadding="6" width="100%" style="border-collapse:collapse;font-family:Arial,sans-serif;">
           <thead>
             <tr style="background:#f2f2f2;">
-              <th>Item</th>
+              <th>#</th>
               <th>Description</th>
               <th>Price (UGX)</th>
               <th>Quantity</th>
@@ -301,11 +335,11 @@
           </thead>
           <tbody>
       `;
-      items.forEach((item, index) => {
-        const description = item.querySelector('.description').value || 'No Description';
-        const price = parseFloat(item.querySelector('.price').value).toFixed(2);
-        const quantity = parseInt(item.querySelector('.quantity').value);
-        const subtotal = parseFloat(item.querySelector('.subtotal').value).toFixed(2);
+      rows.forEach((row, index) => {
+        const description = row.querySelector('.description').value || 'No Description';
+        const price = parseFloat(row.querySelector('.price').value).toFixed(2);
+        const quantity = parseInt(row.querySelector('.quantity').value);
+        const subtotal = parseFloat(row.querySelector('.subtotal').value).toFixed(2);
         receiptHTML += `
           <tr>
             <td>${index + 1}</td>
