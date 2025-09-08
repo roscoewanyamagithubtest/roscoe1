@@ -48,32 +48,38 @@
       50% { opacity: 0; }
     }
 
-    /* Navigation */
+    
+ /* Navigation Bar */
     nav {
       background-color: #444;
       padding: 10px;
       text-align: center;
+      margin-top: 140px; /* below logo */
     }
-    nav a {
-      color: white;
+
+    nav a, nav button {
       margin: 0 15px;
+      color: white;
       text-decoration: none;
       font-weight: bold;
     }
-    nav a:hover {
-      text-decoration: underline;
-    }
+
     nav button {
-      background-color: #dc3545;
+      background: #ff4d4d;
       border: none;
-      padding: 8px 15px;
+      padding: 6px 12px;
       border-radius: 4px;
+      cursor: pointer;
     }
+
     nav button a {
-      color: #fff;
+      color: white;
       text-decoration: none;
     }
 
+    nav button:hover {
+      background: #cc0000;
+    }
     /* Main container */
     main {
       margin: 40px auto;
@@ -308,4 +314,5 @@
   </script>
 </body>
 </html>
+
 
