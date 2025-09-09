@@ -263,44 +263,132 @@
           </div>
         </section>
 
-        <!-- Sales -->
-        <section data-view="sales" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Sales</h2>
-              <div class="small-muted">Add, edit, view and filter sales</div>
-            </div>
-            <div class="flex">
-              <button class="secondary" id="filterSalesBtn">Filter</button>
-              <button class="btn" id="addSaleBtn">Add Sale</button>
-            </div>
-          </div>
+        <!-- Sales --> 
+<section data-view="sales" class="view card" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <h2 style="margin:0">Sales</h2>
+      <div class="small-muted">Add, edit, view and filter sales</div>
+    </div>
+    <div class="flex">
+      <button class="secondary" id="filterSalesBtn">Filter</button>
+      <button class="btn" id="addSaleBtn">Add Sale</button>
+    </div>
+  </div>
 
-          <div class="card mt8">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="display:flex;gap:8px;align-items:center">
-                <input id="saleSearch" placeholder="Search sales by product/customer/sku" />
-                <select id="saleTimeFilter" class="secondary">
-                  <option value="all">All time</option>
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                  <option value="year">This Year</option>
-                </select>
-              </div>
-              <div class="small-muted">Total: <span id="salesTotalText">UGX 0</span></div>
-            </div>
+  <div class="card mt8">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="saleSearch" placeholder="Search sales by product/customer/sku" />
+        <select id="saleTimeFilter" class="secondary">
+          <option value="all">All time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+      </div>
+      <div class="small-muted">Total: <span id="salesTotalText">UGX 0</span></div>
+    </div>
 
-            <table class="table" id="salesTable">
-              <thead>
-                <tr><th>Date</th><th>SKU</th><th>Product</th><th>Customer</th><th>Qty</th><th>Price</th><th>Total</th><th>Actions</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+    <table class="table" id="salesTable">
+      <thead>
+        <tr>
+          <th>Date</th><th>SKU</th><th>Product</th>
+          <th>Customer</th><th>Qty</th><th>Price</th><th>Total</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Example row with receipt button -->
+        <tr>
+          <td>2025-09-09</td>
+          <td>SKU123</td>
+          <td>Example Product</td>
+          <td>John Doe</td>
+          <td>2</td>
+          <td>UGX 50,000</td>
+          <td>UGX 100,000</td>
+          <td>
+            <button class="btn printReceiptBtn">🧾 Print Receipt</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-            <div class="responsive-list" id="salesList"></div>
-          </div>
-        </section>
+    <div class="responsive-list" id="salesList"></div>
+  </div>
+</section>
+
+<!-- Receipt Preview Modal -->
+<div id="receiptModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+  <div style="background:#fff;padding:20px;width:400px;max-height:90%;overflow:auto;border-radius:8px;">
+    <h2 style="text-align:center;margin:0 0 10px 0;">Sales Receipt</h2>
+    <div id="receiptContent"></div>
+    <div style="text-align:center;margin-top:15px;">
+      <button onclick="printReceipt()">🖨️ Print</button>
+      <button onclick="closeReceipt()">❌ Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Open receipt modal with sale details
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("printReceiptBtn")) {
+    let row = e.target.closest("tr");
+    let date = row.cells[0].textContent;
+    let sku = row.cells[1].textContent;
+    let product = row.cells[2].textContent;
+    let customer = row.cells[3].textContent;
+    let qty = row.cells[4].textContent;
+    let price = row.cells[5].textContent;
+    let total = row.cells[6].textContent;
+
+    // Receipt template
+    let receiptHTML = `
+      <p><strong>Date:</strong> ${date}</p>
+      <p><strong>Customer:</strong> ${customer}</p>
+      <p><strong>Address:</strong> Kampala, Uganda</p>
+      <hr>
+      <table style="width:100%;border-collapse:collapse;" border="1" cellpadding="5">
+        <tr>
+          <th>SKU</th><th>Product</th><th>Qty</th><th>Price</th><th>Total</th>
+        </tr>
+        <tr>
+          <td>${sku}</td><td>${product}</td><td>${qty}</td><td>${price}</td><td>${total}</td>
+        </tr>
+      </table>
+      <hr>
+      <p style="text-align:right"><strong>Grand Total: ${total}</strong></p>
+      <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>
+    `;
+
+    document.getElementById("receiptContent").innerHTML = receiptHTML;
+    document.getElementById("receiptModal").style.display = "flex";
+  }
+});
+
+// Print receipt
+function printReceipt() {
+  let content = document.getElementById("receiptContent").innerHTML;
+  let printWindow = window.open("", "", "width=600,height=600");
+  printWindow.document.write(`
+    <html>
+    <head><title>Receipt</title></head>
+    <body style="font-family:Arial, sans-serif;padding:20px;">
+      ${content}
+      <script>window.onload = function(){window.print();window.close();}</script>
+    </body></html>
+  `);
+  printWindow.document.close();
+}
+
+// Close modal
+function closeReceipt() {
+  document.getElementById("receiptModal").style.display = "none";
+}
+</script>
 
         <!-- Inventory -->
         <section data-view="inventory" class="view card" style="display:none">
@@ -1236,3 +1324,4 @@
   </script>
 </body>
 </html>
+
