@@ -32,8 +32,8 @@
 
     /* Modals */
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-    .modal .modal-box{background:#fff;color:#000;padding:20px;width:400px;max-height:80%;overflow:auto;border-radius:var(--radius);}
-    .modal input{width:100%;padding:8px;margin:5px 0;}
+    .modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+    .modal input,.modal select{width:100%;padding:8px;margin:5px 0;}
 
     @media(max-width:768px){
       .sidebar{width:70px;padding:10px;}
@@ -68,9 +68,9 @@
 
       <!-- Sales -->
       <section data-view="sales" class="view card" style="display:none">
-        <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ Add Sale</button></h2>
+        <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button></h2>
         <table class="table" id="salesTable">
-          <thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Qty</th><th>Total</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
           <tbody></tbody>
         </table>
       </section>
@@ -88,31 +88,24 @@
           <tbody></tbody>
         </table>
       </section>
-
-      <section data-view="employees" class="view card" style="display:none"><h2>Employees</h2></section>
-      <section data-view="suppliers" class="view card" style="display:none"><h2>Suppliers</h2></section>
-      <section data-view="expenses" class="view card" style="display:none"><h2>Expenses</h2></section>
-      <section data-view="deposits" class="view card" style="display:none"><h2>Deposits</h2></section>
-      <section data-view="settings" class="view card" style="display:none"><h2>Settings</h2></section>
     </main>
   </div>
 
-  <!-- Modals -->
+  <!-- Sale Modal -->
   <div id="saleModal" class="modal"><div class="modal-box">
-    <h2 id="saleModalTitle">Add Sale</h2>
+    <h2 id="saleModalTitle">New Sale</h2>
     <form id="saleForm">
-      <input type="hidden" id="saleId" />
-      <label>Product</label><input id="productName" required />
-      <label>Customer</label><input id="customerName" />
-      <label>Quantity</label><input id="quantity" type="number" required />
-      <label>Price</label><input id="price" type="number" required />
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
+      <label>Customer</label><input id="customerName" required />
+      <div id="saleItems"></div>
+      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Sale</button>
         <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
       </div>
     </form>
   </div></div>
 
+  <!-- Inventory Modal -->
   <div id="inventoryModal" class="modal"><div class="modal-box">
     <h2 id="inventoryModalTitle">Add Item</h2>
     <form id="inventoryForm">
@@ -131,11 +124,9 @@
   </div></div>
 
   <script>
-    /* === Utilities === */
     const idf=()=>Math.random().toString(36).substr(2,9);
     const formatUGX=n=>"UGX "+Number(n).toLocaleString();
 
-    /* === Data === */
     const STORAGE_KEY="sales_inventory_data";
     let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
     if(!state.sales) state.sales=[];
@@ -144,9 +135,10 @@
       {id:idf(),name:"Phone",category:"Electronics",supplier:"Mobile Inc",qty:20,cost:800000,reorder:5}
     ];
     saveData();
+
     function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
 
-    /* === Navigation === */
+    // Navigation
     document.querySelectorAll("#navList .nav-item").forEach(nav=>{
       nav.addEventListener("click",()=>{
         document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
@@ -159,47 +151,92 @@
       });
     });
 
-    /* === Sales === */
+    // Sales Rendering
     function renderSales(){
       const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
       state.sales.forEach(s=>{
+        const itemsHTML=s.items.map(i=>`${i.name} (x${i.qty})`).join(", ");
         const tr=document.createElement("tr");
         tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td>
-          <td>${s.productName}</td><td>${s.customer}</td><td>${s.qty}</td>
-          <td>${formatUGX(s.total)}</td><td><button class="btn btn-danger" onclick="deleteSale('${s.id}')">Delete</button></td>`;
+          <td>${s.customer}</td><td>${itemsHTML}</td><td>${formatUGX(s.total)}</td>
+          <td><button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button></td>`;
         tbody.appendChild(tr);
       });
     }
-    function openSaleModal(){document.getElementById("saleModal").style.display="flex";}
+
+    function openSaleModal(){
+      document.getElementById("saleForm").reset();
+      document.getElementById("saleItems").innerHTML="";
+      addSaleItem();
+      document.getElementById("saleModal").style.display="flex";
+    }
     function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
+
+    function addSaleItem(){
+      const idx=document.querySelectorAll(".sale-item").length;
+      const div=document.createElement("div");
+      div.className="sale-item";
+      div.innerHTML=`
+        <label>Product</label>
+        <select class="saleProduct" required>
+          ${state.inventory.map(i=>`<option value="${i.id}">${i.name} (Stock: ${i.qty})</option>`).join("")}
+        </select>
+        <label>Quantity</label>
+        <input type="number" class="saleQty" min="1" value="1" required />
+        <label>Price</label>
+        <input type="number" class="salePrice" required />
+        <hr>
+      `;
+      document.getElementById("saleItems").appendChild(div);
+    }
+
     document.getElementById("saleForm").onsubmit=function(e){
       e.preventDefault();
-      const name=document.getElementById("productName").value;
-      const qty=+document.getElementById("quantity").value;
-      const price=+document.getElementById("price").value;
-      const item=state.inventory.find(i=>i.name.toLowerCase()===name.toLowerCase());
-      if(item && item.qty<qty){alert("Not enough stock!");return;}
-      if(item) item.qty-=qty;
-      const sale={id:idf(),date:Date.now(),productName:name,customer:document.getElementById("customerName").value,qty,price,total:qty*price};
-      state.sales.push(sale);
-      saveData(); closeSaleModal(); renderSales(); renderInventory();
-    };
-    function deleteSale(id){state.sales=state.sales.filter(s=>s.id!==id); saveData(); renderSales();}
+      const customer=document.getElementById("customerName").value;
+      const items=[];
+      let total=0;
 
-    /* === Inventory === */
+      document.querySelectorAll(".sale-item").forEach(div=>{
+        const prodId=div.querySelector(".saleProduct").value;
+        const qty=+div.querySelector(".saleQty").value;
+        const price=+div.querySelector(".salePrice").value;
+        const product=state.inventory.find(p=>p.id===prodId);
+        if(product.qty<qty){alert(`Not enough stock for ${product.name}`);return;}
+        product.qty-=qty;
+        items.push({id:prodId,name:product.name,qty,price});
+        total+=qty*price;
+      });
+
+      const sale={id:idf(),date:Date.now(),customer,items,total};
+      state.sales.push(sale);
+      saveData();
+      closeSaleModal();
+      renderSales();
+      renderInventory();
+    };
+
+    function deleteSale(id){
+      state.sales=state.sales.filter(s=>s.id!==id);
+      saveData();
+      renderSales();
+    }
+
+    // Inventory Rendering
     function renderInventory(){
       const tbody=document.querySelector("#inventoryTable tbody"); tbody.innerHTML="";
       state.inventory.forEach(i=>{
         const tr=document.createElement("tr");
         tr.innerHTML=`<td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td>
           <td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td>
-          <td><button class="btn btn-secondary" onclick="editItem('${i.id}')">Edit</button>
-              <button class="btn btn-danger" onclick="deleteItem('${i.id}')">Delete</button></td>`;
+          <td><button class='btn btn-secondary' onclick="editItem('${i.id}')">Edit</button>
+              <button class='btn btn-danger' onclick="deleteItem('${i.id}')">Delete</button></td>`;
         tbody.appendChild(tr);
       });
     }
+
     function openInventoryModal(){document.getElementById("inventoryForm").reset();document.getElementById("itemId").value="";document.getElementById("inventoryModal").style.display="flex";}
     function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
+
     document.getElementById("inventoryForm").onsubmit=function(e){
       e.preventDefault();
       const id=document.getElementById("itemId").value;
@@ -207,12 +244,35 @@
       if(id){const idx=state.inventory.findIndex(x=>x.id===id);state.inventory[idx]=item;}else{state.inventory.push(item);}
       saveData(); closeInventoryModal(); renderInventory();
     };
-    function editItem(id){const i=state.inventory.find(x=>x.id===id);document.getElementById("itemId").value=i.id;document.getElementById("itemName").value=i.name;document.getElementById("itemCategory").value=i.category;document.getElementById("itemSupplier").value=i.supplier;document.getElementById("itemQty").value=i.qty;document.getElementById("itemCost").value=i.cost;document.getElementById("itemReorder").value=i.reorder;document.getElementById("inventoryModal").style.display="flex";}
-    function deleteItem(id){if(confirm("Delete item?")){state.inventory=state.inventory.filter(i=>i.id!==id);saveData();renderInventory();}}
-    function printInventory(){const w=window.open("","","width=800,height=600");w.document.write("<h2>Inventory Report</h2><table border='1' cellspacing='0' cellpadding='5'><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th></tr>"+state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td></tr>`).join("")+"</table>");w.print();}
-    
-    /* === Init === */
+
+    function editItem(id){
+      const i=state.inventory.find(x=>x.id===id);
+      document.getElementById("itemId").value=i.id;
+      document.getElementById("itemName").value=i.name;
+      document.getElementById("itemCategory").value=i.category;
+      document.getElementById("itemSupplier").value=i.supplier;
+      document.getElementById("itemQty").value=i.qty;
+      document.getElementById("itemCost").value=i.cost;
+      document.getElementById("itemReorder").value=i.reorder;
+      document.getElementById("inventoryModal").style.display="flex";
+    }
+
+    function deleteItem(id){
+      if(confirm("Delete item?")){
+        state.inventory=state.inventory.filter(i=>i.id!==id);
+        saveData();
+        renderInventory();
+      }
+    }
+
+    function printInventory(){
+      const w=window.open("","","width=800,height=600");
+      w.document.write("<h2>Inventory Report</h2><table border='1' cellspacing='0' cellpadding='5'><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th></tr>"+state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td></tr>`).join("")+"</table>");
+      w.print();
+    }
+
     renderSales(); renderInventory();
   </script>
 </body>
 </html>
+
