@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -159,7 +159,10 @@
         const tr=document.createElement("tr");
         tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td>
           <td>${s.customer}</td><td>${itemsHTML}</td><td>${formatUGX(s.total)}</td>
-          <td><button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button></td>`;
+          <td>
+            <button class='btn btn-secondary' onclick="printReceipt('${s.id}')">🖨️ Receipt</button>
+            <button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button>
+          </td>`;
         tbody.appendChild(tr);
       });
     }
@@ -173,7 +176,6 @@
     function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
 
     function addSaleItem(){
-      const idx=document.querySelectorAll(".sale-item").length;
       const div=document.createElement("div");
       div.className="sale-item";
       div.innerHTML=`
@@ -219,6 +221,26 @@
       state.sales=state.sales.filter(s=>s.id!==id);
       saveData();
       renderSales();
+    }
+
+    // Print Receipt
+    function printReceipt(id){
+      const sale=state.sales.find(s=>s.id===id);
+      if(!sale) return;
+      const w=window.open("","","width=800,height=600");
+      w.document.write(`
+        <h2 style="text-align:center;">Sales Receipt</h2>
+        <p><b>Date:</b> ${new Date(sale.date).toLocaleString()}</p>
+        <p><b>Customer:</b> ${sale.customer}</p>
+        <table border="1" cellspacing="0" cellpadding="5" width="100%">
+          <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+          <tbody>
+            ${sale.items.map(i=>`<tr><td>${i.name}</td><td>${i.qty}</td><td>${formatUGX(i.price)}</td><td>${formatUGX(i.qty*i.price)}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <h3 style="text-align:right;">Grand Total: ${formatUGX(sale.total)}</h3>
+      `);
+      w.print();
     }
 
     // Inventory Rendering
@@ -275,4 +297,3 @@
   </script>
 </body>
 </html>
-
