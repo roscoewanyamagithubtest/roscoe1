@@ -3,649 +3,212 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sales System — All-in-One (Responsive)</title>
+  <title>Sales System — All-in-One</title>
   <style>
-    /* =========================
-       RESET + BASE
-    ========================= */
     :root{
-      --bg:#0f1724;
-      --panel:#0b1220;
-      --muted:#94a3b8;
-      --accent:#06b6d4;
-      --accent-2:#7c3aed;
-      --card:#0f1724;
-      --glass: rgba(255,255,255,0.03);
-      --danger:#ef4444;
-      --success:#10b981;
-      --radius:12px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --panel:#1a1f29; --card:#242b38;
+      --accent:#06b6d4; --accent2:#7c3aed;
+      --radius:12px; --muted:#94a3b8;
+      font-family: Inter, ui-sans-serif, system-ui;
       color-scheme: dark;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#021024 0%, #061428 100%);color:#e6eef8}
-    a{color:inherit}
-    button{font:inherit}
-    /* =========================
-       LAYOUT
-    ========================= */
-    .app {
-      display:flex;
-      min-height:100vh;
-      gap:20px;
-      padding:20px;
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+    .app{flex:1;display:flex;}
+    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .logo h1{font-size:1.1em;margin:0;}
+    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+    .main{flex:1;padding:20px;overflow:auto;}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+    .table{width:100%;border-collapse:collapse;}
+    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .responsive-list{display:none;}
+    .responsive-card{background:var(--card);padding:15px;margin:10px 0;border-radius:var(--radius);}
+    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-danger{background:#ef4444;color:#fff;}
+    .btn-secondary{background:#64748b;color:#fff;}
+
+    /* Receipt Modal */
+    #receiptModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    #receiptModal .modal-box{background:#fff;color:#000;padding:20px;width:400px;max-height:80%;overflow:auto;border-radius:var(--radius);}
+
+    /* Add/Edit Sale Modal */
+    #saleModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    #saleModal .modal-box{background:#fff;color:#000;padding:20px;width:400px;border-radius:var(--radius);}
+    #saleModal input{width:100%;padding:8px;margin:5px 0;}
+
+    @media(max-width:768px){
+      .sidebar{width:70px;padding:10px;}
+      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+      .responsive-list{display:block;}
+      .table{display:none;}
     }
-    /* Sidebar */
-    .sidebar{
-      width:280px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow: 0 6px 24px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
-      flex-shrink:0;
-    }
-    .logo{
-      display:flex;align-items:center;gap:12px;margin-bottom:14px;
-    }
-    .logo .mark{
-      width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:white;
-      box-shadow:0 6px 20px rgba(124,58,237,0.18);
-    }
-    .logo h1{margin:0;font-size:18px;line-height:1}
-    nav { display:flex;flex-direction:column;gap:8px;margin-top:8px; }
-    .nav-item{
-      display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;cursor:pointer;
-      transition:all .18s; color:var(--muted)
-    }
-    .nav-item.active{ background: linear-gradient(90deg, rgba(6,182,212,0.06), rgba(124,58,237,0.04)); color:#e8f9ff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02) }
-    .nav-item:hover{ transform:translateY(-2px) }
-    .nav-item .icon{width:34px;height:34;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,0.02)}
-    .nav-divider{height:1px;background:rgba(255,255,255,0.02);margin:10px 0;border-radius:4px}
-    /* Main Panel */
-    .main{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-      min-width:0;
-    }
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-    }
-    .searchbar{
-      display:flex;gap:12px;align-items:center;background:var(--glass);padding:10px;border-radius:12px;flex:1;
-    }
-    .searchbar input{flex:1;background:transparent;border:0;outline:none;color:inherit;font-size:15px}
-    .btn{
-      background:linear-gradient(90deg,var(--accent),var(--accent-2));
-      border:0;color:white;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer;
-      box-shadow:0 8px 30px rgba(6,182,212,0.08);
-    }
-    .secondary{
-      background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:var(--muted);
-      cursor:pointer;
-    }
-    /* CARD */
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
-      border-radius:14px;padding:14px;box-shadow: 0 6px 30px rgba(2,6,23,0.6);
-    }
-    .grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
-    }
-    .stat{
-      padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      display:flex;flex-direction:column;gap:6px;
-    }
-    .stat .value{font-size:20px;font-weight:700}
-    .stat .label{font-size:12px;color:var(--muted)}
-    /* Responsive forms & tables */
-    .table{
-      width:100%;border-collapse:collapse;margin-top:8px;
-    }
-    .table thead tr th{
-      text-align:left;padding:10px 8px;font-size:13px;color:var(--muted);border-bottom:1px dashed rgba(255,255,255,0.02)
-    }
-    .table tbody tr td{
-      padding:10px 8px;border-bottom:1px dashed rgba(255,255,255,0.02);font-size:14px;
-    }
-    .actions{display:flex;gap:8px}
-    .chip{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);font-size:13px}
-    /* Forms */
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    input[type="text"], input[type="number"], input[type="date"], select, textarea{
-      width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;
-      outline:none;font-size:14px;
-    }
-    textarea{min-height:80px;resize:vertical}
-    .form-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .form-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    .small{font-size:13px;color:var(--muted)}
-    /* Modal */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
-    .modal{width:100%;max-width:920px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px}
-    .modal.show{display:flex}
-    /* tiny responsive */
-    @media (max-width:980px){
-      .grid{grid-template-columns:repeat(2,1fr)}
-      .sidebar{width:220px}
-    }
-    @media (max-width:760px){
-      .app{padding:12px}
-      .sidebar{display:none}
-      .grid{grid-template-columns:1fr}
-      .form-row{grid-template-columns:1fr}
-      .form-row-3{grid-template-columns:1fr}
-      .nav-mini{display:flex;gap:8px;align-items:center}
-      .topbar{flex-direction:column;align-items:stretch}
-    }
-    /* Tiny buttons */
-    .icon-btn{background:transparent;border:0;padding:6px;border-radius:8px;cursor:pointer}
-    .danger{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--danger);padding:8px 10px;border-radius:8px}
-    .success{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--success);padding:8px 10px;border-radius:8px}
-    /* pretty table for mobile */
-    .responsive-list{display:none}
-    @media (max-width:760px){
-      .table{display:none}
-      .responsive-list{display:block}
-      .responsive-card{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;margin-bottom:10px}
-    }
-    /* tiny helpers */
-    .muted{color:var(--muted)}
-    .right{text-align:right}
-    .flex{display:flex;gap:8px;align-items:center}
-    .mb8{margin-bottom:8px}
-    .mt8{margin-top:8px}
-    .small-muted{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar card" aria-label="sidebar">
-      <div class="logo">
-        <div class="mark">SS</div>
-        <div>
-          <h1>SALES SYSTEM</h1>
-          <div class="small-muted">All-in-one point of sale</div>
-        </div>
-      </div>
-
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo"><div class="mark">📊</div><h1>SALES SYSTEM</h1></div>
       <nav id="navList">
-        <div class="nav-item active" data-view="dashboard"><div class="icon">🏠</div><div>Dashboard</div></div>
-        <div class="nav-item" data-view="sales"><div class="icon">🧾</div><div>Sales</div></div>
-        <div class="nav-item" data-view="inventory"><div class="icon">📦</div><div>Inventory</div></div>
-        <div class="nav-item" data-view="employees"><div class="icon">👥</div><div>Employees</div></div>
-        <div class="nav-item" data-view="suppliers"><div class="icon">🚚</div><div>Suppliers</div></div>
-        <div class="nav-item" data-view="expenses"><div class="icon">💸</div><div>Expenses</div></div>
-        <div class="nav-item" data-view="deposits"><div class="icon">🏦</div><div>Deposits</div></div>
-        <div class="nav-divider"></div>
-        <div class="nav-item" data-view="settings"><div class="icon">⚙️</div><div>Settings / Backup</div></div>
+        <div class="nav-item active" data-view="dashboard">🏠 Dashboard</div>
+        <div class="nav-item" data-view="sales">🧾 Sales</div>
+        <div class="nav-item" data-view="inventory">📦 Inventory</div>
+        <div class="nav-item" data-view="employees">👥 Employees</div>
+        <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
+        <div class="nav-item" data-view="expenses">💸 Expenses</div>
+        <div class="nav-item" data-view="deposits">🏦 Deposits</div>
+        <div class="nav-item" data-view="settings">⚙️ Settings</div>
       </nav>
-
-      <div style="margin-top:14px">
-        <div style="display:flex;gap:8px">
-          <button class="btn" id="addQuickSale">Quick Sale</button>
-          <button class="secondary" id="exportData">Export</button>
-        </div>
-        <div class="small-muted mt8">Tip: data is saved in your browser (localStorage).</div>
-      </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- Main -->
     <main class="main">
-      <div class="topbar">
-        <div class="searchbar card">
-          <input id="globalSearch" placeholder="Search sales, inventory, employees... (try typing product name or customer)" />
-          <div class="small-muted">Filter: <select id="globalFilter"><option value="all">All</option><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="year">This Year</option></select></div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="secondary" id="importBtn">Import</button>
-          <button class="btn" id="openSettings">Settings</button>
-        </div>
-      </div>
+      <section data-view="dashboard" class="view card">
+        <h2>Dashboard</h2>
+        <p class="small-muted">Welcome to your Sales System overview.</p>
+      </section>
 
-      <!-- VIEWS -->
-      <div id="views" style="min-height:400px">
-        <!-- Dashboard -->
-        <section data-view="dashboard" class="view card">
-          <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
-            <div>
-              <h2 style="margin:0 0 6px 0">Dashboard</h2>
-              <div class="small-muted">Overview of sales, inventory and expenses</div>
-            </div>
-            <div class="flex">
-              <div class="small-muted">Range:</div>
-              <select id="dashboardRange" class="secondary">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="365">Last year</option>
-              </select>
-            </div>
-          </div>
+      <section data-view="sales" class="view card" style="display:none">
+        <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ Add Sale</button></h2>
+        <table class="table" id="salesTable">
+          <thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Qty</th><th>Total</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="responsive-list" id="salesList"></div>
+      </section>
 
-          <div class="grid mt8">
-            <div class="card stat">
-              <div class="label">Total Sales</div>
-              <div class="value" id="statTotalSales">UGX 0</div>
-              <div class="small-muted">Gross sales in selected range</div>
-            </div>
-            <div class="card stat">
-              <div class="label">Total Expenses</div>
-              <div class="value" id="statExpenses">UGX 0</div>
-              <div class="small-muted">Paid expenses</div>
-            </div>
-            <div class="card stat">
-              <div class="label">Net</div>
-              <div class="value" id="statNet">UGX 0</div>
-              <div class="small-muted">Sales − Expenses</div>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <h3 style="margin:0 0 8px 0">Recent Sales</h3>
-            <table class="table" id="recentSalesTable">
-              <thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Qty</th><th>Amount</th></tr></thead>
-              <tbody></tbody>
-            </table>
-            <div class="responsive-list" id="recentSalesList"></div>
-          </div>
-
-          <div class="card mt8">
-            <h3 style="margin:0 0 8px 0">Low Stock Items</h3>
-            <table class="table" id="lowStockTable">
-              <thead><tr><th>SKU</th><th>Product</th><th>Stock</th><th></th></tr></thead>
-              <tbody></tbody>
-            </table>
-            <div class="responsive-list" id="lowStockList"></div>
-          </div>
-        </section>
-
-        <!-- Sales --> 
-<section data-view="sales" class="view card" style="display:none">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <h2 style="margin:0">Sales</h2>
-      <div class="small-muted">Add, edit, view and filter sales</div>
-    </div>
-    <div class="flex">
-      <button class="secondary" id="filterSalesBtn">Filter</button>
-      <button class="btn" id="addSaleBtn">Add Sale</button>
-    </div>
-  </div>
-
-  <div class="card mt8">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="saleSearch" placeholder="Search sales by product/customer/sku" />
-        <select id="saleTimeFilter" class="secondary">
-          <option value="all">All time</option>
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-          <option value="year">This Year</option>
-        </select>
-      </div>
-      <div class="small-muted">Total: <span id="salesTotalText">UGX 0</span></div>
-    </div>
-
-    <table class="table" id="salesTable">
-      <thead>
-        <tr>
-          <th>Date</th><th>SKU</th><th>Product</th>
-          <th>Customer</th><th>Qty</th><th>Price</th><th>Total</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Example row with receipt button -->
-        <tr>
-          <td>2025-09-09</td>
-          <td>SKU123</td>
-          <td>Example Product</td>
-          <td>John Doe</td>
-          <td>2</td>
-          <td>UGX 50,000</td>
-          <td>UGX 100,000</td>
-          <td>
-            <button class="btn printReceiptBtn">🧾 Print Receipt</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="responsive-list" id="salesList"></div>
-  </div>
-</section>
-
-<!-- Receipt Preview Modal -->
-<div id="receiptModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
-  <div style="background:#fff;padding:20px;width:400px;max-height:90%;overflow:auto;border-radius:8px;">
-    <h2 style="text-align:center;margin:0 0 10px 0;">Sales Receipt</h2>
-    <div id="receiptContent"></div>
-    <div style="text-align:center;margin-top:15px;">
-      <button onclick="printReceipt()">🖨️ Print</button>
-      <button onclick="closeReceipt()">❌ Close</button>
-    </div>
-  </div>
-</div>
-
-
-
-        <!-- Inventory -->
-        <section data-view="inventory" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Inventory</h2>
-              <div class="small-muted">Manage products</div>
-            </div>
-            <div class="flex">
-              <button class="secondary" id="importInventory">Import</button>
-              <button class="btn" id="addProductBtn">Add Product</button>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="display:flex;gap:8px;align-items:center">
-                <input id="inventorySearch" placeholder="Search inventory by name or sku" />
-                <select id="inventorySort" class="secondary">
-                  <option value="name">Sort: Name</option>
-                  <option value="stock">Sort: Stock</option>
-                  <option value="price">Sort: Price</option>
-                </select>
-              </div>
-              <div class="small-muted">Items: <span id="inventoryCount">0</span></div>
-            </div>
-
-            <table class="table" id="inventoryTable">
-              <thead><tr><th>SKU</th><th>Product</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead>
-              <tbody></tbody>
-            </table>
-
-            <div class="responsive-list" id="inventoryList"></div>
-          </div>
-        </section>
-
-        <!-- Employees -->
-        <section data-view="employees" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Employees</h2>
-              <div class="small-muted">Manage employee records</div>
-            </div>
-            <div>
-              <button class="btn" id="addEmployeeBtn">Add Employee</button>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <table class="table" id="employeesTable">
-              <thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Email</th><th>Actions</th></tr></thead>
-              <tbody></tbody>
-            </table>
-            <div class="responsive-list" id="employeesList"></div>
-          </div>
-        </section>
-
-        <!-- Suppliers -->
-        <section data-view="suppliers" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Suppliers</h2>
-              <div class="small-muted">Add and manage suppliers</div>
-            </div>
-            <div>
-              <button class="btn" id="addSupplierBtn">Add Supplier</button>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <table class="table" id="suppliersTable">
-              <thead><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Notes</th><th>Actions</th></tr></thead>
-              <tbody></tbody>
-            </table>
-            <div class="responsive-list" id="suppliersList"></div>
-          </div>
-        </section>
-
-        <!-- Expenses -->
-        <section data-view="expenses" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Expenses</h2>
-              <div class="small-muted">Record and manage expenses</div>
-            </div>
-            <div>
-              <button class="btn" id="addExpenseBtn">Add Expense</button>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <table class="table" id="expensesTable">
-              <thead><tr><th>Date</th><th>Category</th><th>Notes</th><th>Amount</th><th>Actions</th></tr></thead>
-              <tbody></tbody>
-            </table>
-            <div class="responsive-list" id="expensesList"></div>
-          </div>
-        </section>
-
-        <!-- Deposits -->
-        <section data-view="deposits" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Deposits</h2>
-              <div class="small-muted">Bank / cash deposits</div>
-            </div>
-            <div>
-              <button class="btn" id="addDepositBtn">Add Deposit</button>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <table class="table" id="depositsTable">
-              <thead><tr><th>Date</th><th>Account</th><th>Amount</th><th>Notes</th><th>Actions</th></tr></thead>
-              <tbody></tbody>
-            </table>
-            <div class="responsive-list" id="depositsList"></div>
-          </div>
-        </section>
-
-        <!-- Settings -->
-        <section data-view="settings" class="view card" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2 style="margin:0">Settings & Data</h2>
-              <div class="small-muted">Backup, restore or clear data</div>
-            </div>
-            <div style="display:flex;gap:8px">
-              <button class="secondary" id="downloadBackup">Download Backup</button>
-              <button class="danger" id="clearAllData">Clear All</button>
-            </div>
-          </div>
-
-          <div class="card mt8">
-            <h3>Import / Export</h3>
-            <div class="small-muted">You can export a JSON backup or import it again. Importing overwrites current data.</div>
-            <div style="display:flex;gap:10px;margin-top:10px">
-              <input type="file" id="importFile" accept="application/json" />
-              <button class="btn" id="doImport">Import</button>
-            </div>
-          </div>
-        </section>
-      </div>
+      <section data-view="inventory" class="view card" style="display:none"><h2>Inventory</h2></section>
+      <section data-view="employees" class="view card" style="display:none"><h2>Employees</h2></section>
+      <section data-view="suppliers" class="view card" style="display:none"><h2>Suppliers</h2></section>
+      <section data-view="expenses" class="view card" style="display:none"><h2>Expenses</h2></section>
+      <section data-view="deposits" class="view card" style="display:none"><h2>Deposits</h2></section>
+      <section data-view="settings" class="view card" style="display:none"><h2>Settings</h2></section>
     </main>
   </div>
 
-  <!-- MODALS -->
-  <div id="modalBackdrop" class="modal-backdrop">
-    <div id="modal" class="modal card">
-      <!-- dynamic -->
+  <!-- Receipt Modal -->
+  <div id="receiptModal"><div class="modal-box">
+    <h2 style="text-align:center">Sales Receipt</h2>
+    <div id="receiptContent"></div>
+    <div style="text-align:center;margin-top:15px;">
+      <button class="btn btn-primary" onclick="printReceipt()">🖨️ Print</button>
+      <button class="btn btn-secondary" onclick="closeReceipt()">❌ Close</button>
     </div>
-  </div>
+  </div></div>
+
+  <!-- Add/Edit Sale Modal -->
+  <div id="saleModal"><div class="modal-box">
+    <h2 id="saleModalTitle">Add Sale</h2>
+    <form id="saleForm">
+      <input type="hidden" id="saleId" />
+      <label>Product</label><input id="productName" required />
+      <label>Customer</label><input id="customerName" />
+      <label>Quantity</label><input id="quantity" type="number" required />
+      <label>Price</label><input id="price" type="number" required />
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
+      </div>
+    </form>
+  </div></div>
 
   <script>
-  /* =====================================================
-     DATA STRUCTURES & STORAGE
-     - We keep arrays in localStorage under "ss_data_v1"
-     - Entities: products, sales, employees, suppliers, expenses, deposits
-  ===================================================== */
+    /* ==== Utilities ==== */
+    const idf=()=>Math.random().toString(36).substr(2,9);
+    const escapeHtml=s=>(s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));
+    const formatUGX=n=>"UGX "+Number(n).toLocaleString();
 
-  const STORAGE_KEY = 'ss_data_v1';
+    /* ==== Data ==== */
+    const STORAGE_KEY="sales_data_v1";
+    function loadData(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}
+    function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+    let state=loadData();
+    if(!state.sales){state={sales:[{id:idf(),date:Date.now(),productName:"Sample Product",customer:"John Doe",qty:2,price:50000,total:100000}]};saveData();}
 
-  // default seed (only created first time)
-  const defaultData = {
-    products: [
-      { id: idf(), sku: 'P-001', name:'Sample Widget', price:20000, stock:25, category:'General' },
-      { id: idf(), sku: 'P-002', name:'Gadget Pro', price:45000, stock:6, category:'Electronics' },
-    ],
-    sales: [
-      // { id, date, sku, productName, qty, price, customer, notes }
-    ],
-    employees: [
-      { id: idf(), name:'Jane Doe', role:'Sales', phone:'+256700000000', email:'jane@example.com' }
-    ],
-    suppliers: [],
-    expenses: [],
-    deposits: []
-  };
+    /* ==== Navigation ==== */
+    document.querySelectorAll("#navList .nav-item").forEach(nav=>{
+      nav.addEventListener("click",()=>{
+        document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
+        nav.classList.add("active");
+        const v=nav.dataset.view;
+        document.querySelectorAll(".view").forEach(sec=>sec.style.display="none");
+        document.querySelector(`.view[data-view='${v}']`).style.display="block";
+      });
+    });
 
-  // load/save
-  function loadData(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
-      return deepClone(defaultData);
+    /* ==== Sales Rendering ==== */
+    function renderSales(){
+      const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
+      const list=document.getElementById("salesList"); list.innerHTML="";
+      state.sales.forEach(s=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td><td>${escapeHtml(s.productName)}</td><td>${escapeHtml(s.customer)}</td><td>${s.qty}</td><td>${formatUGX(s.total)}</td><td><button class='btn btn-secondary' onclick='openReceiptModal(${JSON.stringify(s)})'>Print</button></td>`;
+        tbody.appendChild(tr);
+        const card=document.createElement("div"); card.className="responsive-card";
+        card.innerHTML=`<strong>${escapeHtml(s.productName)}</strong> - ${formatUGX(s.total)}<br><button class='btn btn-secondary' onclick='openReceiptModal(${JSON.stringify(s)})'>Print</button>`;
+        list.appendChild(card);
+      });
     }
-    try{
-      return JSON.parse(raw);
-    }catch(e){
-      console.error('Failed to parse storage, resetting', e);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
-      return deepClone(defaultData);
+
+    /* ==== Receipt ==== */
+    function openReceiptModal(sale){
+      const m=document.getElementById("receiptModal");
+      const c=document.getElementById("receiptContent");
+      c.innerHTML=`<p>Date: ${new Date(sale.date).toLocaleString()}</p><p>Customer: ${sale.customer}</p><p>Product: ${sale.productName}</p><p>Quantity: ${sale.qty}</p><p>Price: ${formatUGX(sale.price)}</p><p>Total: ${formatUGX(sale.total)}</p>`;
+      m.style.display="flex";
     }
-  }
-  function saveData(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-<!-- =========================
-     RECEIPT MODAL
-========================= -->
-<div id="receiptModal" 
-     style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-            background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;">
-  <div style="background:#fff;padding:20px;width:400px;max-height:80%;overflow:auto;
-              border-radius:8px;position:relative;">
-    <div id="receiptContent"></div>
-    <div style="margin-top:20px;display:flex;justify-content:space-between;">
-      <button onclick="printReceipt()">Print</button>
-      <button onclick="closeReceipt()">Close</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/* =========================
-   RECEIPT HANDLING
-========================= */
-function openReceiptModal(sale) {
-  const modal = document.getElementById('receiptModal');
-  const content = document.getElementById('receiptContent');
-
-  content.innerHTML = `
-    <h2 style="margin:0;">Sales Receipt</h2>
-    <p>Date: ${new Date(sale.date).toLocaleString()}</p>
-    <p>Customer: ${sale.customer || 'Walk-in'}</p>
-    <p>Address: ${sale.address || 'Kampala, Uganda'}</p>
-    <hr>
-    <p><strong>Product:</strong> ${sale.productName}</p>
-    <p><strong>SKU:</strong> ${sale.sku || '-'}</p>
-    <p><strong>Quantity:</strong> ${sale.qty}</p>
-    <p><strong>Price:</strong> ${formatUGX(sale.price)}</p>
-    <p><strong>Total:</strong> ${formatUGX(sale.total)}</p>
-    <hr>
-    <p style="text-align:center;">Thank you for your purchase!</p>
-  `;
-  modal.style.display = 'flex';
-  modal.dataset.saleId = sale.id;
-}
-
-function closeReceipt() {
-  document.getElementById('receiptModal').style.display = 'none';
-}
-
-function printReceipt() {
-  const receiptContent = document.getElementById('receiptContent').innerHTML;
-  const printWindow = window.open('', '', 'width=600,height=400');
-  printWindow.document.write('<html><head><title>Print Receipt</title></head><body>');
-  printWindow.document.write(receiptContent);
-  printWindow.document.write('</body></html>');
-  printWindow.document.close();
-  printWindow.print();
-}
-
-/* =========================
-   SALES RENDERING
-========================= */
-function renderSales(){
-  const tbody = document.querySelector('#salesTable tbody'); 
-  tbody.innerHTML='';
-  const listMobile = document.getElementById('salesList'); 
-  listMobile.innerHTML='';
-
-  const term = (document.getElementById('saleSearch')||{}).value?.toLowerCase?.() || '';
-  const tf = (document.getElementById('saleTimeFilter')||{}).value || 'all';
-  const filtered = state.sales.filter(s=>{
-    if(term){
-      const match = (s.productName||'') + ' ' + (s.customer||'') + ' ' + (s.sku||'');
-      if(!match.toLowerCase().includes(term)) return false;
+    function closeReceipt(){document.getElementById("receiptModal").style.display="none";}
+    function printReceipt(){
+      const html=document.getElementById("receiptContent").innerHTML;
+      const w=window.open("","","width=600,height=400");
+      w.document.write("<html><head><title>Print</title></head><body>"+html+"</body></html>");
+      w.document.close(); w.print();
     }
-    if(tf !== 'all' && !withinRange(s.date, tf)) return false;
-    return true;
-  }).sort((a,b)=> new Date(b.date) - new Date(a.date));
 
-  filtered.forEach(s=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${new Date(s.date).toLocaleString()}</td>
-      <td>${escapeHtml(s.sku||'')}</td>
-      <td>${escapeHtml(s.productName)}</td>
-      <td>${escapeHtml(s.customer||'Walk-in')}</td>
-      <td>${s.qty}</td>
-      <td>${formatUGX(s.price)}</td>
-      <td>${formatUGX(s.total)}</td>
-      <td class="actions">
-        <button class="secondary" onclick="openEditSale('${s.id}')">Edit</button>
-        <button class="danger" onclick="deleteSale('${s.id}')">Delete</button>
-        <button class="printReceiptBtn">Print Receipt</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+    /* ==== Add/Edit Sale ==== */
+    function openSaleModal(sale){
+      document.getElementById("saleModal").style.display="flex";
+      if(sale){
+        document.getElementById("saleModalTitle").innerText="Edit Sale";
+        document.getElementById("saleId").value=sale.id;
+        document.getElementById("productName").value=sale.productName;
+        document.getElementById("customerName").value=sale.customer;
+        document.getElementById("quantity").value=sale.qty;
+        document.getElementById("price").value=sale.price;
+      } else {
+        document.getElementById("saleForm").reset();
+        document.getElementById("saleId").value="";
+        document.getElementById("saleModalTitle").innerText="Add Sale";
+      }
+    }
+    function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
+    document.getElementById("saleForm").onsubmit=function(e){
+      e.preventDefault();
+      const id=document.getElementById("saleId").value;
+      const s={
+        id:id||idf(),
+        date:Date.now(),
+        productName:document.getElementById("productName").value,
+        customer:document.getElementById("customerName").value,
+        qty:+document.getElementById("quantity").value,
+        price:+document.getElementById("price").value,
+      };
+      s.total=s.qty*s.price;
+      if(id){
+        const idx=state.sales.findIndex(x=>x.id==id);
+        state.sales[idx]=s;
+      } else {state.sales.push(s);}
+      saveData(); closeSaleModal(); renderSales();
+    }
 
-    const card = document.createElement('div'); 
-    card.className='responsive-card';
-    card.innerHTML = `
-      <div style="display:flex;justify-content:space-between">
-        <div>
-          <strong>${escapeHtml(s.productName)}</strong>
-          <div class="small-muted">${new Date(s.date).toLocaleString()} • ${s.qty} pcs</div>
-        </div>
-        <div>${formatUGX(s.total)}</div>
-      </div>
-      <div style="margin-top:8px;">
-        <button class="printReceiptBtn" style="padding:4px 8px;font-size:0.8em;">Print Receipt</button>
-      </div>
-    `;
-    listMobile.appendChild(card);
+    /* ==== Init ==== */
+    renderSales();
+  </script>
+</body>
+</html>
 
-    // hook up receipt buttons
-    tr.querySelector('.printReceiptBtn').addEventListener('click',()=>openReceiptModal(s));
-    card.querySelector('.printReceiptBtn').addEventListener('click',()=>openReceiptModal(s));
-  });
-
-  const total = moneySum(filtered, 'total');
-  document.getElementById('salesTotalText').textContent = formatUGX(total);
-}
-</script>
