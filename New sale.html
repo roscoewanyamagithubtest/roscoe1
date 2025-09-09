@@ -25,27 +25,20 @@
     .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
     .table{width:100%;border-collapse:collapse;}
     .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
-    .responsive-list{display:none;}
-    .responsive-card{background:var(--card);padding:15px;margin:10px 0;border-radius:var(--radius);}
     .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
     .btn-primary{background:var(--accent);color:#fff;}
     .btn-danger{background:#ef4444;color:#fff;}
     .btn-secondary{background:#64748b;color:#fff;}
 
-    /* Receipt Modal */
-    #receiptModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-    #receiptModal .modal-box{background:#fff;color:#000;padding:20px;width:400px;max-height:80%;overflow:auto;border-radius:var(--radius);}
-
-    /* Add/Edit Sale Modal */
-    #saleModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-    #saleModal .modal-box{background:#fff;color:#000;padding:20px;width:400px;border-radius:var(--radius);}
-    #saleModal input{width:100%;padding:8px;margin:5px 0;}
+    /* Modals */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    .modal .modal-box{background:#fff;color:#000;padding:20px;width:400px;max-height:80%;overflow:auto;border-radius:var(--radius);}
+    .modal input{width:100%;padding:8px;margin:5px 0;}
 
     @media(max-width:768px){
       .sidebar{width:70px;padding:10px;}
       .sidebar .logo h1,.sidebar .nav-item div{display:none;}
-      .responsive-list{display:block;}
-      .table{display:none;}
+      .table{font-size:0.85em;}
     }
   </style>
 </head>
@@ -70,19 +63,32 @@
     <main class="main">
       <section data-view="dashboard" class="view card">
         <h2>Dashboard</h2>
-        <p class="small-muted">Welcome to your Sales System overview.</p>
+        <p>Welcome to your Sales System overview.</p>
       </section>
 
+      <!-- Sales -->
       <section data-view="sales" class="view card" style="display:none">
         <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ Add Sale</button></h2>
         <table class="table" id="salesTable">
           <thead><tr><th>Date</th><th>Product</th><th>Customer</th><th>Qty</th><th>Total</th><th>Actions</th></tr></thead>
           <tbody></tbody>
         </table>
-        <div class="responsive-list" id="salesList"></div>
       </section>
 
-      <section data-view="inventory" class="view card" style="display:none"><h2>Inventory</h2></section>
+      <!-- Inventory -->
+      <section data-view="inventory" class="view card" style="display:none">
+        <h2>Inventory 
+          <button class="btn btn-primary" onclick="openInventoryModal()">+ Add Item</button>
+          <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+        </h2>
+        <table class="table" id="inventoryTable">
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th><th>Actions</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
       <section data-view="employees" class="view card" style="display:none"><h2>Employees</h2></section>
       <section data-view="suppliers" class="view card" style="display:none"><h2>Suppliers</h2></section>
       <section data-view="expenses" class="view card" style="display:none"><h2>Expenses</h2></section>
@@ -91,18 +97,8 @@
     </main>
   </div>
 
-  <!-- Receipt Modal -->
-  <div id="receiptModal"><div class="modal-box">
-    <h2 style="text-align:center">Sales Receipt</h2>
-    <div id="receiptContent"></div>
-    <div style="text-align:center;margin-top:15px;">
-      <button class="btn btn-primary" onclick="printReceipt()">🖨️ Print</button>
-      <button class="btn btn-secondary" onclick="closeReceipt()">❌ Close</button>
-    </div>
-  </div></div>
-
-  <!-- Add/Edit Sale Modal -->
-  <div id="saleModal"><div class="modal-box">
+  <!-- Modals -->
+  <div id="saleModal" class="modal"><div class="modal-box">
     <h2 id="saleModalTitle">Add Sale</h2>
     <form id="saleForm">
       <input type="hidden" id="saleId" />
@@ -110,27 +106,47 @@
       <label>Customer</label><input id="customerName" />
       <label>Quantity</label><input id="quantity" type="number" required />
       <label>Price</label><input id="price" type="number" required />
-      <div style="margin-top:10px;text-align:right;">
+      <div style="text-align:right;margin-top:10px;">
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
       </div>
     </form>
   </div></div>
 
+  <div id="inventoryModal" class="modal"><div class="modal-box">
+    <h2 id="inventoryModalTitle">Add Item</h2>
+    <form id="inventoryForm">
+      <input type="hidden" id="itemId" />
+      <label>Item</label><input id="itemName" required />
+      <label>Category</label><input id="itemCategory" />
+      <label>Supplier</label><input id="itemSupplier" />
+      <label>Quantity</label><input id="itemQty" type="number" required />
+      <label>Cost</label><input id="itemCost" type="number" required />
+      <label>Reorder Level</label><input id="itemReorder" type="number" value="5" />
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+      </div>
+    </form>
+  </div></div>
+
   <script>
-    /* ==== Utilities ==== */
+    /* === Utilities === */
     const idf=()=>Math.random().toString(36).substr(2,9);
-    const escapeHtml=s=>(s||"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));
     const formatUGX=n=>"UGX "+Number(n).toLocaleString();
 
-    /* ==== Data ==== */
-    const STORAGE_KEY="sales_data_v1";
-    function loadData(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}
-    function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
-    let state=loadData();
-    if(!state.sales){state={sales:[{id:idf(),date:Date.now(),productName:"Sample Product",customer:"John Doe",qty:2,price:50000,total:100000}]};saveData();}
+    /* === Data === */
+    const STORAGE_KEY="sales_inventory_data";
+    let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    if(!state.sales) state.sales=[];
+    if(!state.inventory) state.inventory=[
+      {id:idf(),name:"Laptop",category:"Electronics",supplier:"Tech Supplier",qty:10,cost:1500000,reorder:3},
+      {id:idf(),name:"Phone",category:"Electronics",supplier:"Mobile Inc",qty:20,cost:800000,reorder:5}
+    ];
+    saveData();
+    function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
 
-    /* ==== Navigation ==== */
+    /* === Navigation === */
     document.querySelectorAll("#navList .nav-item").forEach(nav=>{
       nav.addEventListener("click",()=>{
         document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
@@ -138,77 +154,65 @@
         const v=nav.dataset.view;
         document.querySelectorAll(".view").forEach(sec=>sec.style.display="none");
         document.querySelector(`.view[data-view='${v}']`).style.display="block";
+        if(v==="inventory") renderInventory();
+        if(v==="sales") renderSales();
       });
     });
 
-    /* ==== Sales Rendering ==== */
+    /* === Sales === */
     function renderSales(){
       const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
-      const list=document.getElementById("salesList"); list.innerHTML="";
       state.sales.forEach(s=>{
         const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td><td>${escapeHtml(s.productName)}</td><td>${escapeHtml(s.customer)}</td><td>${s.qty}</td><td>${formatUGX(s.total)}</td><td><button class='btn btn-secondary' onclick='openReceiptModal(${JSON.stringify(s)})'>Print</button></td>`;
+        tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td>
+          <td>${s.productName}</td><td>${s.customer}</td><td>${s.qty}</td>
+          <td>${formatUGX(s.total)}</td><td><button class="btn btn-danger" onclick="deleteSale('${s.id}')">Delete</button></td>`;
         tbody.appendChild(tr);
-        const card=document.createElement("div"); card.className="responsive-card";
-        card.innerHTML=`<strong>${escapeHtml(s.productName)}</strong> - ${formatUGX(s.total)}<br><button class='btn btn-secondary' onclick='openReceiptModal(${JSON.stringify(s)})'>Print</button>`;
-        list.appendChild(card);
       });
     }
-
-    /* ==== Receipt ==== */
-    function openReceiptModal(sale){
-      const m=document.getElementById("receiptModal");
-      const c=document.getElementById("receiptContent");
-      c.innerHTML=`<p>Date: ${new Date(sale.date).toLocaleString()}</p><p>Customer: ${sale.customer}</p><p>Product: ${sale.productName}</p><p>Quantity: ${sale.qty}</p><p>Price: ${formatUGX(sale.price)}</p><p>Total: ${formatUGX(sale.total)}</p>`;
-      m.style.display="flex";
-    }
-    function closeReceipt(){document.getElementById("receiptModal").style.display="none";}
-    function printReceipt(){
-      const html=document.getElementById("receiptContent").innerHTML;
-      const w=window.open("","","width=600,height=400");
-      w.document.write("<html><head><title>Print</title></head><body>"+html+"</body></html>");
-      w.document.close(); w.print();
-    }
-
-    /* ==== Add/Edit Sale ==== */
-    function openSaleModal(sale){
-      document.getElementById("saleModal").style.display="flex";
-      if(sale){
-        document.getElementById("saleModalTitle").innerText="Edit Sale";
-        document.getElementById("saleId").value=sale.id;
-        document.getElementById("productName").value=sale.productName;
-        document.getElementById("customerName").value=sale.customer;
-        document.getElementById("quantity").value=sale.qty;
-        document.getElementById("price").value=sale.price;
-      } else {
-        document.getElementById("saleForm").reset();
-        document.getElementById("saleId").value="";
-        document.getElementById("saleModalTitle").innerText="Add Sale";
-      }
-    }
+    function openSaleModal(){document.getElementById("saleModal").style.display="flex";}
     function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
     document.getElementById("saleForm").onsubmit=function(e){
       e.preventDefault();
-      const id=document.getElementById("saleId").value;
-      const s={
-        id:id||idf(),
-        date:Date.now(),
-        productName:document.getElementById("productName").value,
-        customer:document.getElementById("customerName").value,
-        qty:+document.getElementById("quantity").value,
-        price:+document.getElementById("price").value,
-      };
-      s.total=s.qty*s.price;
-      if(id){
-        const idx=state.sales.findIndex(x=>x.id==id);
-        state.sales[idx]=s;
-      } else {state.sales.push(s);}
-      saveData(); closeSaleModal(); renderSales();
-    }
+      const name=document.getElementById("productName").value;
+      const qty=+document.getElementById("quantity").value;
+      const price=+document.getElementById("price").value;
+      const item=state.inventory.find(i=>i.name.toLowerCase()===name.toLowerCase());
+      if(item && item.qty<qty){alert("Not enough stock!");return;}
+      if(item) item.qty-=qty;
+      const sale={id:idf(),date:Date.now(),productName:name,customer:document.getElementById("customerName").value,qty,price,total:qty*price};
+      state.sales.push(sale);
+      saveData(); closeSaleModal(); renderSales(); renderInventory();
+    };
+    function deleteSale(id){state.sales=state.sales.filter(s=>s.id!==id); saveData(); renderSales();}
 
-    /* ==== Init ==== */
-    renderSales();
+    /* === Inventory === */
+    function renderInventory(){
+      const tbody=document.querySelector("#inventoryTable tbody"); tbody.innerHTML="";
+      state.inventory.forEach(i=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td>
+          <td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td>
+          <td><button class="btn btn-secondary" onclick="editItem('${i.id}')">Edit</button>
+              <button class="btn btn-danger" onclick="deleteItem('${i.id}')">Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function openInventoryModal(){document.getElementById("inventoryForm").reset();document.getElementById("itemId").value="";document.getElementById("inventoryModal").style.display="flex";}
+    function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
+    document.getElementById("inventoryForm").onsubmit=function(e){
+      e.preventDefault();
+      const id=document.getElementById("itemId").value;
+      const item={id:id||idf(),name:document.getElementById("itemName").value,category:document.getElementById("itemCategory").value,supplier:document.getElementById("itemSupplier").value,qty:+document.getElementById("itemQty").value,cost:+document.getElementById("itemCost").value,reorder:+document.getElementById("itemReorder").value};
+      if(id){const idx=state.inventory.findIndex(x=>x.id===id);state.inventory[idx]=item;}else{state.inventory.push(item);}
+      saveData(); closeInventoryModal(); renderInventory();
+    };
+    function editItem(id){const i=state.inventory.find(x=>x.id===id);document.getElementById("itemId").value=i.id;document.getElementById("itemName").value=i.name;document.getElementById("itemCategory").value=i.category;document.getElementById("itemSupplier").value=i.supplier;document.getElementById("itemQty").value=i.qty;document.getElementById("itemCost").value=i.cost;document.getElementById("itemReorder").value=i.reorder;document.getElementById("inventoryModal").style.display="flex";}
+    function deleteItem(id){if(confirm("Delete item?")){state.inventory=state.inventory.filter(i=>i.id!==id);saveData();renderInventory();}}
+    function printInventory(){const w=window.open("","","width=800,height=600");w.document.write("<h2>Inventory Report</h2><table border='1' cellspacing='0' cellpadding='5'><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th></tr>"+state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td></tr>`).join("")+"</table>");w.print();}
+    
+    /* === Init === */
+    renderSales(); renderInventory();
   </script>
 </body>
 </html>
-
