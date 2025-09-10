@@ -29,12 +29,9 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
 .btn-primary{background:var(--accent);color:#fff;}
 .btn-danger{background:#ef4444;color:#fff;}
 .btn-secondary{background:#64748b;color:#fff;}
-
-/* Modals */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
 .modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
 .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
-
 @media(max-width:768px){
   .sidebar{width:70px;padding:10px;}
   .sidebar .logo h1,.sidebar .nav-item div{display:none;}
@@ -90,6 +87,12 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
       </table>
     </section>
 
+    <!-- Employees -->
+    <section data-view="employees" class="view card" style="display:none"></section>
+
+    <!-- Suppliers -->
+    <section data-view="suppliers" class="view card" style="display:none"></section>
+
     <!-- Expenses -->
     <section data-view="expenses" class="view card" style="display:none">
       <h2>Expenses 
@@ -103,7 +106,9 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
         <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
       </div>
       <table class="table" id="expensesTable">
-        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr>
+        </thead>
         <tbody></tbody>
         <tfoot>
           <tr><td colspan="7" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
@@ -111,15 +116,19 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
       </table>
     </section>
 
-    <!-- Placeholder pages -->
-    <section data-view="employees" class="view card" style="display:none"><h2>Employees</h2></section>
-    <section data-view="suppliers" class="view card" style="display:none"><h2>Suppliers</h2></section>
-    <section data-view="deposits" class="view card" style="display:none"><h2>Deposits</h2></section>
-    <section data-view="settings" class="view card" style="display:none"><h2>Settings</h2></section>
+    <!-- Deposits -->
+    <section data-view="deposits" class="view card" style="display:none"></section>
+
+    <!-- Settings -->
+    <section data-view="settings" class="view card" style="display:none">
+      <h2>Settings</h2>
+      <p>Settings page placeholder.</p>
+    </section>
   </main>
 </div>
 
 <!-- Modals -->
+<!-- Sale Modal -->
 <div id="saleModal" class="modal"><div class="modal-box">
   <h2 id="saleModalTitle">New Sale</h2>
   <form id="saleForm">
@@ -133,6 +142,7 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
   </form>
 </div></div>
 
+<!-- Inventory Modal -->
 <div id="inventoryModal" class="modal"><div class="modal-box">
   <h2 id="inventoryModalTitle">Add Item</h2>
   <form id="inventoryForm">
@@ -150,6 +160,7 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
   </form>
 </div></div>
 
+<!-- Expense Modal -->
 <div id="expenseModal" class="modal"><div class="modal-box">
   <h2>Add Expense</h2>
   <form id="expenseForm">
@@ -165,7 +176,8 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
       <option value="Marketing">Marketing</option>
       <option value="Miscellaneous">Miscellaneous</option>
     </select>
-    <label>Or Custom Category</label><input id="expenseCategoryCustom" placeholder="Type custom category" />
+    <label>Or Custom Category</label>
+    <input id="expenseCategoryCustom" placeholder="Type custom category" />
     <label>Description</label><input id="expenseDesc" required />
     <label>Amount</label><input type="number" id="expenseAmount" required />
     <label>Paid By</label><input id="expensePaidBy" />
@@ -177,252 +189,118 @@ body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,va
   </form>
 </div></div>
 
-<script>
-const idf = () => Math.random().toString(36).substr(2,9);
-const formatUGX = n => "UGX " + Number(n).toLocaleString();
+<!-- Employees Modal -->
+<div id="employeeModal" class="modal"><div class="modal-box">
+  <h2 id="employeeModalTitle">Add Employee</h2>
+  <form id="employeeForm">
+    <input type="hidden" id="employeeId" />
+    <label>Name</label><input id="employeeName" required />
+    <label>Position</label><input id="employeePosition" />
+    <label>Email</label><input id="employeeEmail" type="email" />
+    <label>Phone</label><input id="employeePhone" />
+    <div style="text-align:right;margin-top:10px;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+    </div>
+  </form>
+</div></div>
 
-const STORAGE_KEY="sales_inventory_data";
-let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+<!-- Suppliers Modal -->
+<div id="supplierModal" class="modal"><div class="modal-box">
+  <h2 id="supplierModalTitle">Add Supplier</h2>
+  <form id="supplierForm">
+    <input type="hidden" id="supplierId" />
+    <label>Name</label><input id="supplierName" required />
+    <label>Company</label><input id="supplierCompany" />
+    <label>Email</label><input id="supplierEmail" type="email" />
+    <label>Phone</label><input id="supplierPhone" />
+    <div style="text-align:right;margin-top:10px;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- Deposits Modal -->
+<div id="depositModal" class="modal"><div class="modal-box">
+  <h2 id="depositModalTitle">Add Deposit</h2>
+  <form id="depositForm">
+    <input type="hidden" id="depositId" />
+    <label>Client Name</label><input id="depositClient" required />
+    <label>Item</label><input id="depositItem" required />
+    <label>Amount</label><input id="depositAmount" type="number" required />
+    <label>Date</label><input type="date" id="depositDate" required />
+    <div style="text-align:right;margin-top:10px;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+    </div>
+  </form>
+</div></div>
+
+<script>
+/* -------------------- GLOBAL STATE -------------------- */
+let state = JSON.parse(localStorage.getItem('appState')) || {};
 if(!state.sales) state.sales=[];
 if(!state.inventory) state.inventory=[];
 if(!state.expenses) state.expenses=[];
+if(!state.employees) state.employees=[];
+if(!state.suppliers) state.suppliers=[];
+if(!state.deposits) state.deposits=[];
 saveData();
-function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+function saveData(){localStorage.setItem('appState',JSON.stringify(state));}
+function idf(){return '_' + Math.random().toString(36).substr(2,9);}
+function formatUGX(x){return new Intl.NumberFormat('en-UG', {style:'currency',currency:'UGX'}).format(x);}
 
-// Navigation
-document.querySelectorAll("#navList .nav-item").forEach(nav=>{
-  nav.addEventListener("click", ()=>{
-    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
-    nav.classList.add("active");
-    const view = nav.dataset.view;
-    document.querySelectorAll(".view").forEach(sec=>sec.style.display="none");
-    document.querySelector(`.view[data-view='${view}']`).style.display="block";
-
-    if(view==="sales") renderSales();
-    if(view==="inventory") renderInventory();
-    if(view==="expenses") renderExpenses();
-  });
-});
-
-// Default page
-document.querySelector(`.view[data-view='dashboard']`).style.display="block";
-
-/* -------------------- SALES -------------------- */
-function renderSales(){
-  const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
-  state.sales.forEach(s=>{
-    const itemsHTML = s.items.map(i=>`${i.name} (x${i.qty})`).join(", ");
-    const tr = document.createElement("tr");
-    tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td><td>${s.customer}</td><td>${itemsHTML}</td><td>${formatUGX(s.total)}</td>
-      <td><button class='btn btn-secondary' onclick="printReceipt('${s.id}')">🖨️ Receipt</button>
-          <button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button></td>`;
-    tbody.appendChild(tr);
-  });
+/* -------------------- NAVIGATION -------------------- */
+const navItems=document.querySelectorAll('.nav-item');
+navItems.forEach(item=>item.addEventListener('click',()=>{showView(item.dataset.view)}));
+function showView(view){
+  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+  document.querySelector(`.view[data-view="${view}"]`).style.display='block';
+  navItems.forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${view}"]`).classList.add('active');
 }
 
-function openSaleModal(){
-  document.getElementById("saleForm").reset();
-  document.getElementById("saleItems").innerHTML="";
-  addSaleItem();
-  document.getElementById("saleModal").style.display="flex";
+/* -------------------- EMPLOYEES -------------------- */
+function renderEmployees(){
+  let view=document.querySelector(".view[data-view='employees']");
+  view.innerHTML=`<h2>Employees <button class="btn btn-primary" onclick="openEmployeeModal()">+ Add Employee</button> 
+    <button class="btn btn-secondary" onclick="printEmployees()">🖨️ Print</button></h2>
+    <table class="table" id="employeeTable">
+      <thead><tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+      <tbody>${state.employees.map(e=>`<tr>
+        <td>${e.name}</td><td>${e.position||''}</td><td>${e.email||''}</td><td>${e.phone||''}</td>
+        <td><button class='btn btn-secondary' onclick="editEmployee('${e.id}')">Edit</button>
+            <button class='btn btn-danger' onclick="deleteEmployee('${e.id}')">Delete</button></td></tr>`).join('')}</tbody>
+    </table>`;
 }
-function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
+function openEmployeeModal(){document.getElementById("employeeForm").reset();document.getElementById("employeeId").value="";document.getElementById("employeeModalTitle").innerText="Add Employee";document.getElementById("employeeModal").style.display="flex";}
+function closeEmployeeModal(){document.getElementById("employeeModal").style.display="none";}
+document.getElementById("employeeForm").onsubmit=function(e){e.preventDefault();const id=document.getElementById("employeeId").value||idf();const employee={id,name:document.getElementById("employeeName").value,position:document.getElementById("employeePosition").value,email:document.getElementById("employeeEmail").value,phone:document.getElementById("employeePhone").value};const idx=state.employees.findIndex(emp=>emp.id===id);if(idx>-1) state.employees[idx]=employee; else state.employees.push(employee);saveData();closeEmployeeModal();renderEmployees();}
+function editEmployee(id){const emp=state.employees.find(e=>e.id===id);document.getElementById("employeeId").value=id;document.getElementById("employeeName").value=emp.name;document.getElementById("employeePosition").value=emp.position;document.getElementById("employeeEmail").value=emp.email;document.getElementById("employeePhone").value=emp.phone;document.getElementById("employeeModalTitle").innerText="Edit Employee";document.getElementById("employeeModal").style.display="flex";}
+function deleteEmployee(id){if(confirm("Delete this employee?")){state.employees=state.employees.filter(e=>e.id!==id);saveData();renderEmployees();}}
+function printEmployees(){let w=window.open("","Employees","width=800,height=600");w.document.write(`<h2 style="text-align:center;">Employees</h2><table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;"><tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th></tr>${state.employees.map(e=>`<tr><td>${e.name}</td><td>${e.position||''}</td><td>${e.email||''}</td><td>${e.phone||''}</td></tr>`).join('')}</table>`);w.print();}
 
-function addSaleItem(){
-  const div=document.createElement("div"); div.className="sale-item";
-  div.innerHTML = `<label>Product</label>
-    <select class="saleProduct" required>
-      ${state.inventory.map(i=>`<option value="${i.id}">${i.name} (Stock: ${i.qty})</option>`).join("")}
-    </select>
-    <label>Quantity</label><input type="number" class="saleQty" min="1" value="1" required />
-    <label>Price</label><input type="number" class="salePrice" required />
-    <hr>`;
-  document.getElementById("saleItems").appendChild(div);
-}
+/* -------------------- SUPPLIERS -------------------- */
+function renderSuppliers(){let view=document.querySelector(".view[data-view='suppliers']");view.innerHTML=`<h2>Suppliers <button class="btn btn-primary" onclick="openSupplierModal()">+ Add Supplier</button><button class="btn btn-secondary" onclick="printSuppliers()">🖨️ Print</button></h2><table class="table" id="supplierTable"><thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead><tbody>${state.suppliers.map(s=>`<tr><td>${s.name}</td><td>${s.company||''}</td><td>${s.email||''}</td><td>${s.phone||''}</td><td><button class='btn btn-secondary' onclick="editSupplier('${s.id}')">Edit</button><button class='btn btn-danger' onclick="deleteSupplier('${s.id}')">Delete</button></td></tr>`).join('')}</tbody></table>`;}
+function openSupplierModal(){document.getElementById("supplierForm").reset();document.getElementById("supplierId").value="";document.getElementById("supplierModalTitle").innerText="Add Supplier";document.getElementById("supplierModal").style.display="flex";}
+function closeSupplierModal(){document.getElementById("supplierModal").style.display="none";}
+document.getElementById("supplierForm").onsubmit=function(e){e.preventDefault();const id=document.getElementById("supplierId").value||idf();const supplier={id,name:document.getElementById("supplierName").value,company:document.getElementById("supplierCompany").value,email:document.getElementById("supplierEmail").value,phone:document.getElementById("supplierPhone").value};const idx=state.suppliers.findIndex(s=>s.id===id);if(idx>-1) state.suppliers[idx]=supplier; else state.suppliers.push(supplier);saveData();closeSupplierModal();renderSuppliers();}
+function editSupplier(id){const s=state.suppliers.find(s=>s.id===id);document.getElementById("supplierId").value=id;document.getElementById("supplierName").value=s.name;document.getElementById("supplierCompany").value=s.company;document.getElementById("supplierEmail").value=s.email;document.getElementById("supplierPhone").value=s.phone;document.getElementById("supplierModalTitle").innerText="Edit Supplier";document.getElementById("supplierModal").style.display="flex";}
+function deleteSupplier(id){if(confirm("Delete this supplier?")){state.suppliers=state.suppliers.filter(s=>s.id!==id);saveData();renderSuppliers();}}
+function printSuppliers(){let w=window.open("","Suppliers","width=800,height=600");w.document.write(`<h2 style="text-align:center;">Suppliers</h2><table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;"><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th></tr>${state.suppliers.map(s=>`<tr><td>${s.name}</td><td>${s.company||''}</td><td>${s.email||''}</td><td>${s.phone||''}</td></tr>`).join('')}</table>`);w.print();}
 
-document.getElementById("saleForm").onsubmit=function(e){
-  e.preventDefault();
-  const customer=document.getElementById("customerName").value;
-  const items=[]; let total=0;
-  let stockError=false;
+/* -------------------- DEPOSITS -------------------- */
+function renderDeposits(){let view=document.querySelector(".view[data-view='deposits']");view.innerHTML=`<h2>Deposits <button class="btn btn-primary" onclick="openDepositModal()">+ Add Deposit</button><button class="btn btn-secondary" onclick="printDeposits()">🖨️ Print</button></h2><table class="table" id="depositTable"><thead><tr><th>Client</th><th>Item</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead><tbody>${state.deposits.map(d=>`<tr><td>${d.client}</td><td>${d.item}</td><td>${formatUGX(d.amount)}</td><td>${new Date(d.date).toLocaleDateString()}</td><td><button class='btn btn-secondary' onclick="editDeposit('${d.id}')">Edit</button><button class='btn btn-danger' onclick="deleteDeposit('${d.id}')">Delete</button></td></tr>`).join('')}</tbody></table>`;}
+function openDepositModal(){document.getElementById("depositForm").reset();document.getElementById("depositId").value="";document.getElementById("depositModalTitle").innerText="Add Deposit";document.getElementById("depositModal").style.display="flex";}
+function closeDepositModal(){document.getElementById("depositModal").style.display="none";}
+document.getElementById("depositForm").onsubmit=function(e){e.preventDefault();const id=document.getElementById("depositId").value||idf();const dep={id,client:document.getElementById("depositClient").value,item:document.getElementById("depositItem").value,amount:+document.getElementById("depositAmount").value,date:document.getElementById("depositDate").value};const idx=state.deposits.findIndex(d=>d.id===id);if(idx>-1) state.deposits[idx]=dep; else state.deposits.push(dep);saveData();closeDepositModal();renderDeposits();}
+function editDeposit(id){const d=state.deposits.find(d=>d.id===id);document.getElementById("depositId").value=id;document.getElementById("depositClient").value=d.client;document.getElementById("depositItem").value=d.item;document.getElementById("depositAmount").value=d.amount;document.getElementById("depositDate").value=d.date;document.getElementById("depositModalTitle").innerText="Edit Deposit";document.getElementById("depositModal").style.display="flex";}
+function deleteDeposit(id){if(confirm("Delete this deposit?")){state.deposits=state.deposits.filter(d=>d.id!==id);saveData();renderDeposits();}}
+function printDeposits(){let w=window.open("","Deposits","width=800,height=600");w.document.write(`<h2 style="text-align:center;">Deposits</h2><table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;"><tr><th>Client</th><th>Item</th><th>Amount</th><th>Date</th></tr>${state.deposits.map(d=>`<tr><td>${d.client}</td><td>${d.item}</td><td>${formatUGX(d.amount)}</td><td>${new Date(d.date).toLocaleDateString()}</td></tr>`).join('')}</table>`);w.print();}
 
-  document.querySelectorAll(".sale-item").forEach(div=>{
-    const prodId = div.querySelector(".saleProduct").value;
-    const qty = +div.querySelector(".saleQty").value;
-    const price = +div.querySelector(".salePrice").value;
-    const product = state.inventory.find(p=>p.id===prodId);
-    if(product.qty < qty){alert(`Not enough stock for ${product.name}`); stockError=true; return;}
-    product.qty -= qty;
-    items.push({id:prodId,name:product.name,qty,price});
-    total += qty*price;
-  });
-  if(stockError) return;
-
-  const sale={id:idf(),date:Date.now(),customer,items,total};
-  state.sales.push(sale);
-  saveData();
-  closeSaleModal();
-  renderSales(); renderInventory();
-};
-
-function deleteSale(id){
-  if(confirm("Delete this sale?")){
-    state.sales=state.sales.filter(s=>s.id!==id);
-    saveData();
-    renderSales();
-  }
-}
-
-function printReceipt(id){
-  const sale=state.sales.find(s=>s.id===id); if(!sale) return;
-  const w=window.open("","","width=800,height=600");
-  w.document.write(`<h2 style="text-align:center;">Sales Receipt</h2>
-    <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
-    <p><strong>Customer:</strong> ${sale.customer}</p>
-    <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;margin-top:10px;">
-      <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
-      ${sale.items.map(i=>`<tr><td>${i.name}</td><td>${i.qty}</td><td>${formatUGX(i.price)}</td><td>${formatUGX(i.qty*i.price)}</td></tr>`).join("")}
-      <tr><td colspan="3" style="text-align:right;font-weight:bold;">Grand Total</td><td>${formatUGX(sale.total)}</td></tr>
-    </table>
-    <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>`);
-  w.print();
-}
-
-/* -------------------- INVENTORY -------------------- */
-function renderInventory(){
-  const tbody=document.querySelector("#inventoryTable tbody"); tbody.innerHTML="";
-  state.inventory.forEach(item=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML=`<td>${item.name}</td><td>${item.category||""}</td><td>${item.supplier||""}</td><td>${item.qty}</td><td>${formatUGX(item.cost)}</td><td>${item.reorder}</td>
-      <td><button class='btn btn-secondary' onclick="editInventory('${item.id}')">Edit</button>
-          <button class='btn btn-danger' onclick="deleteInventory('${item.id}')">Delete</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function openInventoryModal(){
-  document.getElementById("inventoryForm").reset();
-  document.getElementById("itemId").value="";
-  document.getElementById("inventoryModalTitle").innerText="Add Item";
-  document.getElementById("inventoryModal").style.display="flex";
-}
-function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
-
-document.getElementById("inventoryForm").onsubmit=function(e){
-  e.preventDefault();
-  const id=document.getElementById("itemId").value || idf();
-  const item={
-    id,
-    name:document.getElementById("itemName").value,
-    category:document.getElementById("itemCategory").value,
-    supplier:document.getElementById("itemSupplier").value,
-    qty:+document.getElementById("itemQty").value,
-    cost:+document.getElementById("itemCost").value,
-    reorder:+document.getElementById("itemReorder").value
-  };
-  const idx=state.inventory.findIndex(i=>i.id===id);
-  if(idx>-1) state.inventory[idx]=item; else state.inventory.push(item);
-  saveData();
-  closeInventoryModal();
-  renderInventory();
-};
-
-function editInventory(id){
-  const item=state.inventory.find(i=>i.id===id);
-  document.getElementById("itemId").value=id;
-  document.getElementById("itemName").value=item.name;
-  document.getElementById("itemCategory").value=item.category;
-  document.getElementById("itemSupplier").value=item.supplier;
-  document.getElementById("itemQty").value=item.qty;
-  document.getElementById("itemCost").value=item.cost;
-  document.getElementById("itemReorder").value=item.reorder;
-  document.getElementById("inventoryModalTitle").innerText="Edit Item";
-  document.getElementById("inventoryModal").style.display="flex";
-}
-
-function deleteInventory(id){
-  if(confirm("Delete this item?")){
-    state.inventory=state.inventory.filter(i=>i.id!==id);
-    saveData();
-    renderInventory();
-  }
-}
-
-function printInventory(){
-  let w=window.open("","Inventory Report","width=800,height=600");
-  w.document.write(`<h2 style="text-align:center;">Inventory Report</h2>
-    <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;">
-    <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th></tr>
-    ${state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td></tr>`).join("")}
-    </table>`);
-  w.print();
-}
-
-/* -------------------- EXPENSES -------------------- */
-function renderExpenses(filter=null){
-  const tbody=document.querySelector("#expensesTable tbody"); tbody.innerHTML="";
-  const fromDate = filter?.from;
-  const toDate = filter?.to;
-  let total=0;
-  state.expenses.forEach(exp=>{
-    const date = new Date(exp.date);
-    if(fromDate && date<new Date(fromDate)) return;
-    if(toDate && date>new Date(toDate)) return;
-    total+=+exp.amount;
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${date.toLocaleDateString()}</td><td>${exp.category}</td><td>${exp.description}</td><td>${formatUGX(exp.amount)}</td><td>${exp.paidBy||""}</td><td>${exp.notes||""}</td>
-      <td><button class='btn btn-danger' onclick="deleteExpense('${exp.id}')">Delete</button></td>`;
-    tbody.appendChild(tr);
-  });
-  document.getElementById("expenseTotal").innerText="Total: "+formatUGX(total);
-}
-
-function openExpenseModal(){document.getElementById("expenseForm").reset(); document.getElementById("expenseModal").style.display="flex";}
-function closeExpenseModal(){document.getElementById("expenseModal").style.display="none";}
-
-document.getElementById("expenseForm").onsubmit=function(e){
-  e.preventDefault();
-  const cat = document.getElementById("expenseCategoryCustom").value || document.getElementById("expenseCategorySelect").value;
-  const exp={
-    id:idf(),
-    date:document.getElementById("expenseDate").value,
-    category:cat,
-    description:document.getElementById("expenseDesc").value,
-    amount:+document.getElementById("expenseAmount").value,
-    paidBy:document.getElementById("expensePaidBy").value,
-    notes:document.getElementById("expenseNotes").value
-  };
-  state.expenses.push(exp);
-  saveData();
-  closeExpenseModal();
-  renderExpenses();
-};
-
-function deleteExpense(id){
-  if(confirm("Delete this expense?")){
-    state.expenses=state.expenses.filter(e=>e.id!==id);
-    saveData();
-    renderExpenses();
-  }
-}
-
-function searchExpenses(){
-  const from=document.getElementById("expenseFrom").value;
-  const to=document.getElementById("expenseTo").value;
-  renderExpenses({from,to});
-}
-
-function printExpenses(){
-  let w=window.open("","Expenses","width=800,height=600");
-  w.document.write(`<h2 style="text-align:center;">Expenses Report</h2>
-    <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;">
-    <tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th></tr>
-    ${state.expenses.map(e=>`<tr><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.category}</td><td>${e.description}</td><td>${formatUGX(e.amount)}</td><td>${e.paidBy}</td><td>${e.notes}</td></tr>`).join("")}
-    </table>`); w.print();
-}
-
-// Initial render
-renderSales(); renderInventory(); renderExpenses();
+/* -------------------- INITIAL RENDER -------------------- */
+renderEmployees(); renderSuppliers(); renderDeposits();
 </script>
 </body>
 </html>
