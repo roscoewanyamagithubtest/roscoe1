@@ -33,6 +33,311 @@
     /* Modals */
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
     .modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+    .modal input,.modal select{width:100%;padding:8px;margin:5px 0;}
+
+    @media(max-width:768px){
+      .sidebar{width:70px;padding:10px;}
+      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+      .table{font-size:0.85em;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo"><div class="mark">📊</div><h1>SALES SYSTEM</h1></div>
+      <nav id="navList">
+        <div class="nav-item active" data-view="dashboard">🏠 Dashboard</div>
+        <div class="nav-item" data-view="sales">🧾 Sales</div>
+        <div class="nav-item" data-view="inventory">📦 Inventory</div>
+        <div class="nav-item" data-view="employees">👥 Employees</div>
+        <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
+        <div class="nav-item" data-view="expenses">💸 Expenses</div>
+        <div class="nav-item" data-view="deposits">🏦 Deposits</div>
+        <div class="nav-item" data-view="settings">⚙️ Settings</div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <section data-view="dashboard" class="view card">
+        <h2>Dashboard</h2>
+        <p>Welcome to your Sales System overview.</p>
+      </section>
+
+      <!-- Sales -->
+      <section data-view="sales" class="view card" style="display:none">
+        <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button></h2>
+        <table class="table" id="salesTable">
+          <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- Inventory -->
+      <section data-view="inventory" class="view card" style="display:none">
+        <h2>Inventory 
+          <button class="btn btn-primary" onclick="openInventoryModal()">+ Add Item</button>
+          <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+        </h2>
+        <table class="table" id="inventoryTable">
+          <thead>
+            <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th><th>Actions</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Sale Modal -->
+  <div id="saleModal" class="modal"><div class="modal-box">
+    <h2 id="saleModalTitle">New Sale</h2>
+    <form id="saleForm">
+      <label>Customer</label><input id="customerName" required />
+      <div id="saleItems"></div>
+      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Sale</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
+      </div>
+    </form>
+  </div></div>
+
+  <!-- Inventory Modal -->
+  <div id="inventoryModal" class="modal"><div class="modal-box">
+    <h2 id="inventoryModalTitle">Add Item</h2>
+    <form id="inventoryForm">
+      <input type="hidden" id="itemId" />
+      <label>Item</label><input id="itemName" required />
+      <label>Category</label><input id="itemCategory" />
+      <label>Supplier</label><input id="itemSupplier" />
+      <label>Quantity</label><input id="itemQty" type="number" required />
+      <label>Cost</label><input id="itemCost" type="number" required />
+      <label>Reorder Level</label><input id="itemReorder" type="number" value="5" />
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+      </div>
+    </form>
+  </div></div>
+
+  <script>
+    const idf=()=>Math.random().toString(36).substr(2,9);
+    const formatUGX=n=>"UGX "+Number(n).toLocaleString();
+
+    const STORAGE_KEY="sales_inventory_data";
+    let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    if(!state.sales) state.sales=[];
+    if(!state.inventory) state.inventory=[
+      {id:idf(),name:"Laptop",category:"Electronics",supplier:"Tech Supplier",qty:10,cost:1500000,reorder:3},
+      {id:idf(),name:"Phone",category:"Electronics",supplier:"Mobile Inc",qty:20,cost:800000,reorder:5}
+    ];
+    saveData();
+
+    function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+
+    // Navigation
+    document.querySelectorAll("#navList .nav-item").forEach(nav=>{
+      nav.addEventListener("click",()=>{
+        document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
+        nav.classList.add("active");
+        const v=nav.dataset.view;
+        document.querySelectorAll(".view").forEach(sec=>sec.style.display="none");
+        document.querySelector(.view[data-view='${v}']).style.display="block";
+        if(v==="inventory") renderInventory();
+        if(v==="sales") renderSales();
+      });
+    });
+
+    // Sales Rendering
+    function renderSales(){
+      const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
+      state.sales.forEach(s=>{
+        const itemsHTML=s.items.map(i=>${i.name} (x${i.qty})).join(", ");
+        const tr=document.createElement("tr");
+        tr.innerHTML=<td>${new Date(s.date).toLocaleString()}</td>
+          <td>${s.customer}</td><td>${itemsHTML}</td><td>${formatUGX(s.total)}</td>
+          <td>
+            <button class='btn btn-secondary' onclick="printReceipt('${s.id}')">🖨️ Receipt</button>
+            <button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button>
+          </td>;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openSaleModal(){
+      document.getElementById("saleForm").reset();
+      document.getElementById("saleItems").innerHTML="";
+      addSaleItem();
+      document.getElementById("saleModal").style.display="flex";
+    }
+    function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
+
+    function addSaleItem(){
+      const div=document.createElement("div");
+      div.className="sale-item";
+      div.innerHTML=
+        <label>Product</label>
+        <select class="saleProduct" required>
+          ${state.inventory.map(i=><option value="${i.id}">${i.name} (Stock: ${i.qty})</option>).join("")}
+        </select>
+        <label>Quantity</label>
+        <input type="number" class="saleQty" min="1" value="1" required />
+        <label>Price</label>
+        <input type="number" class="salePrice" required />
+        <hr>
+      ;
+      document.getElementById("saleItems").appendChild(div);
+    }
+
+    document.getElementById("saleForm").onsubmit=function(e){
+      e.preventDefault();
+      const customer=document.getElementById("customerName").value;
+      const items=[];
+      let total=0;
+
+      document.querySelectorAll(".sale-item").forEach(div=>{
+        const prodId=div.querySelector(".saleProduct").value;
+        const qty=+div.querySelector(".saleQty").value;
+        const price=+div.querySelector(".salePrice").value;
+        const product=state.inventory.find(p=>p.id===prodId);
+        if(product.qty<qty){alert(Not enough stock for ${product.name});return;}
+        product.qty-=qty;
+        items.push({id:prodId,name:product.name,qty,price});
+        total+=qty*price;
+      });
+
+      const sale={id:idf(),date:Date.now(),customer,items,total};
+      state.sales.push(sale);
+      saveData();
+      closeSaleModal();
+      renderSales();
+      renderInventory();
+    };
+
+    function deleteSale(id){
+      state.sales=state.sales.filter(s=>s.id!==id);
+      saveData();
+      renderSales();
+    }
+
+    // Print Receipt
+    function printReceipt(id){
+      const sale=state.sales.find(s=>s.id===id);
+      if(!sale) return;
+      const w=window.open("","","width=800,height=600");
+      w.document.write(
+        <h2 style="text-align:center;">Sales Receipt</h2>
+        <p><b>Date:</b> ${new Date(sale.date).toLocaleString()}</p>
+        <p><b>Customer:</b> ${sale.customer}</p>
+        <table border="1" cellspacing="0" cellpadding="5" width="100%">
+          <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+          <tbody>
+            ${sale.items.map(i=><tr><td>${i.name}</td><td>${i.qty}</td><td>${formatUGX(i.price)}</td><td>${formatUGX(i.qty*i.price)}</td></tr>).join("")}
+          </tbody>
+        </table>
+        <h3 style="text-align:right;">Grand Total: ${formatUGX(sale.total)}</h3>
+      );
+      w.print();
+    }
+
+    // Inventory Rendering
+    function renderInventory(){
+      const tbody=document.querySelector("#inventoryTable tbody"); tbody.innerHTML="";
+      state.inventory.forEach(i=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=<td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td>
+          <td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td>
+          <td><button class='btn btn-secondary' onclick="editItem('${i.id}')">Edit</button>
+              <button class='btn btn-danger' onclick="deleteItem('${i.id}')">Delete</button></td>;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openInventoryModal(){document.getElementById("inventoryForm").reset();document.getElementById("itemId").value="";document.getElementById("inventoryModal").style.display="flex";}
+    function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
+
+    document.getElementById("inventoryForm").onsubmit=function(e){
+      e.preventDefault();
+      const id=document.getElementById("itemId").value;
+      const item={id:id||idf(),name:document.getElementById("itemName").value,category:document.getElementById("itemCategory").value,supplier:document.getElementById("itemSupplier").value,qty:+document.getElementById("itemQty").value,cost:+document.getElementById("itemCost").value,reorder:+document.getElementById("itemReorder").value};
+      if(id){const idx=state.inventory.findIndex(x=>x.id===id);state.inventory[idx]=item;}else{state.inventory.push(item);}
+      saveData(); closeInventoryModal(); renderInventory();
+    };
+
+    function editItem(id){
+      const i=state.inventory.find(x=>x.id===id);
+      document.getElementById("itemId").value=i.id;
+      document.getElementById("itemName").value=i.name;
+      document.getElementById("itemCategory").value=i.category;
+      document.getElementById("itemSupplier").value=i.supplier;
+      document.getElementById("itemQty").value=i.qty;
+      document.getElementById("itemCost").value=i.cost;
+      document.getElementById("itemReorder").value=i.reorder;
+      document.getElementById("inventoryModal").style.display="flex";
+    }
+
+    function deleteItem(id){
+      if(confirm("Delete item?")){
+        state.inventory=state.inventory.filter(i=>i.id!==id);
+        saveData();
+        renderInventory();
+      }
+    }
+
+    function printInventory(){
+      const w=window.open("","","width=800,height=600");
+      w.document.write("<h2>Inventory Report</h2><table border='1' cellspacing='0' cellpadding='5'><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th></tr>"+state.inventory.map(i=><tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td></tr>).join("")+"</table>");
+      w.print();
+    }
+
+    renderSales(); renderInventory();
+  </script>
+ 
+</body>
+</html>
+
+</body>
+</html>
+
+
+<!doctype html> 
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sales System — All-in-One</title>
+  <style>
+    :root{
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --panel:#1a1f29; --card:#242b38;
+      --accent:#06b6d4; --accent2:#7c3aed;
+      --radius:12px; --muted:#94a3b8;
+      font-family: Inter, ui-sans-serif, system-ui;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+    .app{flex:1;display:flex;}
+    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .logo h1{font-size:1.1em;margin:0;}
+    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+    .main{flex:1;padding:20px;overflow:auto;}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+    .table{width:100%;border-collapse:collapse;}
+    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-danger{background:#ef4444;color:#fff;}
+    .btn-secondary{background:#64748b;color:#fff;}
+
+    /* Modals */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    .modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
     .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
 
     @media(max-width:768px){
@@ -275,3 +580,4 @@
   </script>
 </body>
 </html>
+
