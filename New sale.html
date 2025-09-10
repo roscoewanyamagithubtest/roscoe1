@@ -1,453 +1,428 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sales System — All-in-One</title>
-  <style>
-    :root{
-      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
-      --panel:#1a1f29; --card:#242b38;
-      --accent:#06b6d4; --accent2:#7c3aed;
-      --radius:12px; --muted:#94a3b8;
-      font-family: Inter, ui-sans-serif, system-ui;
-      color-scheme: dark;
-    }
-    *{box-sizing:border-box;}
-    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
-    .app{flex:1;display:flex;}
-    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
-    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-    .logo h1{font-size:1.1em;margin:0;}
-    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
-    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
-    .main{flex:1;padding:20px;overflow:auto;}
-    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-    .table{width:100%;border-collapse:collapse;}
-    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
-    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
-    .btn-primary{background:var(--accent);color:#fff;}
-    .btn-danger{background:#ef4444;color:#fff;}
-    .btn-secondary{background:#64748b;color:#fff;}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sales System — All-in-One</title>
+<style>
+:root{
+  --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+  --panel:#1a1f29; --card:#242b38;
+  --accent:#06b6d4; --accent2:#7c3aed;
+  --radius:12px; --muted:#94a3b8;
+  font-family: Inter, ui-sans-serif, system-ui;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+.app{flex:1;display:flex;}
+.sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.logo h1{font-size:1.1em;margin:0;}
+.nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+.nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+.main{flex:1;padding:20px;overflow:auto;}
+.card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+.btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-danger{background:#ef4444;color:#fff;}
+.btn-secondary{background:#64748b;color:#fff;}
 
-    /* Modals */
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-    .modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
-    .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
+/* Modals */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+.modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+.modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
 
-    @media(max-width:768px){
-      .sidebar{width:70px;padding:10px;}
-      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
-      .table{font-size:0.85em;}
-    }
-  </style>
+@media(max-width:768px){
+  .sidebar{width:70px;padding:10px;}
+  .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+  .table{font-size:0.85em;}
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo"><div class="mark">📊</div><h1>SALES SYSTEM</h1></div>
-      <nav id="navList">
-        <div class="nav-item active" data-view="dashboard">🏠 Dashboard</div>
-        <div class="nav-item" data-view="sales">🧾 Sales</div>
-        <div class="nav-item" data-view="inventory">📦 Inventory</div>
-        <div class="nav-item" data-view="employees">👥 Employees</div>
-        <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
-        <div class="nav-item" data-view="expenses">💸 Expenses</div>
-        <div class="nav-item" data-view="deposits">🏦 Deposits</div>
-        <div class="nav-item" data-view="settings">⚙️ Settings</div>
-      </nav>
-    </aside>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><div class="mark">📊</div><h1>SALES SYSTEM</h1></div>
+    <nav id="navList">
+      <div class="nav-item active" data-view="dashboard">🏠 Dashboard</div>
+      <div class="nav-item" data-view="sales">🧾 Sales</div>
+      <div class="nav-item" data-view="inventory">📦 Inventory</div>
+      <div class="nav-item" data-view="employees">👥 Employees</div>
+      <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
+      <div class="nav-item" data-view="expenses">💸 Expenses</div>
+      <div class="nav-item" data-view="deposits">🏦 Deposits</div>
+      <div class="nav-item" data-view="settings">⚙️ Settings</div>
+    </nav>
+  </aside>
 
-    <!-- Main -->
-    <main class="main">
-      <section data-view="dashboard" class="view card">
-        <h2>Dashboard</h2>
-        <p>Welcome to your Sales System overview.</p>
-      </section>
+  <!-- Main -->
+  <main class="main">
+    <!-- Dashboard -->
+    <section data-view="dashboard" class="view card">
+      <h2>Dashboard</h2>
+      <p>Welcome to your Sales System overview.</p>
+    </section>
 
-      <!-- Sales -->
-      <section data-view="sales" class="view card" style="display:none">
-        <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button></h2>
-        <table class="table" id="salesTable">
-          <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </section>
+    <!-- Sales -->
+    <section data-view="sales" class="view card" style="display:none">
+      <h2>Sales <button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button></h2>
+      <table class="table" id="salesTable">
+        <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-      <!-- Inventory -->
-      <section data-view="inventory" class="view card" style="display:none">
-        <h2>Inventory 
-          <button class="btn btn-primary" onclick="openInventoryModal()">+ Add Item</button>
-          <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
-        </h2>
-        <table class="table" id="inventoryTable">
-          <thead>
-            <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th><th>Actions</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </section>
+    <!-- Inventory -->
+    <section data-view="inventory" class="view card" style="display:none">
+      <h2>Inventory 
+        <button class="btn btn-primary" onclick="openInventoryModal()">+ Add Item</button>
+        <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+      </h2>
+      <table class="table" id="inventoryTable">
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder Level</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-      <!-- Expenses -->
-      <section data-view="expenses" class="view card" style="display:none">
-        <h2>Expenses 
-          <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
-          <button class="btn btn-secondary" onclick="printExpenses()">🖨️ Print</button>
-        </h2>
-        <div style="margin:10px 0;">
-          <label>From: <input type="date" id="expenseFrom"></label>
-          <label>To: <input type="date" id="expenseTo"></label>
-          <button class="btn btn-secondary" onclick="searchExpenses()">🔍 Search</button>
-          <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
-        </div>
-        <table class="table" id="expensesTable">
-          <thead>
-            <tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr>
-          </thead>
-          <tbody></tbody>
-          <tfoot>
-            <tr><td colspan="7" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
-          </tfoot>
-        </table>
-      </section>
-    </main>
-  </div>
-
-  <!-- Expense Modal -->
-  <div id="expenseModal" class="modal"><div class="modal-box">
-    <h2>Add Expense</h2>
-    <form id="expenseForm">
-      <label>Date</label><input type="date" id="expenseDate" required />
-      <label>Category</label>
-      <select id="expenseCategorySelect">
-        <option value="">-- Select Category --</option>
-        <option value="Rent">Rent</option>
-        <option value="Salaries">Salaries</option>
-        <option value="Utilities">Utilities</option>
-        <option value="Transport">Transport</option>
-        <option value="Maintenance">Maintenance</option>
-        <option value="Marketing">Marketing</option>
-        <option value="Miscellaneous">Miscellaneous</option>
-      </select>
-      <label>Or Custom Category</label>
-      <input id="expenseCategoryCustom" placeholder="Type custom category" />
-      <label>Description</label><input id="expenseDesc" required />
-      <label>Amount</label><input type="number" id="expenseAmount" required />
-      <label>Paid By</label><input id="expensePaidBy" />
-      <label>Notes</label><textarea id="expenseNotes"></textarea>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+    <!-- Expenses -->
+    <section data-view="expenses" class="view card" style="display:none">
+      <h2>Expenses 
+        <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
+        <button class="btn btn-secondary" onclick="printExpenses()">🖨️ Print</button>
+      </h2>
+      <div style="margin:10px 0;">
+        <label>From: <input type="date" id="expenseFrom"></label>
+        <label>To: <input type="date" id="expenseTo"></label>
+        <button class="btn btn-secondary" onclick="searchExpenses()">🔍 Search</button>
+        <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
       </div>
-    </form>
-  </div></div>
+      <table class="table" id="expensesTable">
+        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="7" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
+        </tfoot>
+      </table>
+    </section>
 
-  <!-- Sale Modal -->
-  <div id="saleModal" class="modal"><div class="modal-box">
-    <h2 id="saleModalTitle">New Sale</h2>
-    <form id="saleForm">
-      <label>Customer</label><input id="customerName" required />
-      <div id="saleItems"></div>
-      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
-      <div style="margin-top:10px;text-align:right;">
-        <button type="submit" class="btn btn-primary">Save Sale</button>
-        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
-      </div>
-    </form>
-  </div></div>
+    <!-- Placeholder pages -->
+    <section data-view="employees" class="view card" style="display:none"><h2>Employees</h2></section>
+    <section data-view="suppliers" class="view card" style="display:none"><h2>Suppliers</h2></section>
+    <section data-view="deposits" class="view card" style="display:none"><h2>Deposits</h2></section>
+    <section data-view="settings" class="view card" style="display:none"><h2>Settings</h2></section>
+  </main>
+</div>
 
-  <!-- Inventory Modal -->
-  <div id="inventoryModal" class="modal"><div class="modal-box">
-    <h2 id="inventoryModalTitle">Add Item</h2>
-    <form id="inventoryForm">
-      <input type="hidden" id="itemId" />
-      <label>Item</label><input id="itemName" required />
-      <label>Category</label><input id="itemCategory" />
-      <label>Supplier</label><input id="itemSupplier" />
-      <label>Quantity</label><input id="itemQty" type="number" required />
-      <label>Cost</label><input id="itemCost" type="number" required />
-      <label>Reorder Level</label><input id="itemReorder" type="number" value="5" />
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
-      </div>
-    </form>
-  </div></div>
+<!-- Modals -->
+<div id="saleModal" class="modal"><div class="modal-box">
+  <h2 id="saleModalTitle">New Sale</h2>
+  <form id="saleForm">
+    <label>Customer</label><input id="customerName" required />
+    <div id="saleItems"></div>
+    <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
+    <div style="margin-top:10px;text-align:right;">
+      <button type="submit" class="btn btn-primary">Save Sale</button>
+      <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
+    </div>
+  </form>
+</div></div>
 
-  <script>
-    const idf=()=>Math.random().toString(36).substr(2,9);
-    const formatUGX=n=>"UGX "+Number(n).toLocaleString();
+<div id="inventoryModal" class="modal"><div class="modal-box">
+  <h2 id="inventoryModalTitle">Add Item</h2>
+  <form id="inventoryForm">
+    <input type="hidden" id="itemId" />
+    <label>Item</label><input id="itemName" required />
+    <label>Category</label><input id="itemCategory" />
+    <label>Supplier</label><input id="itemSupplier" />
+    <label>Quantity</label><input id="itemQty" type="number" required />
+    <label>Cost</label><input id="itemCost" type="number" required />
+    <label>Reorder Level</label><input id="itemReorder" type="number" value="5" />
+    <div style="text-align:right;margin-top:10px;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+    </div>
+  </form>
+</div></div>
 
-    const STORAGE_KEY="sales_inventory_data";
-    let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
-    if(!state.sales) state.sales=[];
-    if(!state.inventory) state.inventory=[];
-    if(!state.expenses) state.expenses=[];
+<div id="expenseModal" class="modal"><div class="modal-box">
+  <h2>Add Expense</h2>
+  <form id="expenseForm">
+    <label>Date</label><input type="date" id="expenseDate" required />
+    <label>Category</label>
+    <select id="expenseCategorySelect">
+      <option value="">-- Select Category --</option>
+      <option value="Rent">Rent</option>
+      <option value="Salaries">Salaries</option>
+      <option value="Utilities">Utilities</option>
+      <option value="Transport">Transport</option>
+      <option value="Maintenance">Maintenance</option>
+      <option value="Marketing">Marketing</option>
+      <option value="Miscellaneous">Miscellaneous</option>
+    </select>
+    <label>Or Custom Category</label><input id="expenseCategoryCustom" placeholder="Type custom category" />
+    <label>Description</label><input id="expenseDesc" required />
+    <label>Amount</label><input type="number" id="expenseAmount" required />
+    <label>Paid By</label><input id="expensePaidBy" />
+    <label>Notes</label><textarea id="expenseNotes"></textarea>
+    <div style="text-align:right;margin-top:10px;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+    </div>
+  </form>
+</div></div>
+
+<script>
+const idf = () => Math.random().toString(36).substr(2,9);
+const formatUGX = n => "UGX " + Number(n).toLocaleString();
+
+const STORAGE_KEY="sales_inventory_data";
+let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+if(!state.sales) state.sales=[];
+if(!state.inventory) state.inventory=[];
+if(!state.expenses) state.expenses=[];
+saveData();
+function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+
+// Navigation
+document.querySelectorAll("#navList .nav-item").forEach(nav=>{
+  nav.addEventListener("click", ()=>{
+    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
+    nav.classList.add("active");
+    const view = nav.dataset.view;
+    document.querySelectorAll(".view").forEach(sec=>sec.style.display="none");
+    document.querySelector(`.view[data-view='${view}']`).style.display="block";
+
+    if(view==="sales") renderSales();
+    if(view==="inventory") renderInventory();
+    if(view==="expenses") renderExpenses();
+  });
+});
+
+// Default page
+document.querySelector(`.view[data-view='dashboard']`).style.display="block";
+
+/* -------------------- SALES -------------------- */
+function renderSales(){
+  const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
+  state.sales.forEach(s=>{
+    const itemsHTML = s.items.map(i=>`${i.name} (x${i.qty})`).join(", ");
+    const tr = document.createElement("tr");
+    tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td><td>${s.customer}</td><td>${itemsHTML}</td><td>${formatUGX(s.total)}</td>
+      <td><button class='btn btn-secondary' onclick="printReceipt('${s.id}')">🖨️ Receipt</button>
+          <button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function openSaleModal(){
+  document.getElementById("saleForm").reset();
+  document.getElementById("saleItems").innerHTML="";
+  addSaleItem();
+  document.getElementById("saleModal").style.display="flex";
+}
+function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
+
+function addSaleItem(){
+  const div=document.createElement("div"); div.className="sale-item";
+  div.innerHTML = `<label>Product</label>
+    <select class="saleProduct" required>
+      ${state.inventory.map(i=>`<option value="${i.id}">${i.name} (Stock: ${i.qty})</option>`).join("")}
+    </select>
+    <label>Quantity</label><input type="number" class="saleQty" min="1" value="1" required />
+    <label>Price</label><input type="number" class="salePrice" required />
+    <hr>`;
+  document.getElementById("saleItems").appendChild(div);
+}
+
+document.getElementById("saleForm").onsubmit=function(e){
+  e.preventDefault();
+  const customer=document.getElementById("customerName").value;
+  const items=[]; let total=0;
+  let stockError=false;
+
+  document.querySelectorAll(".sale-item").forEach(div=>{
+    const prodId = div.querySelector(".saleProduct").value;
+    const qty = +div.querySelector(".saleQty").value;
+    const price = +div.querySelector(".salePrice").value;
+    const product = state.inventory.find(p=>p.id===prodId);
+    if(product.qty < qty){alert(`Not enough stock for ${product.name}`); stockError=true; return;}
+    product.qty -= qty;
+    items.push({id:prodId,name:product.name,qty,price});
+    total += qty*price;
+  });
+  if(stockError) return;
+
+  const sale={id:idf(),date:Date.now(),customer,items,total};
+  state.sales.push(sale);
+  saveData();
+  closeSaleModal();
+  renderSales(); renderInventory();
+};
+
+function deleteSale(id){
+  if(confirm("Delete this sale?")){
+    state.sales=state.sales.filter(s=>s.id!==id);
     saveData();
-
-    function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
-
-    // Navigation
-    document.querySelectorAll("#navList .nav-item").forEach(nav=>{
-      nav.addEventListener("click",()=>{
-        document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
-        nav.classList.add("active");
-        const v=nav.dataset.view;
-        document.querySelectorAll(".view").forEach(sec=>sec.style.display="none");
-        document.querySelector(`.view[data-view='${v}']`).style.display="block";
-        if(v==="inventory") renderInventory();
-        if(v==="sales") renderSales();
-        if(v==="expenses") renderExpenses();
-      });
-    });
-
-    /* -------------------- EXPENSES -------------------- */
-    function renderExpenses(list=state.expenses){
-      const tbody=document.querySelector("#expensesTable tbody"); 
-      tbody.innerHTML="";
-      let total=0;
-      list.forEach(e=>{
-        total+=e.amount;
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.desc}</td>
-          <td>${formatUGX(e.amount)}</td><td>${e.paidBy||""}</td><td>${e.notes||""}</td>
-          <td><button class='btn btn-danger' onclick="deleteExpense('${e.id}')">Delete</button></td>`;
-        tbody.appendChild(tr);
-      });
-      document.getElementById("expenseTotal").innerText="Total Expenses: "+formatUGX(total);
-    }
-
-    function openExpenseModal(){
-      document.getElementById("expenseForm").reset();
-      document.getElementById("expenseModal").style.display="flex";
-    }
-    function closeExpenseModal(){document.getElementById("expenseModal").style.display="none";}
-
-    document.getElementById("expenseForm").onsubmit=function(e){
-      e.preventDefault();
-      const categoryCustom=document.getElementById("expenseCategoryCustom").value.trim();
-      const categorySelect=document.getElementById("expenseCategorySelect").value;
-      const expense={
-        id:idf(),
-        date:document.getElementById("expenseDate").value,
-        category:categoryCustom || categorySelect || "Uncategorized",
-        desc:document.getElementById("expenseDesc").value,
-        amount:+document.getElementById("expenseAmount").value,
-        paidBy:document.getElementById("expensePaidBy").value,
-        notes:document.getElementById("expenseNotes").value
-      };
-      state.expenses.push(expense);
-      saveData();
-      closeExpenseModal();
-      renderExpenses();
-    };
-
-    function deleteExpense(id){
-      if(confirm("Delete expense?")){
-        state.expenses=state.expenses.filter(e=>e.id!==id);
-        saveData();
-        renderExpenses();
-      }
-    }
-
-    function searchExpenses(){
-      const from=document.getElementById("expenseFrom").value;
-      const to=document.getElementById("expenseTo").value;
-      let filtered=state.expenses;
-      if(from) filtered=filtered.filter(e=>e.date>=from);
-      if(to) filtered=filtered.filter(e=>e.date<=to);
-      renderExpenses(filtered);
-    }
-
-    function printExpenses(){
-      const w=window.open("","","width=800,height=600");
-      w.document.write("<h2>Expense Report</h2><table border='1' cellspacing='0' cellpadding='5'><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th></tr>"+
-        state.expenses.map(e=>`<tr><td>${e.date}</td><td>${e.category}</td><td>${e.desc}</td><td>${formatUGX(e.amount)}</td><td>${e.paidBy}</td><td>${e.notes}</td></tr>`).join("")+"</table>");
-      w.print();
-    }
-
-    /* -------------------- SALES -------------------- */
-    function renderSales(){
-      const tbody=document.querySelector("#salesTable tbody"); tbody.innerHTML="";
-      state.sales.forEach(s=>{
-        const itemsHTML=s.items.map(i=>`${i.name} (x${i.qty})`).join(", ");
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${new Date(s.date).toLocaleString()}</td>
-          <td>${s.customer}</td><td>${itemsHTML}</td><td>${formatUGX(s.total)}</td>
-          <td>
-            <button class='btn btn-secondary' onclick="printReceipt('${s.id}')">🖨️ Receipt</button>
-            <button class='btn btn-danger' onclick="deleteSale('${s.id}')">Delete</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openSaleModal(){
-      document.getElementById("saleForm").reset();
-      document.getElementById("saleItems").innerHTML="";
-      addSaleItem();
-      document.getElementById("saleModal").style.display="flex";
-    }
-    function closeSaleModal(){document.getElementById("saleModal").style.display="none";}
-
-    function addSaleItem(){
-      const div=document.createElement("div");
-      div.className="sale-item";
-      div.innerHTML=`
-        <label>Product</label>
-        <select class="saleProduct" required>
-          ${state.inventory.map(i=>`<option value="${i.id}">${i.name} (Stock: ${i.qty})</option>`).join("")}
-        </select>
-        <label>Quantity</label>
-        <input type="number" class="saleQty" min="1" value="1" required />
-        <label>Price</label>
-        <input type="number" class="salePrice" required />
-        <hr>
-      `;
-      document.getElementById("saleItems").appendChild(div);
-    }
-
-    document.getElementById("saleForm").onsubmit=function(e){
-      e.preventDefault();
-      const customer=document.getElementById("customerName").value;
-      const items=[];
-      let total=0;
-      let valid=true;
-
-      document.querySelectorAll(".sale-item").forEach(div=>{
-        const prodId=div.querySelector(".saleProduct").value;
-        const qty=+div.querySelector(".saleQty").value;
-        const price=+div.querySelector(".salePrice").value;
-        const product=state.inventory.find(p=>p.id===prodId);
-        if(product.qty<qty){alert(`Not enough stock for ${product.name}`); valid=false; return;}
-        product.qty-=qty;
-        items.push({id:prodId,name:product.name,qty,price});
-        total+=qty*price;
-      });
-
-      if(!valid) return;
-
-      const sale={id:idf(),date:Date.now(),customer,items,total};
-      state.sales.push(sale);
-      saveData();
-      closeSaleModal();
-      renderSales();
-      renderInventory();
-    };
-
-    function deleteSale(id){
-      state.sales=state.sales.filter(s=>s.id!==id);
-      saveData();
-      renderSales();
-    }
-
-    function printReceipt(id){
-      const sale=state.sales.find(s=>s.id===id);
-      if(!sale) return;
-      const w=window.open("","","width=800,height=600");
-      w.document.write(`
-                <h2 style="text-align:center;">Sales Receipt</h2>
-        <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
-        <p><strong>Customer:</strong> ${sale.customer}</p>
-        <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
-          ${sale.items.map(i=>`
-            <tr>
-              <td>${i.name}</td>
-              <td>${i.qty}</td>
-              <td>${formatUGX(i.price)}</td>
-              <td>${formatUGX(i.qty*i.price)}</td>
-            </tr>
-          `).join("")}
-          <tr>
-            <td colspan="3" style="text-align:right;font-weight:bold;">Grand Total</td>
-            <td>${formatUGX(sale.total)}</td>
-          </tr>
-        </table>
-        <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>
-      `);
-      w.print();
-    }
-
-    /* -------------------- INVENTORY -------------------- */
-    function renderInventory(){
-      const tbody=document.querySelector("#inventoryTable tbody"); 
-      tbody.innerHTML="";
-      state.inventory.forEach(item=>{
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${item.name}</td><td>${item.category||""}</td><td>${item.supplier||""}</td>
-          <td>${item.qty}</td><td>${formatUGX(item.cost)}</td><td>${item.reorder}</td>
-          <td>
-            <button class='btn btn-secondary' onclick="editInventory('${item.id}')">Edit</button>
-            <button class='btn btn-danger' onclick="deleteInventory('${item.id}')">Delete</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openInventoryModal(){
-      document.getElementById("inventoryForm").reset();
-      document.getElementById("itemId").value="";
-      document.getElementById("inventoryModalTitle").innerText="Add Item";
-      document.getElementById("inventoryModal").style.display="flex";
-    }
-    function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
-
-    document.getElementById("inventoryForm").onsubmit=function(e){
-      e.preventDefault();
-      const id=document.getElementById("itemId").value || idf();
-      const item={
-        id,
-        name:document.getElementById("itemName").value,
-        category:document.getElementById("itemCategory").value,
-        supplier:document.getElementById("itemSupplier").value,
-        qty:+document.getElementById("itemQty").value,
-        cost:+document.getElementById("itemCost").value,
-        reorder:+document.getElementById("itemReorder").value
-      };
-      const idx=state.inventory.findIndex(i=>i.id===id);
-      if(idx>-1) state.inventory[idx]=item; else state.inventory.push(item);
-      saveData();
-      closeInventoryModal();
-      renderInventory();
-    };
-
-    function editInventory(id){
-      const item=state.inventory.find(i=>i.id===id);
-      if(!item) return;
-      document.getElementById("inventoryModalTitle").innerText="Edit Item";
-      document.getElementById("itemId").value=item.id;
-      document.getElementById("itemName").value=item.name;
-      document.getElementById("itemCategory").value=item.category;
-      document.getElementById("itemSupplier").value=item.supplier;
-      document.getElementById("itemQty").value=item.qty;
-      document.getElementById("itemCost").value=item.cost;
-      document.getElementById("itemReorder").value=item.reorder;
-      document.getElementById("inventoryModal").style.display="flex";
-    }
-
-    function deleteInventory(id){
-      if(confirm("Delete this item?")){
-        state.inventory=state.inventory.filter(i=>i.id!==id);
-        saveData();
-        renderInventory();
-      }
-    }
-
-    function printInventory(){
-      const w=window.open("","","width=800,height=600");
-      w.document.write("<h2>Inventory Report</h2><table border='1' cellspacing='0' cellpadding='5' style='width:100%;border-collapse:collapse;'><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder</th></tr>"+
-        state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td></tr>`).join("")+"</table>");
-      w.print();
-    }
-
-    // Initialize dashboard default
-    renderInventory();
     renderSales();
+  }
+}
+
+function printReceipt(id){
+  const sale=state.sales.find(s=>s.id===id); if(!sale) return;
+  const w=window.open("","","width=800,height=600");
+  w.document.write(`<h2 style="text-align:center;">Sales Receipt</h2>
+    <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
+    <p><strong>Customer:</strong> ${sale.customer}</p>
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;margin-top:10px;">
+      <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+      ${sale.items.map(i=>`<tr><td>${i.name}</td><td>${i.qty}</td><td>${formatUGX(i.price)}</td><td>${formatUGX(i.qty*i.price)}</td></tr>`).join("")}
+      <tr><td colspan="3" style="text-align:right;font-weight:bold;">Grand Total</td><td>${formatUGX(sale.total)}</td></tr>
+    </table>
+    <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>`);
+  w.print();
+}
+
+/* -------------------- INVENTORY -------------------- */
+function renderInventory(){
+  const tbody=document.querySelector("#inventoryTable tbody"); tbody.innerHTML="";
+  state.inventory.forEach(item=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML=`<td>${item.name}</td><td>${item.category||""}</td><td>${item.supplier||""}</td><td>${item.qty}</td><td>${formatUGX(item.cost)}</td><td>${item.reorder}</td>
+      <td><button class='btn btn-secondary' onclick="editInventory('${item.id}')">Edit</button>
+          <button class='btn btn-danger' onclick="deleteInventory('${item.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function openInventoryModal(){
+  document.getElementById("inventoryForm").reset();
+  document.getElementById("itemId").value="";
+  document.getElementById("inventoryModalTitle").innerText="Add Item";
+  document.getElementById("inventoryModal").style.display="flex";
+}
+function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
+
+document.getElementById("inventoryForm").onsubmit=function(e){
+  e.preventDefault();
+  const id=document.getElementById("itemId").value || idf();
+  const item={
+    id,
+    name:document.getElementById("itemName").value,
+    category:document.getElementById("itemCategory").value,
+    supplier:document.getElementById("itemSupplier").value,
+    qty:+document.getElementById("itemQty").value,
+    cost:+document.getElementById("itemCost").value,
+    reorder:+document.getElementById("itemReorder").value
+  };
+  const idx=state.inventory.findIndex(i=>i.id===id);
+  if(idx>-1) state.inventory[idx]=item; else state.inventory.push(item);
+  saveData();
+  closeInventoryModal();
+  renderInventory();
+};
+
+function editInventory(id){
+  const item=state.inventory.find(i=>i.id===id);
+  document.getElementById("itemId").value=id;
+  document.getElementById("itemName").value=item.name;
+  document.getElementById("itemCategory").value=item.category;
+  document.getElementById("itemSupplier").value=item.supplier;
+  document.getElementById("itemQty").value=item.qty;
+  document.getElementById("itemCost").value=item.cost;
+  document.getElementById("itemReorder").value=item.reorder;
+  document.getElementById("inventoryModalTitle").innerText="Edit Item";
+  document.getElementById("inventoryModal").style.display="flex";
+}
+
+function deleteInventory(id){
+  if(confirm("Delete this item?")){
+    state.inventory=state.inventory.filter(i=>i.id!==id);
+    saveData();
+    renderInventory();
+  }
+}
+
+function printInventory(){
+  let w=window.open("","Inventory Report","width=800,height=600");
+  w.document.write(`<h2 style="text-align:center;">Inventory Report</h2>
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;">
+    <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th></tr>
+    ${state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td></tr>`).join("")}
+    </table>`);
+  w.print();
+}
+
+/* -------------------- EXPENSES -------------------- */
+function renderExpenses(filter=null){
+  const tbody=document.querySelector("#expensesTable tbody"); tbody.innerHTML="";
+  const fromDate = filter?.from;
+  const toDate = filter?.to;
+  let total=0;
+  state.expenses.forEach(exp=>{
+    const date = new Date(exp.date);
+    if(fromDate && date<new Date(fromDate)) return;
+    if(toDate && date>new Date(toDate)) return;
+    total+=+exp.amount;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${date.toLocaleDateString()}</td><td>${exp.category}</td><td>${exp.description}</td><td>${formatUGX(exp.amount)}</td><td>${exp.paidBy||""}</td><td>${exp.notes||""}</td>
+      <td><button class='btn btn-danger' onclick="deleteExpense('${exp.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("expenseTotal").innerText="Total: "+formatUGX(total);
+}
+
+function openExpenseModal(){document.getElementById("expenseForm").reset(); document.getElementById("expenseModal").style.display="flex";}
+function closeExpenseModal(){document.getElementById("expenseModal").style.display="none";}
+
+document.getElementById("expenseForm").onsubmit=function(e){
+  e.preventDefault();
+  const cat = document.getElementById("expenseCategoryCustom").value || document.getElementById("expenseCategorySelect").value;
+  const exp={
+    id:idf(),
+    date:document.getElementById("expenseDate").value,
+    category:cat,
+    description:document.getElementById("expenseDesc").value,
+    amount:+document.getElementById("expenseAmount").value,
+    paidBy:document.getElementById("expensePaidBy").value,
+    notes:document.getElementById("expenseNotes").value
+  };
+  state.expenses.push(exp);
+  saveData();
+  closeExpenseModal();
+  renderExpenses();
+};
+
+function deleteExpense(id){
+  if(confirm("Delete this expense?")){
+    state.expenses=state.expenses.filter(e=>e.id!==id);
+    saveData();
     renderExpenses();
-  </script>
+  }
+}
+
+function searchExpenses(){
+  const from=document.getElementById("expenseFrom").value;
+  const to=document.getElementById("expenseTo").value;
+  renderExpenses({from,to});
+}
+
+function printExpenses(){
+  let w=window.open("","Expenses","width=800,height=600");
+  w.document.write(`<h2 style="text-align:center;">Expenses Report</h2>
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;">
+    <tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th></tr>
+    ${state.expenses.map(e=>`<tr><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.category}</td><td>${e.description}</td><td>${formatUGX(e.amount)}</td><td>${e.paidBy}</td><td>${e.notes}</td></tr>`).join("")}
+    </table>`); w.print();
+}
+
+// Initial render
+renderSales(); renderInventory(); renderExpenses();
+</script>
 </body>
 </html>
-
-
