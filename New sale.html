@@ -347,4 +347,107 @@
       if(!sale) return;
       const w=window.open("","","width=800,height=600");
       w.document.write(`
-        <h2 style="
+                <h2 style="text-align:center;">Sales Receipt</h2>
+        <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
+        <p><strong>Customer:</strong> ${sale.customer}</p>
+        <table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+          ${sale.items.map(i=>`
+            <tr>
+              <td>${i.name}</td>
+              <td>${i.qty}</td>
+              <td>${formatUGX(i.price)}</td>
+              <td>${formatUGX(i.qty*i.price)}</td>
+            </tr>
+          `).join("")}
+          <tr>
+            <td colspan="3" style="text-align:right;font-weight:bold;">Grand Total</td>
+            <td>${formatUGX(sale.total)}</td>
+          </tr>
+        </table>
+        <p style="text-align:center;margin-top:20px;">Thank you for your purchase!</p>
+      `);
+      w.print();
+    }
+
+    /* -------------------- INVENTORY -------------------- */
+    function renderInventory(){
+      const tbody=document.querySelector("#inventoryTable tbody"); 
+      tbody.innerHTML="";
+      state.inventory.forEach(item=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${item.name}</td><td>${item.category||""}</td><td>${item.supplier||""}</td>
+          <td>${item.qty}</td><td>${formatUGX(item.cost)}</td><td>${item.reorder}</td>
+          <td>
+            <button class='btn btn-secondary' onclick="editInventory('${item.id}')">Edit</button>
+            <button class='btn btn-danger' onclick="deleteInventory('${item.id}')">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openInventoryModal(){
+      document.getElementById("inventoryForm").reset();
+      document.getElementById("itemId").value="";
+      document.getElementById("inventoryModalTitle").innerText="Add Item";
+      document.getElementById("inventoryModal").style.display="flex";
+    }
+    function closeInventoryModal(){document.getElementById("inventoryModal").style.display="none";}
+
+    document.getElementById("inventoryForm").onsubmit=function(e){
+      e.preventDefault();
+      const id=document.getElementById("itemId").value || idf();
+      const item={
+        id,
+        name:document.getElementById("itemName").value,
+        category:document.getElementById("itemCategory").value,
+        supplier:document.getElementById("itemSupplier").value,
+        qty:+document.getElementById("itemQty").value,
+        cost:+document.getElementById("itemCost").value,
+        reorder:+document.getElementById("itemReorder").value
+      };
+      const idx=state.inventory.findIndex(i=>i.id===id);
+      if(idx>-1) state.inventory[idx]=item; else state.inventory.push(item);
+      saveData();
+      closeInventoryModal();
+      renderInventory();
+    };
+
+    function editInventory(id){
+      const item=state.inventory.find(i=>i.id===id);
+      if(!item) return;
+      document.getElementById("inventoryModalTitle").innerText="Edit Item";
+      document.getElementById("itemId").value=item.id;
+      document.getElementById("itemName").value=item.name;
+      document.getElementById("itemCategory").value=item.category;
+      document.getElementById("itemSupplier").value=item.supplier;
+      document.getElementById("itemQty").value=item.qty;
+      document.getElementById("itemCost").value=item.cost;
+      document.getElementById("itemReorder").value=item.reorder;
+      document.getElementById("inventoryModal").style.display="flex";
+    }
+
+    function deleteInventory(id){
+      if(confirm("Delete this item?")){
+        state.inventory=state.inventory.filter(i=>i.id!==id);
+        saveData();
+        renderInventory();
+      }
+    }
+
+    function printInventory(){
+      const w=window.open("","","width=800,height=600");
+      w.document.write("<h2>Inventory Report</h2><table border='1' cellspacing='0' cellpadding='5' style='width:100%;border-collapse:collapse;'><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder</th></tr>"+
+        state.inventory.map(i=>`<tr><td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${formatUGX(i.cost)}</td><td>${i.reorder}</td></tr>`).join("")+"</table>");
+      w.print();
+    }
+
+    // Initialize dashboard default
+    renderInventory();
+    renderSales();
+    renderExpenses();
+  </script>
+</body>
+</html>
+
+
