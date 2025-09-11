@@ -1,1 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sales System — All-in-One</title>
+  <style>
+    :root{
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --panel:#1a1f29; --card:#242b38;
+      --accent:#06b6d4; --accent2:#7c3aed;
+      --radius:12px; --muted:#94a3b8;
+      font-family: Inter, ui-sans-serif, system-ui;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+    .app{flex:1;display:flex;}
+    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .logo h1{font-size:1.1em;margin:0;}
+    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+    .main{flex:1;padding:20px;overflow:auto;}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+    .table{width:100%;border-collapse:collapse;}
+    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-danger{background:#ef4444;color:#fff;}
+    .btn-secondary{background:#64748b;color:#fff;}
+
+    /* Modals */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    .modal .modal-box{background:#fff;color:#000;padding:20px;width:500px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+    .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
+
+    @media(max-width:768px){
+      .sidebar{width:70px;padding:10px;}
+      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+      .table{font-size:0.85em;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><div class="mark">📊</div><h1>SALES SYSTEM</h1></div>
+    <nav id="navList">
+      <div class="nav-item active" data-view="dashboard">🏠 Dashboard</div>
+      <div class="nav-item" data-view="sales">🧾 Sales</div>
+      <div class="nav-item" data-view="inventory">📦 Inventory</div>
+      <div class="nav-item" data-view="expenses">💸 Expenses</div>
+      <div class="nav-item" data-view="employees">👥 Employees</div>
+      <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
+      <div class="nav-item" data-view="deposits">🏦 Deposits</div>
+      <div class="nav-item" data-view="settings">⚙️ Settings</div>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- Dashboard -->
+    <section data-view="dashboard" class="view card">
+      <h2>Dashboard</h2>
+      <p>Welcome to your Sales System overview.</p>
+    </section>
+
+    <!-- Sales -->
+    <section data-view="sales" class="view card" style="display:none">
+      <h2>Sales 
+        <button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button>
+        <button class="btn btn-secondary" onclick="printSales()">🖨️ Print All Sales</button>
+      </h2>
+      <table class="table" id="salesTable">
+        <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Inventory -->
+    <section data-view="inventory" class="view card" style="display:none">
+      <h2>Inventory 
+        <button class="btn btn-primary" onclick="openInventoryModal()">+ Add Item</button>
+        <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+      </h2>
+      <table class="table" id="inventoryTable">
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th><th>Reorder</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Expenses -->
+    <section data-view="expenses" class="view card" style="display:none">
+      <h2>Expenses 
+        <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
+        <button class="btn btn-secondary" onclick="printExpenses()">🖨️ Print</button>
+      </h2>
+      <div style="margin:10px 0;">
+        <label>From: <input type="date" id="expenseFrom"></label>
+        <label>To: <input type="date" id="expenseTo"></label>
+        <button class="btn btn-secondary" onclick="searchExpenses()">🔍 Search</button>
+        <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
+      </div>
+      <table class="table" id="expensesTable">
+        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="7" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
+        </tfoot>
+      </table>
+    </section>
+    <!-- Employees -->
+    <section data-view="employees" class="view card" style="display:none">
+      <h2>Employees 
+        <button class="btn btn-primary" onclick="openEmployeeModal()">+ Add Employee</button>
+        <button class="btn btn-secondary" onclick="printEmployees()">🖨️ Print</button>
+      </h2>
+      <table class="table" id="employeesTable">
+        <thead>
+          <tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Suppliers -->
+    <section data-view="suppliers" class="view card" style="display:none">
+      <h2>Suppliers 
+        <button class="btn btn-primary" onclick="openSupplierModal()">+ Add Supplier</button>
+        <button class="btn btn-secondary" onclick="printSuppliers()">🖨️ Print</button>
+      </h2>
+      <table class="table" id="suppliersTable">
+        <thead>
+          <tr><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Deposits -->
+    <section data-view="deposits" class="view card" style="display:none">
+      <h2>Deposits 
+        <button class="btn btn-primary" onclick="openDepositModal()">+ Add Deposit</button>
+        <button class="btn btn-secondary" onclick="printDeposits()">🖨️ Print</button>
+      </h2>
+      <table class="table" id="depositsTable">
+        <thead>
+          <tr><th>Date</th><th>Client</th><th>Amount</th><th>Balance</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Settings -->
+    <section data-view="settings" class="view card" style="display:none">
+      <h2>Settings</h2>
+      <p>Configure system preferences here.</p>
+    </section>
+  </main>
+</div>
+
+<!-- Modals -->
+
+<!-- Sale Modal -->
+<div id="saleModal" class="modal">
+  <div class="modal-box">
+    <h2>New Sale</h2>
+    <form id="saleForm">
+      <label>Customer</label><input id="customerName" required/>
+      <div id="saleItems"></div>
+      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Sale</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Inventory Modal -->
+<div id="inventoryModal" class="modal">
+  <div class="modal-box">
+    <h2>Add / Edit Item</h2>
+    <form id="inventoryForm">
+      <input type="hidden" id="itemId"/>
+      <label>Item</label><input id="itemName" required/>
+      <label>Category</label><input id="itemCategory"/>
+      <label>Supplier</label><input id="itemSupplier"/>
+      <label>Quantity</label><input id="itemQty" type="number" required/>
+      <label>Cost</label><input id="itemCost" type="number" required/>
+      <label>Reorder Level</label><input id="itemReorder" type="number" value="5"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div id="expenseModal" class="modal">
+  <div class="modal-box">
+    <h2>Add Expense</h2>
+    <form id="expenseForm">
+      <label>Date</label><input type="date" id="expenseDate" required/>
+      <label>Category</label><input id="expenseCategory" required/>
+      <label>Description</label><input id="expenseDesc" required/>
+      <label>Amount</label><input type="number" id="expenseAmount" required/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Employee Modal -->
+<div id="employeeModal" class="modal">
+  <div class="modal-box">
+    <h2>Add / Edit Employee</h2>
+    <form id="employeeForm">
+      <input type="hidden" id="employeeId"/>
+      <label>Name</label><input id="employeeName" required/>
+      <label>Position</label><input id="employeePosition"/>
+      <label>Email</label><input id="employeeEmail"/>
+      <label>Phone</label><input id="employeePhone"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div id="supplierModal" class="modal">
+  <div class="modal-box">
+    <h2>Add / Edit Supplier</h2>
+    <form id="supplierForm">
+      <input type="hidden" id="supplierId"/>
+      <label>Name</label><input id="supplierName" required/>
+      <label>Contact</label><input id="supplierContact"/>
+      <label>Email</label><input id="supplierEmail"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div id="depositModal" class="modal">
+  <div class="modal-box">
+    <h2>Add Deposit</h2>
+    <form id="depositForm">
+      <input type="hidden" id="depositId"/>
+      <label>Date</label><input type="date" id="depositDate" required/>
+      <label>Client</label><input id="depositClient" required/>
+      <label>Amount</label><input type="number" id="depositAmount" required/>
+      <label>Balance</label><input type="number" id="depositBalance"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "sales_system_data";
+const fmt = n => "UGX " + Number(n).toLocaleString();
+const idf = () => Math.random().toString(36).substr(2,9);
+
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+if(!state.sales) state.sales=[];
+if(!state.inventory) state.inventory=[];
+if(!state.expenses) state.expenses=[];
+if(!state.employees) state.employees=[];
+if(!state.suppliers) state.suppliers=[];
+if(!state.deposits) state.deposits=[];
+
+function save(){localStorage.setItem(STORAGE_KEY, JSON.stringify(state));}
+
+// Sidebar Navigation
+document.querySelectorAll("#navList .nav-item").forEach(nav=>{
+  nav.addEventListener("click", ()=>{
+    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
+    nav.classList.add("active");
+    const v=nav.dataset.view;
+    document.querySelectorAll(".view").forEach(sec=>sec.style.display='none');
+    document.querySelector(`.view[data-view='${v}']`).style.display='block';
+    renderAll();
+  });
+});
+
+// ---------------- SALES ----------------
+function renderSales(){
+  const tbody = document.querySelector('#salesTable tbody'); tbody.innerHTML='';
+  state.sales.forEach(s=>{
+    const items = s.items.map(i=>`${i.name} x${i.qty}`).join(', ');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${s.date}</td><td>${s.customer}</td><td>${items}</td><td>${fmt(s.total)}</td>
+      <td>
+        <button class="btn btn-secondary" onclick="printSale('${s.id}')">🖨️ Receipt</button>
+        <button class="btn btn-danger" onclick="deleteSale('${s.id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function openSaleModal(){document.getElementById('saleForm').reset();document.getElementById('saleItems').innerHTML='';addSaleItem();document.getElementById('saleModal').style.display='flex';}
+function closeSaleModal(){document.getElementById('saleModal').style.display='none';}
+function addSaleItem(){
+  const div=document.createElement('div'); div.style.display='flex'; div.style.gap='5px';
+  div.innerHTML=`<select required>${state.inventory.map(i=>`<option value="${i.id}" data-cost="${i.cost}">${i.name}</option>`).join('')}</select>
+  <input type="number" placeholder="Qty" min="1" required/>
+  <button type="button" onclick="this.parentNode.remove()">❌</button>`;
+  document.getElementById('saleItems').appendChild(div);
+}
+document.getElementById('saleForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const customer=document.getElementById('customerName').value;
+  const items=[];
+  let total=0;
+  document.querySelectorAll('#saleItems div').forEach(div=>{
+    const sel=div.querySelector('select'); const qty=Number(div.querySelector('input').value);
+    const item=state.inventory.find(i=>i.id===sel.value);
+    items.push({id:item.id,name:item.name,qty:qty,cost:item.cost});
+    total+=item.cost*qty;
+    item.qty -= qty; // reduce inventory
+  });
+  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer,items,total});
+  save(); renderSales(); renderInventory(); closeSaleModal();
+});
+function deleteSale(id){state.sales=state.sales.filter(s=>s.id!==id);save();renderSales();}
+function printSale(id){const s=state.sales.find(s=>s.id===id);let html=`<h2>Receipt</h2><p>Customer: ${s.customer}<br>Date: ${s.date}</p><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Cost</th></tr>`; s.items.forEach(i=>{html+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td></tr>`}); html+=`</table><p>Total: ${fmt(s.total)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
+function printSales(){const html='<h2>All Sales</h2>'+document.querySelector('#salesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+
+// ---------------- INVENTORY ----------------
+function renderInventory(){
+  const tbody=document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
+  state.inventory.forEach(i=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td><td>${i.reorder}</td>
+      <td>
+        <button class="btn btn-primary" onclick="editInventory('${i.id}')">Edit</button>
+        <button class="btn btn-danger" onclick="deleteInventory('${i.id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function openInventoryModal(){document.getElementById('inventoryForm').reset();document.getElementById('itemId').value='';document.getElementById('inventoryModal').style.display='flex';}
+function closeInventoryModal(){document.getElementById('inventoryModal').style.display='none';}
+document.getElementById('inventoryForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const id=document.getElementById('itemId').value||idf();
+  const item={id:id,
+    name:document.getElementById('itemName').value,
+    category:document.getElementById('itemCategory').value,
+    supplier:document.getElementById('itemSupplier').value,
+    qty:Number(document.getElementById('itemQty').value),
+    cost:Number(document.getElementById('itemCost').value),
+    reorder:Number(document.getElementById('itemReorder').value)
+  };
+  const index=state.inventory.findIndex(i=>i.id===id);
+  if(index>=0) state.inventory[index]=item; else state.inventory.push(item);
+  save(); renderInventory(); closeInventoryModal();
+});
+function editInventory(id){const i=state.inventory.find(i=>i.id===id); document.getElementById('itemId').value=i.id; document.getElementById('itemName').value=i.name; document.getElementById('itemCategory').value=i.category; document.getElementById('itemSupplier').value=i.supplier; document.getElementById('itemQty').value=i.qty; document.getElementById('itemCost').value=i.cost; document.getElementById('itemReorder').value=i.reorder; document.getElementById('inventoryModal').style.display='flex';}
+function deleteInventory(id){if(confirm('Delete this item?')){state.inventory=state.inventory.filter(i=>i.id!==id);save();renderInventory();} }
+function printInventory(){const html='<h2>Inventory</h2>'+document.querySelector('#inventoryTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+
+// ---------------- EXPENSES ----------------
+function renderExpenses(){
+  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
+  let total=0;
+  state.expenses.forEach(e=>{
+    total+=Number(e.amount);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
+      <td><button class="btn btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
+}
+function openExpenseModal(){document.getElementById('expenseForm').reset();document.getElementById('expenseModal').style.display='flex';}
+function closeExpenseModal(){document.getElementById('expenseModal').style.display='none';}
+document.getElementById('expenseForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const exp={id:idf(),date:document.getElementById('expenseDate').value,category:document.getElementById('expenseCategory').value,description:document.getElementById('expenseDesc').value,amount:Number(document.getElementById('expenseAmount').value)};
+  state.expenses.push(exp); save(); renderExpenses(); closeExpenseModal();
+});
+function deleteExpense(id){state.expenses=state.expenses.filter(e=>e.id!==id); save(); renderExpenses();}
+function searchExpenses(){
+  const from=document.getElementById('expenseFrom').value; const to=document.getElementById('expenseTo').value;
+  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
+  let total=0;
+  state.expenses.filter(e=>e.date>=from && e.date<=to).forEach(e=>{
+    total+=Number(e.amount);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
+      <td><button class="btn btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
+}
+function printExpenses(){const html='<h2>Expenses</h2>'+document.querySelector('#expensesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+
+// ---------------- EMPLOYEES ----------------
+function renderEmployees(){
+  const tbody=document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
+  state.employees.forEach(e=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${e.name}</td><td>${e.position}</td><td>${e.email}</td><td>${e.phone}</td>
+      <td>
+        <button class="btn btn-primary" onclick="editEmployee('${e.id}')">Edit</button>
+        <button class="btn btn-danger" onclick="deleteEmployee('${e.id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function openEmployeeModal(){document.getElementById('employeeForm').reset();document.getElementById('employeeId').value='';document.getElementById('employeeModal').style.display='flex';}
+function closeEmployeeModal(){document.getElementById('employeeModal').style.display='none';}
+document.getElementById('employeeForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const id=document.getElementById('employeeId').value||idf();
+  const emp={id:id,name:document.getElementById('employeeName').value,position:document.getElementById('employeePosition').value,email:document.getElementById('employeeEmail').value,phone:document.getElementById('employeePhone').value};
+  const index=state.employees.findIndex(x=>x.id===id);
+  if(index>=0) state.employees[index]=emp; else state.employees.push(emp);
+  save(); renderEmployees(); closeEmployeeModal();
+});
+function editEmployee(id){const e=state.employees.find(e=>e.id===id); document.getElementById('employeeId').value=e.id; document.getElementById('employeeName').value=e.name; document.getElementById('employeePosition').value=e.position; document.getElementById('employeeEmail').value=e.email; document.getElementById('employeePhone').value=e.phone; document.getElementById('employeeModal').style.display='flex';}
+function deleteEmployee(id){if(confirm('Delete employee?')){state.employees=state.employees.filter(e=>e.id!==id);save();renderEmployees();}}
+function printEmployees(){const html='<h2>Employees</h2>'+document.querySelector('#employeesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+
+// ---------------- SUPPLIERS ----------------
+function renderSuppliers(){
+  const tbody=document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
+  state.suppliers.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${s.name}</td><td>${s.contact}</td><td>${s.email}</td>
+      <td>
+        <button class="btn btn-primary" onclick="editSupplier('${s.id}')">Edit</button>
+        <button class="btn btn-danger" onclick="deleteSupplier('${s.id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function openSupplierModal(){document.getElementById('supplierForm').reset();document.getElementById('supplierId').value='';document.getElementById('supplierModal').style.display='flex';}
+function closeSupplierModal(){document.getElementById('supplierModal').style.display='none';}
+document.getElementById('supplierForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const id=document.getElementById('supplierId').value||idf();
+  const sup={id:id,name:document.getElementById('supplierName').value,contact:document.getElementById('supplierContact').value,email:document.getElementById('supplierEmail').value};
+  const index=state.suppliers.findIndex(x=>x.id===id);
+  if(index>=0) state.suppliers[index]=sup; else state.suppliers.push(sup);
+  save(); renderSuppliers(); closeSupplierModal();
+});
+function editSupplier(id){const s=state.suppliers.find(s=>s.id===id); document.getElementById('supplierId').value=s.id; document.getElementById('supplierName').value=s.name; document.getElementById('supplierContact').value=s.contact; document.getElementById('supplierEmail').value=s.email; document.getElementById('supplierModal').style.display='flex';}
+function deleteSupplier(id){if(confirm('Delete supplier?')){state.suppliers=state.suppliers.filter(s=>s.id!==id);save();renderSuppliers();}}
+function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector('#suppliersTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+
+// ---------------- DEPOSITS ----------------
+function renderDeposits(){
+  const tbody=document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
+  state.deposits.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.date}</td><td>${d.client}</td><td>${fmt(d.amount)}</td><td>${fmt(d.balance||d.amount)}</td>
+      <td>
+        <button class="btn btn-secondary" onclick="printDeposit('${d.id}')">🖨️ Receipt</button>
+        <button class="btn btn-danger" onclick="deleteDeposit('${d.id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+function openDepositModal(){document.getElementById('depositForm').reset();document.getElementById('depositId').value='';document.getElementById('depositModal').style.display='flex';}
+function closeDepositModal(){document.getElementById('depositModal').style.display='none';}
+document.getElementById('depositForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const id=document.getElementById('depositId').value||idf();
+  const dep={id:id,date:document.getElementById('depositDate').value,client:document.getElementById('depositClient').value,amount:Number(document.getElementById('depositAmount').value),balance:Number(document.getElementById('depositBalance').value||0)};
+  const index=state.deposits.findIndex(x=>x.id===id);
+  if(index>=0) state.deposits[index]=dep; else state.deposits.push(dep);
+  save(); renderDeposits(); closeDepositModal();
+});
+function deleteDeposit(id){if(confirm('Delete deposit?')){state.deposits=state.deposits.filter(d=>d.id!==id);save();renderDeposits();}}
+function printDeposit(id){const d=state.deposits.find(d=>d.id===id); let html=`<h2>Deposit Receipt</h2><p>Client: ${d.client}<br>Date: ${d.date}</p><p>Amount: ${fmt(d.amount)}<br>Balance: ${fmt(d.balance)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
+function printDeposits(){const html='<h2>Deposits</h2>'+document.querySelector('#depositsTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+
+// Render all views
+function renderAll(){renderSales(); renderInventory(); renderExpenses(); renderEmployees(); renderSuppliers(); renderDeposits();}
+renderAll();
+</script>
+</body>
+</html>
 
