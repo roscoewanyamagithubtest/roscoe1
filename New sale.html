@@ -55,6 +55,7 @@
       <div class="nav-item" data-view="employees">👥 Employees</div>
       <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
       <div class="nav-item" data-view="deposits">🏦 Deposits</div>
+      <div class="nav-item" data-view="records">📁 Records</div>
       <div class="nav-item" data-view="settings">⚙️ Settings</div>
     </nav>
   </aside>
@@ -155,6 +156,31 @@
       </table>
     </section>
 
+    <!-- Records (NEW) -->
+    <section data-view="records" class="view card" style="display:none">
+      <h2>Company Records</h2>
+
+      <div style="margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label>From: <input type="date" id="recordsFrom"></label>
+        <label>To: <input type="date" id="recordsTo"></label>
+        <button class="btn btn-secondary" onclick="searchRecords()">🔍 Search Records</button>
+        <button class="btn btn-secondary" onclick="renderRecords()">Reset</button>
+        <div style="margin-left:auto;">
+          <button class="btn btn-secondary" onclick="printRecords()">🖨️ Print Records</button>
+        </div>
+      </div>
+
+      <table class="table" id="recordsTable">
+        <thead>
+          <tr><th>Type</th><th>Date</th><th>Reference</th><th>Details</th><th>Amount / Qty</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="6" id="recordsSummary" style="text-align:right;font-weight:bold;"></td></tr>
+        </tfoot>
+      </table>
+    </section>
+
     <!-- Settings -->
     <section data-view="settings" class="view card" style="display:none">
       <h2>Settings</h2>
@@ -163,7 +189,7 @@
   </main>
 </div>
 
-<!-- Modals -->
+<!-- Modals (unchanged structure) -->
 
 <!-- Sale Modal -->
 <div id="saleModal" class="modal">
@@ -304,10 +330,10 @@ function renderSales(){
   state.sales.forEach(s=>{
     const items = s.items.map(i=>`${i.name} x${i.qty}`).join(', ');
     const tr=document.createElement('tr');
+    // NOTE: Delete button removed from Sales page; deletion is done from Records page
     tr.innerHTML=`<td>${s.date}</td><td>${s.customer}</td><td>${items}</td><td>${fmt(s.total)}</td>
       <td>
         <button class="btn btn-secondary" onclick="printSale('${s.id}')">🖨️ Receipt</button>
-        <button class="btn btn-danger" onclick="deleteSale('${s.id}')">Delete</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -329,15 +355,37 @@ document.getElementById('saleForm').addEventListener('submit', e=>{
   document.querySelectorAll('#saleItems div').forEach(div=>{
     const sel=div.querySelector('select'); const qty=Number(div.querySelector('input').value);
     const item=state.inventory.find(i=>i.id===sel.value);
+    if(!item) return;
     items.push({id:item.id,name:item.name,qty:qty,cost:item.cost});
     total+=item.cost*qty;
     item.qty -= qty; // reduce inventory
+    if(item.qty < 0) item.qty = 0;
   });
-  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer,items,total});
+  // store date in ISO YYYY-MM-DD for consistent searching
+  state.sales.push({id:idf(),date:new Date().toISOString().slice(0,10),customer,items,total});
   save(); renderSales(); renderInventory(); closeSaleModal();
 });
-function deleteSale(id){state.sales=state.sales.filter(s=>s.id!==id);save();renderSales();}
-function printSale(id){const s=state.sales.find(s=>s.id===id);let html=`<h2>Receipt</h2><p>Customer: ${s.customer}<br>Date: ${s.date}</p><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Cost</th></tr>`; s.items.forEach(i=>{html+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td></tr>`}); html+=`</table><p>Total: ${fmt(s.total)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
+function deleteSale(id){
+  if(!confirm('Delete this sale?')) return;
+  const sale = state.sales.find(s=>s.id===id);
+  // optional: restore inventory quantities when deleting sale
+  if(sale && sale.items){
+    sale.items.forEach(it=>{
+      const inv = state.inventory.find(i=>i.id===it.id);
+      if(inv) inv.qty = Number(inv.qty) + Number(it.qty);
+    });
+  }
+  state.sales=state.sales.filter(s=>s.id!==id);
+  save(); renderSales(); renderRecords(); renderInventory();
+}
+function printSale(id){
+  const s=state.sales.find(s=>s.id===id);
+  if(!s) return alert('Sale not found');
+  let html=`<h2>Receipt</h2><p>Customer: ${s.customer}<br>Date: ${s.date}</p><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Cost</th></tr>`;
+  s.items.forEach(i=>{html+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td></tr>`});
+  html+=`</table><p>Total: ${fmt(s.total)}</p>`;
+  const w=window.open(''); w.document.write(html); w.print();
+}
 function printSales(){const html='<h2>All Sales</h2>'+document.querySelector('#salesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
 // ---------------- INVENTORY ----------------
@@ -345,7 +393,7 @@ function renderInventory(){
   const tbody=document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
   state.inventory.forEach(i=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i.name}</td><td>${i.category}</td><td>${i.supplier}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td><td>${i.reorder}</td>
+    tr.innerHTML=`<td>${i.name}</td><td>${i.category||''}</td><td>${i.supplier||''}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td><td>${i.reorder||''}</td>
       <td>
         <button class="btn btn-primary" onclick="editInventory('${i.id}')">Edit</button>
         <button class="btn btn-danger" onclick="deleteInventory('${i.id}')">Delete</button>
@@ -358,20 +406,24 @@ function closeInventoryModal(){document.getElementById('inventoryModal').style.d
 document.getElementById('inventoryForm').addEventListener('submit', e=>{
   e.preventDefault();
   const id=document.getElementById('itemId').value||idf();
+  // include a created date for records merging
+  const existing = state.inventory.find(i=>i.id===id);
+  const created = existing ? existing.created : new Date().toISOString().slice(0,10);
   const item={id:id,
     name:document.getElementById('itemName').value,
     category:document.getElementById('itemCategory').value,
     supplier:document.getElementById('itemSupplier').value,
     qty:Number(document.getElementById('itemQty').value),
     cost:Number(document.getElementById('itemCost').value),
-    reorder:Number(document.getElementById('itemReorder').value)
+    reorder:Number(document.getElementById('itemReorder').value),
+    created
   };
   const index=state.inventory.findIndex(i=>i.id===id);
   if(index>=0) state.inventory[index]=item; else state.inventory.push(item);
   save(); renderInventory(); closeInventoryModal();
 });
-function editInventory(id){const i=state.inventory.find(i=>i.id===id); document.getElementById('itemId').value=i.id; document.getElementById('itemName').value=i.name; document.getElementById('itemCategory').value=i.category; document.getElementById('itemSupplier').value=i.supplier; document.getElementById('itemQty').value=i.qty; document.getElementById('itemCost').value=i.cost; document.getElementById('itemReorder').value=i.reorder; document.getElementById('inventoryModal').style.display='flex';}
-function deleteInventory(id){if(confirm('Delete this item?')){state.inventory=state.inventory.filter(i=>i.id!==id);save();renderInventory();} }
+function editInventory(id){const i=state.inventory.find(i=>i.id===id); if(!i) return; document.getElementById('itemId').value=i.id; document.getElementById('itemName').value=i.name; document.getElementById('itemCategory').value=i.category; document.getElementById('itemSupplier').value=i.supplier; document.getElementById('itemQty').value=i.qty; document.getElementById('itemCost').value=i.cost; document.getElementById('itemReorder').value=i.reorder; document.getElementById('inventoryModal').style.display='flex';}
+function deleteInventory(id){if(confirm('Delete this item?')){state.inventory=state.inventory.filter(i=>i.id!==id);save();renderInventory();renderRecords();} }
 function printInventory(){const html='<h2>Inventory</h2>'+document.querySelector('#inventoryTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
 // ---------------- EXPENSES ----------------
@@ -392,14 +444,14 @@ function closeExpenseModal(){document.getElementById('expenseModal').style.displ
 document.getElementById('expenseForm').addEventListener('submit', e=>{
   e.preventDefault();
   const exp={id:idf(),date:document.getElementById('expenseDate').value,category:document.getElementById('expenseCategory').value,description:document.getElementById('expenseDesc').value,amount:Number(document.getElementById('expenseAmount').value)};
-  state.expenses.push(exp); save(); renderExpenses(); closeExpenseModal();
+  state.expenses.push(exp); save(); renderExpenses(); renderRecords(); closeExpenseModal();
 });
-function deleteExpense(id){state.expenses=state.expenses.filter(e=>e.id!==id); save(); renderExpenses();}
+function deleteExpense(id){if(!confirm('Delete this expense?')) return; state.expenses=state.expenses.filter(e=>e.id!==id); save(); renderExpenses(); renderRecords();}
 function searchExpenses(){
   const from=document.getElementById('expenseFrom').value; const to=document.getElementById('expenseTo').value;
   const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
   let total=0;
-  state.expenses.filter(e=>e.date>=from && e.date<=to).forEach(e=>{
+  state.expenses.filter(e=>(!from || e.date>=from) && (!to || e.date<=to)).forEach(e=>{
     total+=Number(e.amount);
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
@@ -434,7 +486,7 @@ document.getElementById('employeeForm').addEventListener('submit', e=>{
   save(); renderEmployees(); closeEmployeeModal();
 });
 function editEmployee(id){const e=state.employees.find(e=>e.id===id); document.getElementById('employeeId').value=e.id; document.getElementById('employeeName').value=e.name; document.getElementById('employeePosition').value=e.position; document.getElementById('employeeEmail').value=e.email; document.getElementById('employeePhone').value=e.phone; document.getElementById('employeeModal').style.display='flex';}
-function deleteEmployee(id){if(confirm('Delete employee?')){state.employees=state.employees.filter(e=>e.id!==id);save();renderEmployees();}}
+function deleteEmployee(id){if(confirm('Delete employee?')){state.employees=state.employees.filter(e=>e.id!==id);save();renderEmployees();} }
 function printEmployees(){const html='<h2>Employees</h2>'+document.querySelector('#employeesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
 // ---------------- SUPPLIERS ----------------
@@ -461,7 +513,7 @@ document.getElementById('supplierForm').addEventListener('submit', e=>{
   save(); renderSuppliers(); closeSupplierModal();
 });
 function editSupplier(id){const s=state.suppliers.find(s=>s.id===id); document.getElementById('supplierId').value=s.id; document.getElementById('supplierName').value=s.name; document.getElementById('supplierContact').value=s.contact; document.getElementById('supplierEmail').value=s.email; document.getElementById('supplierModal').style.display='flex';}
-function deleteSupplier(id){if(confirm('Delete supplier?')){state.suppliers=state.suppliers.filter(s=>s.id!==id);save();renderSuppliers();}}
+function deleteSupplier(id){if(confirm('Delete supplier?')){state.suppliers=state.suppliers.filter(s=>s.id!==id);save();renderSuppliers();} }
 function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector('#suppliersTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
 // ---------------- DEPOSITS ----------------
@@ -485,14 +537,102 @@ document.getElementById('depositForm').addEventListener('submit', e=>{
   const dep={id:id,date:document.getElementById('depositDate').value,client:document.getElementById('depositClient').value,amount:Number(document.getElementById('depositAmount').value),balance:Number(document.getElementById('depositBalance').value||0)};
   const index=state.deposits.findIndex(x=>x.id===id);
   if(index>=0) state.deposits[index]=dep; else state.deposits.push(dep);
-  save(); renderDeposits(); closeDepositModal();
+  save(); renderDeposits(); renderRecords(); closeDepositModal();
 });
-function deleteDeposit(id){if(confirm('Delete deposit?')){state.deposits=state.deposits.filter(d=>d.id!==id);save();renderDeposits();}}
-function printDeposit(id){const d=state.deposits.find(d=>d.id===id); let html=`<h2>Deposit Receipt</h2><p>Client: ${d.client}<br>Date: ${d.date}</p><p>Amount: ${fmt(d.amount)}<br>Balance: ${fmt(d.balance)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
+function deleteDeposit(id){if(confirm('Delete deposit?')){state.deposits=state.deposits.filter(d=>d.id!==id);save();renderDeposits();renderRecords();} }
+function printDeposit(id){const d=state.deposits.find(d=>d.id===id); if(!d) return; let html=`<h2>Deposit Receipt</h2><p>Client: ${d.client}<br>Date: ${d.date}</p><p>Amount: ${fmt(d.amount)}<br>Balance: ${fmt(d.balance)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
 function printDeposits(){const html='<h2>Deposits</h2>'+document.querySelector('#depositsTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
+// ---------------- RECORDS (NEW) ----------------
+function buildRecordsArray(){
+  const arr = [];
+  // Sales
+  state.sales.forEach(s=>{
+    arr.push({
+      type: 'Sale',
+      date: s.date,
+      ref: s.id,
+      details: `Customer: ${s.customer}`,
+      amount: s.total,
+      meta: s.items.map(i=>`${i.name} x${i.qty}`).join(', ')
+    });
+  });
+  // Expenses
+  state.expenses.forEach(e=>{
+    arr.push({
+      type: 'Expense',
+      date: e.date,
+      ref: e.id,
+      details: `${e.category} - ${e.description}`,
+      amount: Number(e.amount),
+      meta: e.notes||''
+    });
+  });
+  // Inventory (use created date if available)
+  state.inventory.forEach(i=>{
+    arr.push({
+      type: 'Inventory',
+      date: i.created || new Date().toISOString().slice(0,10),
+      ref: i.id,
+      details: `${i.name} (${i.category||''})`,
+      amount: i.qty,
+      meta: `Cost: ${fmt(i.cost)} Supplier:${i.supplier||''}`
+    });
+  });
+  return arr.sort((a,b)=> a.date < b.date ? 1 : (a.date > b.date ? -1 : 0));
+}
+function renderRecords(list){
+  const tbody=document.querySelector('#recordsTable tbody'); tbody.innerHTML='';
+  const rows = list || buildRecordsArray();
+  let totalMoney = 0;
+  let totalQty = 0;
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    let amountDisplay = '';
+    if(r.type === 'Sale' || r.type === 'Expense') { amountDisplay = fmt(r.amount); totalMoney += Number(r.amount||0); }
+    else { amountDisplay = r.amount; totalQty += Number(r.amount||0); }
+    tr.innerHTML = `<td>${r.type}</td><td>${r.date}</td><td>${r.ref}</td><td>${r.details}<div style="font-size:0.9em;color:#cbd5e1;margin-top:4px">${r.meta||''}</div></td><td>${amountDisplay}</td>
+      <td>
+        ${r.type === 'Sale' ? `<button class="btn btn-secondary" onclick="printSale('${r.ref}')">🖨️</button>` : ''}
+        ${r.type === 'Expense' ? `<button class="btn btn-secondary" onclick="printExpense('${r.ref}')">🖨️</button>` : ''}
+        ${r.type === 'Inventory' ? `<button class="btn btn-secondary" onclick="printInventoryItem('${r.ref}')">🖨️</button>` : ''}
+        <button class="btn btn-danger" onclick="deleteRecord('${r.type}','${r.ref}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  const summary = `Total money (sales/expenses): ${fmt(totalMoney)} — Total inventory qty: ${totalQty}`;
+  document.getElementById('recordsSummary').innerText = summary;
+}
+function searchRecords(){
+  const from=document.getElementById('recordsFrom').value;
+  const to=document.getElementById('recordsTo').value;
+  const filtered = buildRecordsArray().filter(r=> (!from || r.date >= from) && (!to || r.date <= to));
+  renderRecords(filtered);
+}
+function printRecords(){
+  const html='<h2>Company Records</h2>'+document.querySelector('#recordsTable').outerHTML;
+  const w=window.open(''); w.document.write(html); w.print();
+}
+function deleteRecord(type, ref){
+  if(!confirm(`Delete this ${type}?`)) return;
+  if(type === 'Sale') deleteSale(ref);
+  else if(type === 'Expense') { deleteExpense(ref); }
+  else if(type === 'Inventory') { deleteInventory(ref); }
+  else if(type === 'Deposit') { deleteDeposit(ref); }
+  // re-render
+  renderAll();
+}
+function printExpense(id){
+  const e = state.expenses.find(x=>x.id===id); if(!e) return alert('Expense not found');
+  const w=window.open(''); w.document.write(`<h2>Expense</h2><p>${e.date}</p><p>${e.category} - ${e.description}</p><p>Amount: ${fmt(e.amount)}</p>`); w.print();
+}
+function printInventoryItem(id){
+  const i=state.inventory.find(x=>x.id===id); if(!i) return alert('Not found');
+  const w=window.open(''); w.document.write(`<h2>Inventory Item</h2><p>${i.name}</p><p>Qty: ${i.qty}</p><p>Cost: ${fmt(i.cost)}</p>`); w.print();
+}
+
 // Render all views
-function renderAll(){renderSales(); renderInventory(); renderExpenses(); renderEmployees(); renderSuppliers(); renderDeposits();}
+function renderAll(){ renderSales(); renderInventory(); renderExpenses(); renderEmployees(); renderSuppliers(); renderDeposits(); renderRecords(); }
 renderAll();
 </script>
 </body>
