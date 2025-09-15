@@ -561,7 +561,73 @@ function renderAll(){
 }
 requireAuthOrRedirect(); renderAll();
 </script>
+<script>
+/* ===========================
+   SALES + INVENTORY INTEGRATION
+=========================== */
+
+// Update sale total in modal
+function updateSaleTotal(){
+  const itemsDiv = document.getElementById('saleItems');
+  let total=0;
+  Array.from(itemsDiv.children).forEach(div=>{
+    const qty = Number(div.querySelector('input[type="number"]').value);
+    const price = Number(div.querySelector('input[placeholder="Price"]').value);
+    total += qty*price;
+  });
+  // Apply discount flat
+  const discountFlat = Number(document.getElementById('saleDiscount').value||0);
+  // Apply discount %
+  const discountPct = Number(document.getElementById('saleDiscountPct').value||0);
+  total = total - discountFlat;
+  total = total - (total * (discountPct/100));
+  document.getElementById('saleTotalDisplay').innerText = 'Total: '+fmt(total);
+}
+
+// Save sale and reduce inventory
+document.getElementById('saleForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const customer = document.getElementById('customerName').value;
+  const itemsDiv = document.getElementById('saleItems');
+  const items=[];
+  let canSave=true;
+  
+  Array.from(itemsDiv.children).forEach(div=>{
+    const select = div.querySelector('select');
+    const itemObj = state.inventory.find(i=>i.id===select.value);
+    const qty = Number(div.querySelector('input[type="number"]').value);
+    const price = Number(div.querySelector('input[placeholder="Price"]').value);
+    
+    if(itemObj.qty<qty){
+      alert(`Not enough stock for ${itemObj.name}. Available: ${itemObj.qty}`);
+      canSave=false;
+      return;
+    }
+    
+    items.push({id:itemObj.id,name:itemObj.name,qty,price});
+  });
+  if(!canSave) return;
+
+  // calculate total
+  let total=0; items.forEach(i=>total+=i.qty*i.price);
+  const discountFlat = Number(document.getElementById('saleDiscount').value||0);
+  const discountPct = Number(document.getElementById('saleDiscountPct').value||0);
+  total = total - discountFlat;
+  total = total - (total*(discountPct/100));
+
+  // reduce inventory
+  items.forEach(i=>{
+    const inv = state.inventory.find(inv=>inv.id===i.id);
+    if(inv) inv.qty -= i.qty;
+  });
+
+  // save sale
+  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer,items,total});
+  save(); closeSaleModal(); renderAll();
+});
+</script>
 
 </script>
 </body>
 </html>
+
