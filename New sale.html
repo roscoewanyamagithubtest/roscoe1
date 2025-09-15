@@ -1,52 +1,52 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sales System — All-in-One (with Auth & Users)</title>
-  <style>
-    :root{
-      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
-      --panel:#1a1f29; --card:#242b38;
-      --accent:#06b6d4; --accent2:#7c3aed;
-      --radius:12px; --muted:#94a3b8;
-      font-family: Inter, ui-sans-serif, system-ui;
-      color-scheme: dark;
-    }
-    *{box-sizing:border-box;}
-    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
-    .app{flex:1;display:flex;}
-    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
-    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-    .logo h1{font-size:1.1em;margin:0;}
-    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
-    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
-    .main{flex:1;padding:20px;overflow:auto;}
-    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-    .table{width:100%;border-collapse:collapse;}
-    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
-    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
-    .btn-primary{background:var(--accent);color:#fff;}
-    .btn-danger{background:#ef4444;color:#fff;}
-    .btn-secondary{background:#64748b;color:#fff;}
-    .muted{color:var(--muted);font-size:0.9em}
-    .small{font-size:0.9em;padding:4px 8px}
-    /* Modals */
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-    .modal .modal-box{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
-    .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
-    .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-    .right{margin-left:auto;display:flex;gap:10px;align-items:center;}
-    .badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
-    .disabled{opacity:0.5;pointer-events:none;}
-    label.inline{display:inline-block;margin-right:8px;}
-    .paging{display:flex;gap:6px;align-items:center;}
-    @media(max-width:768px){
-      .sidebar{width:70px;padding:10px;}
-      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
-      .table{font-size:0.85em;}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sales System — All-in-One</title>
+<style>
+:root{
+  --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+  --panel:#1a1f29; --card:#242b38;
+  --accent:#06b6d4; --accent2:#7c3aed;
+  --radius:12px; --muted:#94a3b8;
+  font-family: Inter, ui-sans-serif, system-ui;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+.app{flex:1;display:flex;}
+.sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.logo h1{font-size:1.1em;margin:0;}
+.nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+.nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+.main{flex:1;padding:20px;overflow:auto;}
+.card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+.btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-danger{background:#ef4444;color:#fff;}
+.btn-secondary{background:#64748b;color:#fff;}
+.muted{color:var(--muted);font-size:0.9em}
+.small{font-size:0.9em;padding:4px 8px}
+/* Modals */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+.modal .modal-box{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+.modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.right{margin-left:auto;display:flex;gap:10px;align-items:center;}
+.badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
+.disabled{opacity:0.5;pointer-events:none;}
+label.inline{display:inline-block;margin-right:8px;}
+.paging{display:flex;gap:6px;align-items:center;}
+@media(max-width:768px){
+  .sidebar{width:70px;padding:10px;}
+  .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+  .table{font-size:0.85em;}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -170,13 +170,7 @@
       <table class="table" id="depositsTable">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Client</th>
-            <th>Item Deposited On</th>
-            <th>Deposit Amount</th>
-            <th>Initial Balance</th>
-            <th>Remaining Balance</th>
-            <th>Actions</th>
+            <th>Date</th><th>Client</th><th>Item Deposited On</th><th>Deposit Amount</th><th>Initial Balance</th><th>Remaining Balance</th><th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -186,7 +180,7 @@
     <!-- Records -->
     <section data-view="records" class="view card" style="display:none">
       <h2>Company Records</h2>
-      <div style="margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <div style="margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
         <label>From: <input type="date" id="recordsFrom"></label>
         <label>To: <input type="date" id="recordsTo"></label>
         <label>Type:
@@ -233,54 +227,149 @@
     <!-- Settings -->
     <section data-view="settings" class="view card" style="display:none">
       <h2>Settings</h2>
-      <p>Configure system preferences here. (Admin only: manage users)</p>
-      <div>
-        <label>Company Name: <input id="companyName" /></label>
-        <label>Location: <input id="companyLocation" /></label>
-        <label>PO Box: <input id="companyPOBox" /></label>
-        <label>Email: <input id="companyEmail" /></label>
-        <label>Phone: <input id="companyPhone" /></label>
-        <button class="btn btn-primary" onclick="saveCompanySettings()">Save Company Info</button>
-      </div>
       <div id="settingsAdminArea"></div>
     </section>
   </main>
 </div>
 
-<!-- Login Modal -->
-<div id="loginModal" class="modal" style="display:flex">
+<!-- Modals for Forms -->
+<!-- Sale Modal -->
+<div id="saleModal" class="modal">
   <div class="modal-box">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <label>Username</label><input id="loginUsername" required/>
-      <label>Password</label><input id="loginPassword" type="password" required/>
+    <h2>New Sale</h2>
+    <form id="saleForm">
+      <label>Customer Name: <input id="customerName" required></label>
+      <div id="saleItems"></div>
+      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Item</button>
+      <label>Discount Flat: <input type="number" id="saleDiscount" value="0"></label>
+      <label>Discount %: <input type="number" id="saleDiscountPct" value="0"></label>
+      <div id="saleTotalDisplay" style="font-weight:bold;margin:5px 0">Total: UGX 0</div>
       <div style="margin-top:10px;text-align:right;">
-        <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary">Save Sale</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
       </div>
     </form>
-    <p class="muted" style="margin-top:8px">Default admin: <strong>admin</strong> / <strong>admin123</strong>. (client-side demo)</p>
+  </div>
+</div>
+
+<!-- Inventory Modal -->
+<div id="inventoryModal" class="modal">
+  <div class="modal-box">
+    <h2>Inventory Item</h2>
+    <form id="inventoryForm">
+      <input type="hidden" id="itemId">
+      <label>Item Name: <input id="itemName" required></label>
+      <label>Category: <input id="itemCategory"></label>
+      <label>Supplier: <input id="itemSupplier"></label>
+      <label>Qty: <input type="number" id="itemQty" required></label>
+      <label>Cost: <input type="number" id="itemCost" required></label>
+      <label>Reorder Level: <input type="number" id="itemReorder"></label>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Item</button>
+        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div id="depositModal" class="modal">
+  <div class="modal-box">
+    <h2>Deposit</h2>
+    <form id="depositForm">
+      <input type="hidden" id="depositId">
+      <label>Date: <input type="date" id="depositDate" required></label>
+      <label>Client: <input id="depositClient" required></label>
+      <label>Item Deposited On: <input id="depositItem" required></label>
+      <label>Initial Balance: <input type="number" id="depositInitial" required></label>
+      <label>Deposit Amount: <input type="number" id="depositAmount" required></label>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Deposit</button>
+        <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Employee Modal -->
+<div id="employeeModal" class="modal">
+  <div class="modal-box">
+    <h2>Employee</h2>
+    <form id="employeeForm">
+      <input type="hidden" id="employeeId">
+      <label>Name: <input id="employeeName" required></label>
+      <label>Position: <input id="employeePosition"></label>
+      <label>Email: <input id="employeeEmail"></label>
+      <label>Phone: <input id="employeePhone"></label>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Employee</button>
+        <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div id="supplierModal" class="modal">
+  <div class="modal-box">
+    <h2>Supplier</h2>
+    <form id="supplierForm">
+      <input type="hidden" id="supplierId">
+      <label>Name: <input id="supplierName" required></label>
+      <label>Contact: <input id="supplierContact"></label>
+      <label>Email: <input id="supplierEmail"></label>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Supplier</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div id="userModal" class="modal">
+  <div class="modal-box">
+    <h2>User</h2>
+    <form id="userForm">
+      <input type="hidden" id="userId">
+      <label>Username: <input id="userName" required></label>
+      <label>Password: <input id="userPass" type="password"></label>
+      <label>Role: 
+        <select id="userRole">
+          <option value="admin">Admin</option>
+          <option value="staff">Staff</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="userCanViewRecords"> Can view Records</label>
+      <label><input type="checkbox" id="userCanCreateSales"> Can create Sales</label>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save User</button>
+        <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+      </div>
+    </form>
   </div>
 </div>
 <script>
+/* ===========================
+   UTILITIES
+=========================== */
+const fmt = n => "UGX " + Number(n||0).toLocaleString();
+const idf = () => Math.random().toString(36).substr(2,9);
 
 /* ===========================
    STORAGE & INITIAL STATE
 =========================== */
 const STORAGE_KEY = "sales_system_data_v2_full";
-const fmt = n => "UGX " + Number(n||0).toLocaleString();
-const idf = () => Math.random().toString(36).substr(2,9);
-
 let state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+
 if(!state.sales) state.sales=[];
 if(!state.inventory) state.inventory=[];
 if(!state.expenses) state.expenses=[];
 if(!state.employees) state.employees=[];
 if(!state.suppliers) state.suppliers=[];
 if(!state.deposits) state.deposits=[];
-if(!state.users) {
-  state.users = [
-    {id: idf(), username: 'admin', password: 'admin123', role:'admin', canViewRecords:true, canCreateSales:true}
-  ];
+if(!state.users){
+  state.users = [{id:idf(), username:'admin', password:'admin123', role:'admin', canViewRecords:true, canCreateSales:true}];
 }
 if(!state.meta) state.meta={currentUserId:null};
 if(!state.company) state.company={name:'My Company',location:'',POBox:'',email:'',phone:''};
@@ -300,15 +389,25 @@ function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUser
 =========================== */
 function showLogin(){ document.getElementById('loginModal').style.display='flex'; }
 function hideLogin(){ document.getElementById('loginModal').style.display='none'; }
+
 document.getElementById('loginForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const u = document.getElementById('loginUsername').value.trim();
-  const p = document.getElementById('loginPassword').value;
-  const user = state.users.find(x=>x.username===u && x.password===p);
+  const u=document.getElementById('loginUsername').value.trim();
+  const p=document.getElementById('loginPassword').value;
+  const user=state.users.find(x=>x.username===u && x.password===p);
   if(!user){ alert('Invalid credentials'); return; }
-  state.meta.currentUserId=user.id; save(); hideLogin(); renderAll();
+  state.meta.currentUserId=user.id;
+  save();
+  hideLogin();
+  renderAll();
 });
-function logout(){ state.meta.currentUserId=null; save(); showLogin(); renderAll(); }
+
+function logout(){
+  state.meta.currentUserId=null;
+  save();
+  showLogin();
+  renderAll();
+}
 
 /* ===========================
    NAVIGATION
@@ -363,400 +462,88 @@ function renderSales(){
       <td>${s.customer}</td>
       <td>${items}</td>
       <td>${fmt(s.total)}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="printSale('${s.id}')">🖨️ Receipt</button>
-      </td>`;
+      <td><button class="btn btn-secondary" onclick="printSale('${s.id}')">🖨️ Receipt</button></td>`;
     tbody.appendChild(tr);
   });
 }
 
-function openSaleModal(){
-  const user=currentUser();
-  if(!user || !user.canCreateSales){ alert('No permission to create sales'); return; }
-  document.getElementById('saleForm').reset();
-  document.getElementById('saleItems').innerHTML='';
-  addSaleItem();
-  document.getElementById('saleTotalDisplay').innerText='Total: UGX 0';
-  document.getElementById('saleModal').style.display='flex';
+function printSale(id){
+  const sale = state.sales.find(s=>s.id===id);
+  if(!sale) return;
+  let content=`<h3>Sale Receipt</h3>`;
+  content+=`<p>Date: ${sale.date}</p>`;
+  content+=`<p>Customer: ${sale.customer}</p>`;
+  content+=`<table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>`;
+  sale.items.forEach(i=>{
+    content+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.price)}</td><td>${fmt(i.qty*i.price)}</td></tr>`;
+  });
+  content+=`</table><p><strong>Total: ${fmt(sale.total)}</strong></p>`;
+  const w=window.open('','_blank');
+  w.document.write(content);
+  w.print();
 }
-
-function closeSaleModal(){ document.getElementById('saleModal').style.display='none'; }
-
-function addSaleItem(prefItemId){
-  const div=document.createElement('div'); div.style.display='flex'; div.style.gap='5px'; div.style.marginBottom='6px';
-  const select=document.createElement('select'); select.required=true;
-  (state.inventory.length ? state.inventory : [{id:'',name:'-- no items --',cost:0}]).forEach(i=>{
-    const opt=document.createElement('option');
-    opt.value=i.id; opt.dataset.cost=i.cost;
-    opt.textContent=i.name + (i.qty!==undefined ? ` (stock:${i.qty})` : '');
-    if(prefItemId && prefItemId===i.id) opt.selected=true;
-    select.appendChild(opt);
-  });
-  const qty=document.createElement('input'); qty.type='number'; qty.min=1; qty.value=1; qty.required=true; qty.style.width='80px';
-  const price=document.createElement('input'); price.type='number'; price.required=true; price.style.width='120px';
-  // Update price when select changes
-  select.addEventListener('change', ()=>{
-    const sel=state.inventory.find(it=>it.id===select.value);
-    price.value=sel ? sel.cost : 0;
-    updateSaleTotal();
-  });
-  qty.addEventListener('input', updateSaleTotal);
-  price.addEventListener('input', updateSaleTotal);
-  div.appendChild(select); div.appendChild(qty); div.appendChild(price);
-  document.getElementById('saleItems').appendChild(div);
-  updateSaleTotal();
-}
-
-function updateSaleTotal(){
-  const itemsDiv=document.getElementById('saleItems');
-  let total=0;
-  Array.from(itemsDiv.children).forEach(div=>{
-    const qty=Number(div.querySelector('input[type="number"]').value);
-    const price=Number(div.querySelector('input[placeholder="Price"]').value);
-    total+=qty*price;
-  });
-  const discountFlat=Number(document.getElementById('saleDiscount').value||0);
-  const discountPct=Number(document.getElementById('saleDiscountPct').value||0);
-  total=total-discountFlat;
-  total=total-(total*(discountPct/100));
-  document.getElementById('saleTotalDisplay').innerText='Total: '+fmt(total);
-}
-
-// Save sale (deduct inventory)
-document.getElementById('saleForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const customer=document.getElementById('customerName').value;
-  const itemsDiv=document.getElementById('saleItems');
-  const items=[]; let canSave=true;
-  Array.from(itemsDiv.children).forEach(div=>{
-    const select=div.querySelector('select');
-    const itemObj=state.inventory.find(i=>i.id===select.value);
-    const qty=Number(div.querySelector('input[type="number"]').value);
-    const price=Number(div.querySelector('input[placeholder="Price"]').value);
-    if(itemObj.qty<qty){ alert(`Not enough stock for ${itemObj.name}. Available: ${itemObj.qty}`); canSave=false; return; }
-    items.push({id:itemObj.id,name:itemObj.name,qty,price});
-  });
-  if(!canSave) return;
-  let total=0; items.forEach(i=>total+=i.qty*i.price);
-  const discountFlat=Number(document.getElementById('saleDiscount').value||0);
-  const discountPct=Number(document.getElementById('saleDiscountPct').value||0);
-  total=total-discountFlat;
-  total=total-(total*(discountPct/100));
-  // Reduce inventory
-  items.forEach(i=>{
-    const inv=state.inventory.find(inv=>inv.id===i.id);
-    if(inv) inv.qty-=i.qty;
-  });
-  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer,items,total});
-  save(); closeSaleModal(); renderAll();
-});
 
 /* ===========================
-   INVENTORY FUNCTIONS
+   INVENTORY PRINT
 =========================== */
-function renderInventory(){
-  const tbody=document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
-  state.inventory.forEach(item=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${item.name}</td>
-      <td>${item.category||''}</td>
-      <td>${item.supplier||''}</td>
-      <td>${item.qty}</td>
-      <td>${fmt(item.cost)}</td>
-      <td>${item.reorder}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="openInventoryModal('${item.id}')">Edit</button>
-      </td>`;
-    tbody.appendChild
-  tbody.appendChild(tr);
-});
-
+function printInventory(){
+  let content=`<h3>Inventory List</h3><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Cost</th></tr>`;
+  state.inventory.forEach(i=>{
+    content+=`<tr><td>${i.name}</td><td>${i.category||''}</td><td>${i.supplier||''}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td></tr>`;
+  });
+  content+='</table>';
+  const w=window.open('','_blank'); w.document.write(content); w.print();
 }
-
-function openInventoryModal(itemId){
-  const form=document.getElementById('inventoryForm');
-  form.reset();
-  if(itemId){
-    const item=state.inventory.find(i=>i.id===itemId);
-    if(item){
-      document.getElementById('itemId').value=item.id;
-      document.getElementById('itemName').value=item.name;
-      document.getElementById('itemCategory').value=item.category;
-      document.getElementById('itemSupplier').value=item.supplier;
-      document.getElementById('itemQty').value=item.qty;
-      document.getElementById('itemCost').value=item.cost;
-      document.getElementById('itemReorder').value=item.reorder;
-    }
-  }
-  document.getElementById('inventoryModal').style.display='flex';
-}
-
-function closeInventoryModal(){document.getElementById('inventoryModal').style.display='none';}
-
-// Save Inventory Item
-document.getElementById('inventoryForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('itemId').value || idf();
-  const name=document.getElementById('itemName').value;
-  const category=document.getElementById('itemCategory').value;
-  const supplier=document.getElementById('itemSupplier').value;
-  const qty=Number(document.getElementById('itemQty').value);
-  const cost=Number(document.getElementById('itemCost').value);
-  const reorder=Number(document.getElementById('itemReorder').value);
-  
-  const existing=state.inventory.find(i=>i.id===id);
-  if(existing){
-    existing.name=name; existing.category=category; existing.supplier=supplier;
-    existing.qty=qty; existing.cost=cost; existing.reorder=reorder;
-  } else {
-    state.inventory.push({id,name,category,supplier,qty,cost,reorder});
-  }
-  save(); closeInventoryModal(); renderInventory();
-});
 
 /* ===========================
-   DEPOSITS FUNCTIONS
+   DEPOSITS PRINT
 =========================== */
-function renderDeposits(){
-  const tbody=document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
+function printDeposits(){
+  let content=`<h3>Deposits</h3><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Date</th><th>Client</th><th>Item</th><th>Amount</th><th>Initial</th><th>Remaining</th></tr>`;
   state.deposits.forEach(d=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${d.date}</td>
-      <td>${d.client}</td>
-      <td>${d.item}</td>
-      <td>${fmt(d.amount)}</td>
-      <td>${fmt(d.initial)}</td>
-      <td>${fmt(d.remaining)}</td>
-      <td></td>`;
-    tbody.appendChild(tr);
+    content+=`<tr><td>${d.date}</td><td>${d.client}</td><td>${d.item}</td><td>${fmt(d.amount)}</td><td>${fmt(d.initial)}</td><td>${fmt(d.remaining)}</td></tr>`;
   });
-}
-
-function openDepositModal(depositId){
-  const form=document.getElementById('depositForm');
-  form.reset();
-  if(depositId){
-    const dep=state.deposits.find(d=>d.id===depositId);
-    if(dep){
-      document.getElementById('depositId').value=dep.id;
-      document.getElementById('depositDate').value=dep.date;
-      document.getElementById('depositClient').value=dep.client;
-      document.getElementById('depositItem').value=dep.item;
-      document.getElementById('depositInitial').value=dep.initial;
-      document.getElementById('depositAmount').value=dep.amount;
-    }
-  }
-  document.getElementById('depositModal').style.display='flex';
-}
-
-function closeDepositModal(){document.getElementById('depositModal').style.display='none';}
-
-// Save Deposit
-document.getElementById('depositForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('depositId').value||idf();
-  const date=document.getElementById('depositDate').value;
-  const client=document.getElementById('depositClient').value;
-  const item=document.getElementById('depositItem').value;
-  const initial=Number(document.getElementById('depositInitial').value);
-  const amount=Number(document.getElementById('depositAmount').value);
-  const remaining=initial-amount;
-
-  const existing=state.deposits.find(d=>d.id===id);
-  if(existing){
-    existing.date=date; existing.client=client; existing.item=item;
-    existing.initial=initial; existing.amount=amount; existing.remaining=remaining;
-  } else {
-    state.deposits.push({id,date,client,item,initial,amount,remaining});
-  }
-  save(); closeDepositModal(); renderDeposits();
-});
-
-/* ===========================
-   EMPLOYEES FUNCTIONS
-=========================== */
-function renderEmployees(){
-  const tbody=document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
-  state.employees.forEach(emp=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${emp.name}</td>
-      <td>${emp.position||''}</td>
-      <td>${emp.email||''}</td>
-      <td>${emp.phone||''}</td>
-      <td></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function openEmployeeModal(empId){
-  const form=document.getElementById('employeeForm'); form.reset();
-  if(empId){
-    const emp=state.employees.find(e=>e.id===empId);
-    if(emp){
-      document.getElementById('employeeId').value=emp.id;
-      document.getElementById('employeeName').value=emp.name;
-      document.getElementById('employeePosition').value=emp.position;
-      document.getElementById('employeeEmail').value=emp.email;
-      document.getElementById('employeePhone').value=emp.phone;
-    }
-  }
-  document.getElementById('employeeModal').style.display='flex';
-}
-
-function closeEmployeeModal(){document.getElementById('employeeModal').style.display='none';}
-
-document.getElementById('employeeForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('employeeId').value||idf();
-  const name=document.getElementById('employeeName').value;
-  const position=document.getElementById('employeePosition').value;
-  const email=document.getElementById('employeeEmail').value;
-  const phone=document.getElementById('employeePhone').value;
-  const existing=state.employees.find(e=>e.id===id);
-  if(existing){
-    existing.name=name; existing.position=position; existing.email=email; existing.phone=phone;
-  } else {
-    state.employees.push({id,name,position,email,phone});
-  }
-  save(); closeEmployeeModal(); renderEmployees();
-});
-
-/* ===========================
-   SUPPLIERS FUNCTIONS
-=========================== */
-function renderSuppliers(){
-  const tbody=document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
-  state.suppliers.forEach(sup=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${sup.name}</td>
-      <td>${sup.contact||''}</td>
-      <td>${sup.email||''}</td>
-      <td></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function openSupplierModal(supId){
-  const form=document.getElementById('supplierForm'); form.reset();
-  if(supId){
-    const sup=state.suppliers.find(s=>s.id===supId);
-    if(sup){
-      document.getElementById('supplierId').value=sup.id;
-      document.getElementById('supplierName').value=sup.name;
-      document.getElementById('supplierContact').value=sup.contact;
-      document.getElementById('supplierEmail').value=sup.email;
-    }
-  }
-  document.getElementById('supplierModal').style.display='flex';
-}
-
-function closeSupplierModal(){document.getElementById('supplierModal').style.display='none';}
-
-document.getElementById('supplierForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('supplierId').value||idf();
-  const name=document.getElementById('supplierName').value;
-  const contact=document.getElementById('supplierContact').value;
-  const email=document.getElementById('supplierEmail').value;
-  const existing=state.suppliers.find(s=>s.id===id);
-  if(existing){
-    existing.name=name; existing.contact=contact; existing.email=email;
-  } else {
-    state.suppliers.push({id,name,contact,email});
-  }
-  save(); closeSupplierModal(); renderSuppliers();
-});
-
-/* ===========================
-   SETTINGS / COMPANY DETAILS
-=========================== */
-function populateSettings(){
-  const user=currentUser();
-  const adminArea=document.getElementById('settingsAdminArea');
-  if(!user || user.role!=='admin'){ adminArea.innerHTML='<p>Only admin can manage users and company details.</p>'; return; }
-
-  adminArea.innerHTML=`
-    <h3>Company Details</h3>
-    <label>Name: <input id="companyName" value="${state.company.name}"></label><br>
-    <label>Location: <input id="companyLocation" value="${state.company.location}"></label><br>
-    <label>PO Box: <input id="companyPOBox" value="${state.company.POBox}"></label><br>
-    <label>Email: <input id="companyEmail" value="${state.company.email}"></label><br>
-    <label>Phone: <input id="companyPhone" value="${state.company.phone}"></label><br>
-    <button class="btn btn-primary" onclick="saveCompanyDetails()">Save Company Details</button>
-    <h3>Manage Users</h3>
-    <button class="btn btn-primary" onclick="openUserModal()">+ Add User</button>
-    <div id="usersList"></div>
-  `;
-  renderUsers();
-}
-
-function saveCompanyDetails(){
-  state.company.name=document.getElementById('companyName').value;
-  state.company.location=document.getElementById('companyLocation').value;
-  state.company.POBox=document.getElementById('companyPOBox').value;
-  state.company.email=document.getElementById('companyEmail').value;
-  state.company.phone=document.getElementById('companyPhone').value;
-  save();
-  alert('Company details saved.');
+  content+='</table>';
+  const w=window.open('','_blank'); w.document.write(content); w.print();
 }
 
 /* ===========================
-   USERS MANAGEMENT
+   EXPENSES PRINT
 =========================== */
-function renderUsers(){
-  const list=document.getElementById('usersList'); list.innerHTML='';
-  state.users.forEach(u=>{
-    const div=document.createElement('div');
-    div.innerHTML=`${u.username} (${u.role}) - <button class="btn btn-secondary" onclick="editUser('${u.id}')">Edit</button>`;
-    list.appendChild(div);
+function printExpenses(){
+  let content=`<h3>Expenses</h3><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr>`;
+  state.expenses.forEach(e=>{
+    content+=`<tr><td>${e.date}</td><td>${e.category}</td><td>${e.desc}</td><td>${fmt(e.amount)}</td></tr>`;
   });
+  content+='</table>';
+  const w=window.open('','_blank'); w.document.write(content); w.print();
 }
 
-function openUserModal(){
-  document.getElementById('userForm').reset();
-  document.getElementById('userModal').style.display='flex';
-}
-
-function closeUserModal(){document.getElementById('userModal').style.display='none';}
-
-document.getElementById('userForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('userId').value||idf();
-  const username=document.getElementById('userName').value;
-  const password=document.getElementById('userPass').value||'123456';
-  const role=document.getElementById('userRole').value;
-  const canViewRecords=document.getElementById('userCanViewRecords').checked;
-  const canCreateSales=document.getElementById('userCanCreateSales').checked;
-
-  const existing=state.users.find(u=>u.id===id);
-  if(existing){
-    existing.username=username; existing.password=password; existing.role=role;
-    existing.canViewRecords=canViewRecords; existing.canCreateSales=canCreateSales;
-  } else {
-    state.users.push({id,username,password,role,canViewRecords,canCreateSales});
-  }
-  save(); closeUserModal(); renderUsers();
-});
-
-function editUser(id){
-  const user=state.users.find(u=>u.id===id);
-  if(!user) return;
-  document.getElementById('userId').value=user.id;
-  document.getElementById('userName').value=user.username;
-  document.getElementById('userPass').value=user.password;
-  document.getElementById('userRole').value=user.role;
-  document.getElementById('userCanViewRecords').checked=user.canViewRecords;
-  document.getElementById('userCanCreateSales').checked=user.canCreateSales;
-  openUserModal();
+/* ===========================
+   RECORDS PRINT
+=========================== */
+function printRecords(){
+  const w=window.open('','_blank'); 
+  let content=`<h3>Records</h3><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Type</th><th>Date</th><th>Ref</th><th>Details</th><th>Amount/Qty</th></tr>`;
+  state.sales.forEach(s=>{
+    content+=`<tr><td>Sale</td><td>${s.date}</td><td>-</td><td>${s.customer}</td><td>${fmt(s.total)}</td></tr>`;
+  });
+  state.expenses.forEach(e=>{
+    content+=`<tr><td>Expense</td><td>${e.date}</td><td>-</td><td>${e.desc}</td><td>${fmt(e.amount)}</td></tr>`;
+  });
+  state.inventory.forEach(i=>{
+    content+=`<tr><td>Inventory</td><td>-</td><td>-</td><td>${i.name}</td><td>${i.qty}</td></tr>`;
+  });
+  state.deposits.forEach(d=>{
+    content+=`<tr><td>Deposit</td><td>${d.date}</td><td>-</td><td>${d.client} - ${d.item}</td><td>${fmt(d.amount)}</td></tr>`;
+  });
+  content+='</table>';
+  w.document.write(content); w.print();
 }
 
 /* ===========================
    INIT
 =========================== */
-requireAuthOrRedirect();
+if(!currentUser()) showLogin();
 renderAll();
 </script>
