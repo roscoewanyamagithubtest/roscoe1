@@ -10,7 +10,7 @@
       --panel:#1a1f29; --card:#242b38;
       --accent:#06b6d4; --accent2:#7c3aed;
       --radius:12px; --muted:#94a3b8;
-      font-family: Inter, ui-sans-serif, system-ui;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       color-scheme: dark;
     }
     *{box-sizing:border-box;}
@@ -24,14 +24,13 @@
     .main{flex:1;padding:20px;overflow:auto;}
     .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
     .table{width:100%;border-collapse:collapse;}
-    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:left;}
     .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
     .btn-primary{background:var(--accent);color:#fff;}
     .btn-danger{background:#ef4444;color:#fff;}
     .btn-secondary{background:#64748b;color:#fff;}
     .muted{color:var(--muted);font-size:0.9em}
     .small{font-size:0.9em;padding:4px 8px}
-    /* Modals */
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
     .modal .modal-box{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
     .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
@@ -41,6 +40,10 @@
     .disabled{opacity:0.5;pointer-events:none;}
     label.inline{display:inline-block;margin-right:8px;}
     .paging{display:flex;gap:6px;align-items:center;}
+    .modal .modal-content{background:#fff;color:#000;padding:20px;width:600px;border-radius:10px;max-height:90%;overflow:auto;}
+    .form-row{display:flex;gap:8px;align-items:center;margin:6px 0;}
+    .form-row > *{flex:1}
+    .muted-small{color:var(--muted);font-size:0.85em}
     @media(max-width:768px){
       .sidebar{width:70px;padding:10px;}
       .sidebar .logo h1,.sidebar .nav-item div{display:none;}
@@ -243,7 +246,7 @@
 </div>
 
 <!-- LOGIN Modal -->
-<div id="loginModal" class="modal" style="display:flex">
+<div id="loginModal" class="modal">
   <div class="modal-box">
     <h2>Login</h2>
     <form id="loginForm">
@@ -289,7 +292,7 @@
     <h2>New Sale</h2>
     <form id="saleForm">
       <label>Customer</label><input id="customerName" required/>
-      <label>Contact</label><input id="Phone number" required/>
+      <label>Contact</label><input id="salePhone" required/>
       <div style="display:flex;gap:8px;align-items:center;margin:8px 0;">
         <label class="inline">Sale discount (flat):</label><input id="saleDiscount" type="number" value="0" style="width:120px"/>
         <label class="inline">Sale discount (%) :</label><input id="saleDiscountPct" type="number" value="0" style="width:80px"/>
@@ -380,8 +383,8 @@
 </div>
 
 <!-- Deposit Modal -->
-<div id="depositModal" class="modal" style="display:none;">
-  <div class="modal-content">
+<div id="depositModal" class="modal">
+  <div class="modal-box">
     <h3>Add / Edit Deposit</h3>
     <form id="depositForm">
       <input type="hidden" id="depositId">
@@ -390,18 +393,19 @@
       <label>Item Deposited On: <input type="text" id="depositItem" required></label><br>
       <label>Initial Balance: <input type="number" id="depositInitial" required></label><br>
       <label>Deposit Amount: <input type="number" id="depositAmount" required></label><br>
-      <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+      </div>
     </form>
   </div>
 </div>
 
-
 <script>
 /* ===========================
-   STORAGE & INITIAL STATE
+   STORAGE & UTIL
    =========================== */
-const STORAGE_KEY = "sales_system_data_v2";
+const STORAGE_KEY = "sales_system_data_v3";
 const fmt = n => "UGX " + Number(n||0).toLocaleString();
 const idf = () => Math.random().toString(36).substr(2,9);
 
@@ -413,22 +417,35 @@ if(!state.employees) state.employees=[];
 if(!state.suppliers) state.suppliers=[];
 if(!state.deposits) state.deposits=[];
 if(!state.users) {
-  // default admin user (client-side demo)
-  state.users = [
-    {id: idf(), username: 'admin', password: 'admin123', role:'admin', canViewRecords:true, canCreateSales:true}
-  ];
+  state.users = [{id:idf(), username:'admin', password:'admin123', role:'admin', canViewRecords:true, canCreateSales:true}];
 }
 if(!state.meta) state.meta={currentUserId:null};
 
-// helper to persist
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateUIForAuth(); }
 
-// currently logged in user (object or null)
-function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUserId) || null; }
-
 /* ===========================
-   AUTH (CLIENT-SIDE)
+   AUTH
    =========================== */
+function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUserId) || null; }
+function updateUIForAuth(){
+  const user = currentUser();
+  document.getElementById('currentUserDisplay').innerText = user ? `Signed in: ${user.username}` : 'Not signed in';
+  document.getElementById('systemStatus').innerText = user ? 'Online' : 'Offline';
+  const newSaleBtn = document.getElementById('newSaleBtn');
+  if(newSaleBtn) newSaleBtn.disabled = !(user && user.canCreateSales);
+  renderSettingsAdmin();
+  document.querySelectorAll("#navList .nav-item").forEach(nav=>{
+    if(nav.dataset.view === 'records'){
+      nav.style.display = (user && user.canViewRecords) ? 'flex' : 'none';
+    } else nav.style.display = 'flex';
+  });
+  const qa = document.getElementById('quickUserActions'); qa.innerHTML='';
+  if(user){
+    const manageBtn = document.createElement('button'); manageBtn.className='btn small'; manageBtn.textContent='My Profile'; manageBtn.onclick=()=>alert('Profile: '+user.username);
+    qa.appendChild(manageBtn);
+  }
+  if(!user) showLogin(); else hideLogin();
+}
 function showLogin(){ document.getElementById('loginModal').style.display='flex'; }
 function hideLogin(){ document.getElementById('loginModal').style.display='none'; }
 document.getElementById('loginForm').addEventListener('submit', e=>{
@@ -437,31 +454,35 @@ document.getElementById('loginForm').addEventListener('submit', e=>{
   const p = document.getElementById('loginPassword').value;
   const user = state.users.find(x=>x.username === u && x.password === p);
   if(!user){ alert('Invalid credentials'); return; }
-  state.meta.currentUserId = user.id; save(); hideLogin();
-  renderAll(); alert('Logged in as '+user.username);
+  state.meta.currentUserId = user.id; save(); hideLogin(); renderAll(); alert('Logged in as '+user.username);
 });
 function logout(){ state.meta.currentUserId = null; save(); showLogin(); renderAll(); }
-function requireAuthOrRedirect(){ if(!currentUser()) showLogin(); }
+
+/* Close modals by background click or Esc */
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click', (ev)=>{ if(ev.target === m) m.style.display='none'; });
+});
+window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape') document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); });
 
 /* ===========================
-   NAVIGATION
+   NAV
    =========================== */
 document.querySelectorAll("#navList .nav-item").forEach(nav=>{
   nav.addEventListener("click", ()=>{
     const user = currentUser();
-    // restrict records nav
     if(nav.dataset.view === 'records' && (!user || !user.canViewRecords)) { alert('You do not have permission to view Records'); return; }
     document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
     nav.classList.add("active");
     const v=nav.dataset.view;
     document.querySelectorAll(".view").forEach(sec=>sec.style.display='none');
-    document.querySelector(`.view[data-view='${v}']`).style.display='block';
+    const viewEl = document.querySelector(`.view[data-view='${v}']`);
+    if(viewEl) viewEl.style.display='block';
     renderAll();
   });
 });
 
 /* ===========================
-   SALES (editable prices & discounts)
+   SALES
    =========================== */
 function renderSales(){
   const tbody = document.querySelector('#salesTable tbody'); tbody.innerHTML='';
@@ -476,39 +497,38 @@ function renderSales(){
     tbody.appendChild(tr);
   });
 }
-function openSaleModal(){ 
+
+function openSaleModal(){
   const user = currentUser();
-  if(!user || !user.canCreateSales) { alert('You do not have permission to create sales'); return; }
+  if(!user || !user.canCreateSales){ alert('You do not have permission to create sales'); return; }
   document.getElementById('saleForm').reset();
   document.getElementById('saleItems').innerHTML='';
   addSaleItem();
-  document.getElementById('saleTotalDisplay').innerText = 'Total: UGX 0';
+  document.getElementById('saleTotalDisplay').innerText='Total: UGX 0';
   document.getElementById('saleModal').style.display='flex';
 }
-function closeSaleModal(){document.getElementById('saleModal').style.display='none';}
+function closeSaleModal(){ document.getElementById('saleModal').style.display='none'; }
+
+/* Add sale item row */
 function addSaleItem(prefItemId){
   const div=document.createElement('div'); div.style.display='flex'; div.style.gap='5px'; div.style.marginBottom='6px';
-  // create select with inventory and include data-cost attr
-  const select = document.createElement('select'); select.required = true;
-  (state.inventory.length ? state.inventory : [{id:'',name:'-- no items --',cost:0}]).forEach(i=>{
-    const opt = document.createElement('option');
-    opt.value = i.id;
-    opt.dataset.cost = i.cost;
-    opt.textContent = i.name + (i.qty!==undefined ? ` (stock:${i.qty})` : '');
+  div.className='sale-item-row';
+  const select = document.createElement('select'); select.required=true;
+  const emptyOpt = document.createElement('option'); emptyOpt.value=''; emptyOpt.textContent='-- choose item --'; select.appendChild(emptyOpt);
+  (state.inventory.length ? state.inventory : []).forEach(i=>{
+    const opt = document.createElement('option'); opt.value = i.id; opt.dataset.cost = i.cost; opt.textContent = i.name + (i.qty!==undefined ? ` (stock:${i.qty})` : '');
     if(prefItemId && prefItemId === i.id) opt.selected = true;
     select.appendChild(opt);
   });
   const qty = document.createElement('input'); qty.type='number'; qty.placeholder='Qty'; qty.min=1; qty.required=true; qty.value=1; qty.style.width='80px';
   const price = document.createElement('input'); price.type='number'; price.placeholder='Price'; price.style.width='120px'; price.required=true;
-  // when selection changes, populate price default from inventory cost
+  const rm = document.createElement('button'); rm.type='button'; rm.textContent='❌'; rm.className='btn btn-danger small';
+  rm.onclick = ()=>{ div.remove(); updateSaleTotal(); };
   select.addEventListener('change', ()=>{
     const sel = state.inventory.find(it=>it.id === select.value);
     price.value = sel ? sel.cost : 0;
     updateSaleTotal();
   });
-  // remove
-  const rm = document.createElement('button'); rm.type='button'; rm.textContent='❌'; rm.onclick = ()=>{ div.remove(); updateSaleTotal(); };
-  // on qty or price change update total
   qty.addEventListener('input', updateSaleTotal);
   price.addEventListener('input', updateSaleTotal);
 
@@ -517,57 +537,71 @@ function addSaleItem(prefItemId){
   div.appendChild(price);
   div.appendChild(rm);
   document.getElementById('saleItems').appendChild(div);
+
+  // set defaults
+  if(prefItemId){
+    const sel = state.inventory.find(it=>it.id===prefItemId);
+    if(sel) price.value = sel.cost;
+  } else {
+    const first = select.querySelector('option[value]:not([value=""])');
+    if(first){ select.value = first.value; price.value = state.inventory.find(it=>it.id===first.value)?.cost || 0; }
+  }
   updateSaleTotal();
 }
+
 function updateSaleTotal(){
   let total = 0;
-  document.querySelectorAll('#saleItems div').forEach(div=>{
-    const sel = div.querySelector('select'); const qty = Number(div.querySelector('input[type=number]').value||0);
+  document.querySelectorAll('#saleItems .sale-item-row').forEach(div=>{
+    const sel = div.querySelector('select');
+    const qty = Number(div.querySelector('input[type=number]').value||0);
     const inputs = div.querySelectorAll('input[type=number]');
-    // second number input is price (we appended price second)
-    const price = Number(inputs[1].value||0);
-    total += qty * price;
+    const price = inputs.length>1 ? Number(inputs[1].value||0) : 0;
+    if(sel && sel.value) total += qty * price;
   });
   const flat = Number(document.getElementById('saleDiscount').value||0);
   const pct = Number(document.getElementById('saleDiscountPct').value||0);
   const pctAmount = total * (pct/100);
-  const final = Math.max(0, total - (flat || 0) - pctAmount);
+  const final = Math.max(0, total - (flat||0) - pctAmount);
   document.getElementById('saleTotalDisplay').innerText = `Total: ${fmt(final)}`;
   return final;
 }
 document.getElementById('saleDiscount').addEventListener('input', updateSaleTotal);
 document.getElementById('saleDiscountPct').addEventListener('input', updateSaleTotal);
 
+/* Submit sale: reduces inventory, stores sale with meta discounts */
 document.getElementById('saleForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const customer=document.getElementById('customerName').value;
-  const items=[];
-  let total=0;
-  let valid=true;
-  document.querySelectorAll('#saleItems div').forEach(div=>{
-    const sel=div.querySelector('select'); const qty=Number(div.querySelector('input[type=number]').value||0);
+  const customer = document.getElementById('customerName').value.trim();
+  const phone = document.getElementById('salePhone').value.trim();
+  const items = [];
+  let totalRaw = 0;
+  let valid = true;
+  document.querySelectorAll('#saleItems .sale-item-row').forEach(div=>{
+    const sel = div.querySelector('select'); 
+    const qty = Number(div.querySelector('input[type=number]').value||0);
     const price = Number(div.querySelectorAll('input[type=number]')[1].value||0);
+    if(!sel.value){ valid = false; return; }
+    if(qty <= 0){ valid = false; return; }
     const itemInv = state.inventory.find(i=>i.id===sel.value);
     const name = itemInv ? itemInv.name : sel.options[sel.selectedIndex].text;
-    if(qty <= 0){ valid=false; }
-    items.push({id: sel.value, name, qty: qty, price: price});
-    total += price * qty;
-    // reduce inventory quantity if matching item exists
+    items.push({ id: sel.value, name, qty, price });
+    totalRaw += price * qty;
     if(itemInv){
       itemInv.qty = Number(itemInv.qty) - qty;
       if(itemInv.qty < 0) itemInv.qty = 0;
     }
   });
-  if(!valid) { alert('Please enter valid quantities'); return; }
+  if(!valid){ alert('Please select items and enter valid quantities'); return; }
   const flat = Number(document.getElementById('saleDiscount').value||0);
   const pct = Number(document.getElementById('saleDiscountPct').value||0);
-  const pctAmount = total * (pct/100);
-  const final = Math.max(0, total - flat - pctAmount);
-  state.sales.push({id:idf(),date:new Date().toISOString().slice(0,10),customer,items,total:final, meta:{flatDiscount:flat, pctDiscount:pct}});
-  save(); renderSales(); renderInventory(); closeSaleModal();
+  const pctAmount = totalRaw * (pct/100);
+  const final = Math.max(0, totalRaw - flat - pctAmount);
+  state.sales.push({ id: idf(), date: new Date().toISOString().slice(0,10), customer: customer + (phone ? ' / ' + phone : ''), items, total: final, meta:{flatDiscount:flat, pctDiscount:pct, rawTotal: totalRaw} });
+  save();
+  renderSales(); renderInventory(); closeSaleModal();
 });
 
-/* deleteSale restores inventory qty optionally */
+/* deleteSale restores inventory */
 function deleteSale(id){
   if(!confirm('Delete this sale?')) return;
   const sale = state.sales.find(s=>s.id===id);
@@ -580,54 +614,71 @@ function deleteSale(id){
   state.sales = state.sales.filter(s=>s.id!==id);
   save(); renderSales(); renderRecords(); renderInventory();
 }
+
+/* Print helpers for sales */
 function printSale(id){
-  const s=state.sales.find(s=>s.id===id);
+  const s = state.sales.find(x=>x.id===id);
   if(!s) return alert('Sale not found');
-  let html=`<h2>Receipt</h2><p>Customer: ${s.customer}<br>Date: ${s.date}</p><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Price</th></tr>`;
-  s.items.forEach(i=>{html+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.price)}</td></tr>`});
-  html+=`</table><p>Total: ${fmt(s.total)}</p>`;
-  const w=window.open(''); w.document.write(html); w.print();
+  let html = `<h2>Receipt</h2><p>Customer: ${s.customer}<br>Date: ${s.date}</p><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Price</th></tr>`;
+  s.items.forEach(i=>{ html += `<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.price)}</td></tr>`; });
+  html += `</table><p>Total: ${fmt(s.total)}</p>`;
+  const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print();
 }
-function printSales(){const html='<h2>All Sales</h2>'+document.querySelector('#salesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+function printSales(){ const html = '<h2>All Sales</h2>' + document.querySelector('#salesTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 
 /* ===========================
-   INVENTORY (unchanged but rendered)
+   INVENTORY
    =========================== */
 function renderInventory(){
   const tbody=document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
   state.inventory.forEach(i=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i.name}</td><td>${i.category||''}</td><td>${i.supplier||''}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td><td>${i.reorder||''}</td>
+    tr.innerHTML=`<td>${i.name}</td><td>${i.category||''}</td><td>${i.supplier||''}</td><td>${i.qty||0}</td><td>${fmt(i.cost)}</td><td>${i.reorder||''}</td>
       <td>
-        <button class="btn btn-primary" onclick="editInventory('${i.id}')">Edit</button>
+        <button class="btn btn-secondary" onclick="editInventory('${i.id}')">Edit</button>
         <button class="btn btn-danger" onclick="deleteInventory('${i.id}')">Delete</button>
       </td>`;
     tbody.appendChild(tr);
   });
 }
-function openInventoryModal(){document.getElementById('inventoryForm').reset();document.getElementById('itemId').value='';document.getElementById('inventoryModal').style.display='flex';}
-function closeInventoryModal(){document.getElementById('inventoryModal').style.display='none';}
+function openInventoryModal(){ document.getElementById('inventoryForm').reset(); document.getElementById('itemId').value=''; document.getElementById('inventoryModal').style.display='flex'; }
+function closeInventoryModal(){ document.getElementById('inventoryModal').style.display='none'; }
 document.getElementById('inventoryForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const id=document.getElementById('itemId').value||idf();
+  const id = document.getElementById('itemId').value || idf();
   const existing = state.inventory.find(i=>i.id===id);
   const created = existing ? existing.created : new Date().toISOString().slice(0,10);
-  const item={id:id,
-    name:document.getElementById('itemName').value,
-    category:document.getElementById('itemCategory').value,
-    supplier:document.getElementById('itemSupplier').value,
-    qty:Number(document.getElementById('itemQty').value),
-    cost:Number(document.getElementById('itemCost').value),
-    reorder:Number(document.getElementById('itemReorder').value),
+  const item = {
+    id,
+    name: document.getElementById('itemName').value.trim(),
+    category: document.getElementById('itemCategory').value.trim(),
+    supplier: document.getElementById('itemSupplier').value.trim(),
+    qty: Number(document.getElementById('itemQty').value||0),
+    cost: Number(document.getElementById('itemCost').value||0),
+    reorder: Number(document.getElementById('itemReorder').value||0),
     created
   };
-  const index=state.inventory.findIndex(i=>i.id===id);
-  if(index>=0) state.inventory[index]=item; else state.inventory.push(item);
+  const index = state.inventory.findIndex(i=>i.id===id);
+  if(index >= 0) state.inventory[index] = item; else state.inventory.push(item);
   save(); renderInventory(); closeInventoryModal();
 });
-function editInventory(id){const i=state.inventory.find(i=>i.id===id); if(!i) return; document.getElementById('itemId').value=i.id; document.getElementById('itemName').value=i.name; document.getElementById('itemCategory').value=i.category; document.getElementById('itemSupplier').value=i.supplier; document.getElementById('itemQty').value=i.qty; document.getElementById('itemCost').value=i.cost; document.getElementById('itemReorder').value=i.reorder; document.getElementById('inventoryModal').style.display='flex';}
-function deleteInventory(id){if(confirm('Delete this item?')){state.inventory=state.inventory.filter(i=>i.id!==id);save();renderInventory();renderRecords();} }
-function printInventory(){const html='<h2>Inventory</h2>'+document.querySelector('#inventoryTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+function editInventory(id){
+  const it = state.inventory.find(x=>x.id===id); if(!it) return;
+  document.getElementById('itemId').value = it.id;
+  document.getElementById('itemName').value = it.name;
+  document.getElementById('itemCategory').value = it.category || '';
+  document.getElementById('itemSupplier').value = it.supplier || '';
+  document.getElementById('itemQty').value = it.qty || 0;
+  document.getElementById('itemCost').value = it.cost || 0;
+  document.getElementById('itemReorder').value = it.reorder || 0;
+  document.getElementById('inventoryModal').style.display='flex';
+}
+function deleteInventory(id){
+  if(!confirm('Delete this item?')) return;
+  state.inventory = state.inventory.filter(i=>i.id!==id);
+  save(); renderInventory(); renderRecords();
+}
+function printInventory(){ const html = '<h2>Inventory</h2>' + document.querySelector('#inventoryTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 
 /* ===========================
    EXPENSES
@@ -636,36 +687,37 @@ function renderExpenses(){
   const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
   let total=0;
   state.expenses.forEach(e=>{
-    total+=Number(e.amount);
+    total += Number(e.amount || 0);
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
       <td><button class="btn btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
+  document.getElementById('expenseTotal').innerText = 'Total: ' + fmt(total);
 }
-function openExpenseModal(){document.getElementById('expenseForm').reset();document.getElementById('expenseModal').style.display='flex';}
-function closeExpenseModal(){document.getElementById('expenseModal').style.display='none';}
+function openExpenseModal(){ document.getElementById('expenseForm').reset(); document.getElementById('expenseModal').style.display='flex'; }
+function closeExpenseModal(){ document.getElementById('expenseModal').style.display='none'; }
 document.getElementById('expenseForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const exp={id:idf(),date:document.getElementById('expenseDate').value,category:document.getElementById('expenseCategory').value,description:document.getElementById('expenseDesc').value,amount:Number(document.getElementById('expenseAmount').value)};
-  state.expenses.push(exp); save(); renderExpenses(); renderRecords(); closeExpenseModal();
+  const exp = { id: idf(), date: document.getElementById('expenseDate').value || new Date().toISOString().slice(0,10), category: document.getElementById('expenseCategory').value.trim(), description: document.getElementById('expenseDesc').value.trim(), amount: Number(document.getElementById('expenseAmount').value||0) };
+  state.expenses.push(exp);
+  save(); renderExpenses(); renderRecords(); closeExpenseModal();
 });
-function deleteExpense(id){if(!confirm('Delete this expense?')) return; state.expenses=state.expenses.filter(e=>e.id!==id); save(); renderExpenses(); renderRecords();}
+function deleteExpense(id){ if(!confirm('Delete this expense?')) return; state.expenses = state.expenses.filter(e=>e.id!==id); save(); renderExpenses(); renderRecords(); }
 function searchExpenses(){
-  const from=document.getElementById('expenseFrom').value; const to=document.getElementById('expenseTo').value;
-  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
+  const from = document.getElementById('expenseFrom').value; const to = document.getElementById('expenseTo').value;
+  const tbody = document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
   let total=0;
-  state.expenses.filter(e=>(!from || e.date>=from) && (!to || e.date<=to)).forEach(e=>{
-    total+=Number(e.amount);
+  state.expenses.filter(e=> (!from || e.date >= from) && (!to || e.date <= to) ).forEach(e=>{
+    total += Number(e.amount || 0);
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
       <td><button class="btn btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
     tbody.appendChild(tr);
   });
-  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
+  document.getElementById('expenseTotal').innerText = 'Total: ' + fmt(total);
 }
-function printExpenses(){const html='<h2>Expenses</h2>'+document.querySelector('#expensesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+function printExpenses(){ const html = '<h2>Expenses</h2>' + document.querySelector('#expensesTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 
 /* ===========================
    EMPLOYEES
@@ -674,27 +726,24 @@ function renderEmployees(){
   const tbody=document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
   state.employees.forEach(e=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${e.name}</td><td>${e.position}</td><td>${e.email}</td><td>${e.phone}</td>
-      <td>
-        <button class="btn btn-primary" onclick="editEmployee('${e.id}')">Edit</button>
-        <button class="btn btn-danger" onclick="deleteEmployee('${e.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML=`<td>${e.name}</td><td>${e.position||''}</td><td>${e.email||''}</td><td>${e.phone||''}</td>
+      <td><button class="btn btn-secondary" onclick="editEmployee('${e.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteEmployee('${e.id}')">Delete</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function openEmployeeModal(){document.getElementById('employeeForm').reset();document.getElementById('employeeId').value='';document.getElementById('employeeModal').style.display='flex';}
-function closeEmployeeModal(){document.getElementById('employeeModal').style.display='none';}
+function openEmployeeModal(){ document.getElementById('employeeForm').reset(); document.getElementById('employeeId').value=''; document.getElementById('employeeModal').style.display='flex'; }
+function closeEmployeeModal(){ document.getElementById('employeeModal').style.display='none'; }
 document.getElementById('employeeForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const id=document.getElementById('employeeId').value||idf();
-  const emp={id:id,name:document.getElementById('employeeName').value,position:document.getElementById('employeePosition').value,email:document.getElementById('employeeEmail').value,phone:document.getElementById('employeePhone').value};
-  const index=state.employees.findIndex(x=>x.id===id);
-  if(index>=0) state.employees[index]=emp; else state.employees.push(emp);
+  const id = document.getElementById('employeeId').value || idf();
+  const emp = { id, name: document.getElementById('employeeName').value.trim(), position: document.getElementById('employeePosition').value.trim(), email: document.getElementById('employeeEmail').value.trim(), phone: document.getElementById('employeePhone').value.trim() };
+  const idx = state.employees.findIndex(x=>x.id===id);
+  if(idx >= 0) state.employees[idx] = emp; else state.employees.push(emp);
   save(); renderEmployees(); closeEmployeeModal();
 });
-function editEmployee(id){const e=state.employees.find(e=>e.id===id); document.getElementById('employeeId').value=e.id; document.getElementById('employeeName').value=e.name; document.getElementById('employeePosition').value=e.position; document.getElementById('employeeEmail').value=e.email; document.getElementById('employeePhone').value=e.phone; document.getElementById('employeeModal').style.display='flex';}
-function deleteEmployee(id){if(confirm('Delete employee?')){state.employees=state.employees.filter(e=>e.id!==id);save();renderEmployees();} }
-function printEmployees(){const html='<h2>Employees</h2>'+document.querySelector('#employeesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+function editEmployee(id){ const e = state.employees.find(x=>x.id===id); if(!e) return; document.getElementById('employeeId').value = e.id; document.getElementById('employeeName').value = e.name; document.getElementById('employeePosition').value = e.position || ''; document.getElementById('employeeEmail').value = e.email || ''; document.getElementById('employeePhone').value = e.phone || ''; document.getElementById('employeeModal').style.display='flex'; }
+function deleteEmployee(id){ if(!confirm('Delete employee?')) return; state.employees = state.employees.filter(e=>e.id!==id); save(); renderEmployees(); }
+function printEmployees(){ const html = '<h2>Employees</h2>' + document.querySelector('#employeesTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 
 /* ===========================
    SUPPLIERS
@@ -703,204 +752,100 @@ function renderSuppliers(){
   const tbody=document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
   state.suppliers.forEach(s=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s.name}</td><td>${s.contact}</td><td>${s.email}</td>
-      <td>
-        <button class="btn btn-primary" onclick="editSupplier('${s.id}')">Edit</button>
-        <button class="btn btn-danger" onclick="deleteSupplier('${s.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML=`<td>${s.name}</td><td>${s.contact||''}</td><td>${s.email||''}</td>
+      <td><button class="btn btn-secondary" onclick="editSupplier('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteSupplier('${s.id}')">Delete</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function openSupplierModal(){document.getElementById('supplierForm').reset();document.getElementById('supplierId').value='';document.getElementById('supplierModal').style.display='flex';}
-function closeSupplierModal(){document.getElementById('supplierModal').style.display='none';}
+function openSupplierModal(){ document.getElementById('supplierForm').reset(); document.getElementById('supplierId').value=''; document.getElementById('supplierModal').style.display='flex'; }
+function closeSupplierModal(){ document.getElementById('supplierModal').style.display='none'; }
 document.getElementById('supplierForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const id=document.getElementById('supplierId').value||idf();
-  const sup={id:id,name:document.getElementById('supplierName').value,contact:document.getElementById('supplierContact').value,email:document.getElementById('supplierEmail').value};
-  const index=state.suppliers.findIndex(x=>x.id===id);
-  if(index>=0) state.suppliers[index]=sup; else state.suppliers.push(sup);
+  const id = document.getElementById('supplierId').value || idf();
+  const sup = { id, name: document.getElementById('supplierName').value.trim(), contact: document.getElementById('supplierContact').value.trim(), email: document.getElementById('supplierEmail').value.trim() };
+  const idx = state.suppliers.findIndex(x=>x.id===id);
+  if(idx >= 0) state.suppliers[idx] = sup; else state.suppliers.push(sup);
   save(); renderSuppliers(); closeSupplierModal();
 });
-function editSupplier(id){const s=state.suppliers.find(s=>s.id===id); document.getElementById('supplierId').value=s.id; document.getElementById('supplierName').value=s.name; document.getElementById('supplierContact').value=s.contact; document.getElementById('supplierEmail').value=s.email; document.getElementById('supplierModal').style.display='flex';}
-function deleteSupplier(id){if(confirm('Delete supplier?')){state.suppliers=state.suppliers.filter(s=>s.id!==id);save();renderSuppliers();} }
-function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector('#suppliersTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+function editSupplier(id){ const s = state.suppliers.find(x=>x.id===id); if(!s) return; document.getElementById('supplierId').value = s.id; document.getElementById('supplierName').value = s.name; document.getElementById('supplierContact').value = s.contact || ''; document.getElementById('supplierEmail').value = s.email || ''; document.getElementById('supplierModal').style.display='flex'; }
+function deleteSupplier(id){ if(!confirm('Delete supplier?')) return; state.suppliers = state.suppliers.filter(s=>s.id!==id); save(); renderSuppliers(); }
+function printSuppliers(){ const html = '<h2>Suppliers</h2>' + document.querySelector('#suppliersTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 
 /* ===========================
    DEPOSITS
    =========================== */
 function renderDeposits(){
-  const tbody = document.querySelector('#depositsTable tbody'); 
-  tbody.innerHTML = '';
-  state.deposits.forEach(d => {
+  const tbody = document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
+  state.deposits.forEach(d=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${d.date}</td>
-      <td>${d.client}</td>
-      <td>${d.item}</td>
-      <td>${fmt(d.amount)}</td>
-      <td>${fmt(d.initial)}</td>
-      <td>${fmt(d.remaining)}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="printDeposit('${d.id}')">🖨️ Receipt</button>
-        <button class="btn btn-danger" onclick="deleteDeposit('${d.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML = `<td>${d.date}</td><td>${d.client}</td><td>${d.item}</td><td>${fmt(d.amount)}</td><td>${fmt(d.initial)}</td><td>${fmt(d.remaining)}</td>
+      <td><button class="btn btn-secondary" onclick="printDeposit('${d.id}')">🖨️ Receipt</button> <button class="btn btn-danger" onclick="deleteDeposit('${d.id}')">Delete</button></td>`;
     tbody.appendChild(tr);
   });
 }
-
-function openDepositModal(){
-  document.getElementById('depositForm').reset();
-  document.getElementById('depositId').value = '';
-  document.getElementById('depositModal').style.display = 'flex';
-}
-
-function closeDepositModal(){
-  document.getElementById('depositModal').style.display = 'none';
-}
-
-document.getElementById('depositForm').addEventListener('submit', e => {
+function openDepositModal(){ document.getElementById('depositForm').reset(); document.getElementById('depositId').value=''; document.getElementById('depositModal').style.display='flex'; }
+function closeDepositModal(){ document.getElementById('depositModal').style.display='none'; }
+document.getElementById('depositForm').addEventListener('submit', e=>{
   e.preventDefault();
   const id = document.getElementById('depositId').value || idf();
-  const initial = Number(document.getElementById('depositInitial').value);
-  const amount = Number(document.getElementById('depositAmount').value);
+  const initial = Number(document.getElementById('depositInitial').value||0);
+  const amount = Number(document.getElementById('depositAmount').value||0);
   const remaining = initial - amount;
-
-  const dep = {
-    id: id,
-    date: document.getElementById('depositDate').value,
-    client: document.getElementById('depositClient').value,
-    item: document.getElementById('depositItem').value,
-    initial: initial,
-    amount: amount,
-    remaining: remaining
-  };
-
-  const index = state.deposits.findIndex(x => x.id === id);
-  if(index >= 0) state.deposits[index] = dep; 
-  else state.deposits.push(dep);
-
-  save(); 
-  renderDeposits(); 
-  renderRecords(); 
-  closeDepositModal();
+  const dep = { id, date: document.getElementById('depositDate').value || new Date().toISOString().slice(0,10), client: document.getElementById('depositClient').value.trim(), item: document.getElementById('depositItem').value.trim(), initial, amount, remaining };
+  const idx = state.deposits.findIndex(x=>x.id===id);
+  if(idx >= 0) state.deposits[idx] = dep; else state.deposits.push(dep);
+  save(); renderDeposits(); renderRecords(); closeDepositModal();
 });
-
-function deleteDeposit(id){
-  if(confirm('Delete deposit?')){
-    state.deposits = state.deposits.filter(d => d.id !== id);
-    save();
-    renderDeposits();
-    renderRecords();
-  }
-}
-
+function deleteDeposit(id){ if(!confirm('Delete deposit?')) return; state.deposits = state.deposits.filter(d=>d.id!==id); save(); renderDeposits(); renderRecords(); }
 function printDeposit(id){
-  const d = state.deposits.find(d => d.id === id); 
-  if(!d) return;
-
-  let html = `
-    <h2>Deposit Receipt</h2>
-    <p><strong>Client:</strong> ${d.client}<br>
-    <strong>Date:</strong> ${d.date}</p>
-    <p><strong>Item Deposited On:</strong> ${d.item}</p>
-    <table border="1" cellspacing="0" cellpadding="6">
-      <tr><th>Initial Balance</th><th>Deposit Amount</th><th>Remaining Balance</th></tr>
-      <tr>
-        <td>${fmt(d.initial)}</td>
-        <td>${fmt(d.amount)}</td>
-        <td>${fmt(d.remaining)}</td>
-      </tr>
-    </table>
-  `;
-
-  const w = window.open('');
-  w.document.write(html);
-  w.print();
+  const d = state.deposits.find(x=>x.id===id); if(!d) return alert('Deposit not found');
+  let html = `<h2>Deposit Receipt</h2><p><strong>Client:</strong> ${d.client}<br><strong>Date:</strong> ${d.date}</p><p><strong>Item Deposited On:</strong> ${d.item}</p>
+    <table border="1" cellspacing="0" cellpadding="6"><tr><th>Initial Balance</th><th>Deposit Amount</th><th>Remaining Balance</th></tr>
+    <tr><td>${fmt(d.initial)}</td><td>${fmt(d.amount)}</td><td>${fmt(d.remaining)}</td></tr></table>`;
+  const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print();
+}
+function printDeposits(){ const html = '<h2>Deposits</h2>' + document.querySelector('#depositsTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 
 /* ===========================
-   RECORDS (with pagination + filters)
+   RECORDS (built from data, paging + filters)
    =========================== */
+let recordsPage = 1;
 function buildRecordsArray(){
   const arr = [];
-  // Sales
-  state.sales.forEach(s=>{
-    arr.push({
-      type: 'Sale',
-      date: s.date,
-      ref: s.id,
-      details: `Customer: ${s.customer}`,
-      amount: s.total,
-      meta: s.items.map(i=>`${i.name} x${i.qty}`).join(', ')
-    });
-  });
-  // Expenses
-  state.expenses.forEach(e=>{
-    arr.push({
-      type: 'Expense',
-      date: e.date,
-      ref: e.id,
-      details: `${e.category} - ${e.description}`,
-      amount: Number(e.amount),
-      meta: e.notes||''
-    });
-  });
-  // Inventory
-  state.inventory.forEach(i=>{
-    arr.push({
-      type: 'Inventory',
-      date: i.created || new Date().toISOString().slice(0,10),
-      ref: i.id,
-      details: `${i.name} (${i.category||''})`,
-      amount: i.qty,
-      meta: `Cost: ${fmt(i.cost)} Supplier:${i.supplier||''}`
-    });
-  });
-  // Deposits
-  state.deposits.forEach(d=>{
-    arr.push({
-      type: 'Deposit',
-      date: d.date,
-      ref: d.id,
-      details: `Client: ${d.client}`,
-      amount: d.amount,
-      meta: `Balance: ${fmt(d.balance||0)}`
-    });
-  });
-  // Sort desc by date
-  return arr.sort((a,b)=> a.date < b.date ? 1 : (a.date > b.date ? -1 : 0));
+  state.sales.forEach(s=> arr.push({ type:'Sale', date: s.date || '', ref:s.id, details: `Customer: ${s.customer}`, amount: s.total, meta: s.items.map(i=>`${i.name} x${i.qty}`).join(', ') }));
+  state.expenses.forEach(e=> arr.push({ type:'Expense', date: e.date || '', ref:e.id, details: `${e.category} - ${e.description}`, amount: Number(e.amount||0), meta: e.notes || '' }));
+  state.inventory.forEach(i=> arr.push({ type:'Inventory', date: i.created || '', ref:i.id, details: `${i.name} (${i.category||''})`, amount: i.qty, meta: `Cost: ${fmt(i.cost)} Supplier:${i.supplier||''}` }));
+  state.deposits.forEach(d=> arr.push({ type:'Deposit', date: d.date || '', ref:d.id, details: `Client: ${d.client}`, amount: Number(d.amount||0), meta: `Remaining: ${fmt(d.remaining||0)}` }));
+  // sort desc by date (fallback to insertion order)
+  return arr.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
 }
 
-/* Pagination state */
-let recordsPage = 1;
-function renderRecords(list){
-  const tbody=document.querySelector('#recordsTable tbody'); tbody.innerHTML='';
-  const rowsAll = list || buildRecordsArray();
-  // apply type/text filters from inputs if list not provided
-  let rows = rowsAll;
-  // apply UI filters if searchRecords was not used
-  const typeFilter = document.getElementById('recordsType') ? document.getElementById('recordsType').value : '';
-  const textFilter = document.getElementById('recordsText') ? document.getElementById('recordsText').value.toLowerCase() : '';
+function renderRecords(){
+  const tbody = document.querySelector('#recordsTable tbody'); tbody.innerHTML='';
+  let rows = buildRecordsArray();
+  const typeFilter = document.getElementById('recordsType').value || '';
+  const textFilter = (document.getElementById('recordsText').value || '').toLowerCase();
+  const from = document.getElementById('recordsFrom').value || '';
+  const to = document.getElementById('recordsTo').value || '';
   if(typeFilter) rows = rows.filter(r=>r.type === typeFilter);
-  if(textFilter) rows = rows.filter(r=> (r.details+' '+r.ref+' '+r.meta).toLowerCase().includes(textFilter));
-  // date range
-  const from=document.getElementById('recordsFrom') ? document.getElementById('recordsFrom').value : '';
-  const to=document.getElementById('recordsTo') ? document.getElementById('recordsTo').value : '';
-  rows = rows.filter(r=> (!from || r.date >= from) && (!to || r.date <= to));
+  if(textFilter) rows = rows.filter(r => ((r.details||'')+' '+(r.ref||'')+' '+(r.meta||'')).toLowerCase().includes(textFilter));
+  if(from) rows = rows.filter(r => (r.date||'') >= from);
+  if(to) rows = rows.filter(r => (r.date||'') <= to);
 
-  const pageSize = Number(document.getElementById('recordsPageSize').value||10);
+  const pageSize = Number(document.getElementById('recordsPageSize').value || 10);
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
   if(recordsPage > totalPages) recordsPage = totalPages;
-  const start = (recordsPage-1) * pageSize;
+  if(recordsPage < 1) recordsPage = 1;
+  const start = (recordsPage - 1) * pageSize;
   const pageRows = rows.slice(start, start + pageSize);
 
-  let totalMoney = 0;
-  let totalQty = 0;
+  let totalMoney = 0, totalQty = 0;
   pageRows.forEach(r=>{
-    const tr=document.createElement('tr');
+    const tr = document.createElement('tr');
     let amountDisplay = '';
-    if(r.type === 'Sale' || r.type === 'Expense' || r.type === 'Deposit') { amountDisplay = fmt(r.amount); totalMoney += Number(r.amount||0); }
+    if(r.type === 'Sale' || r.type === 'Expense' || r.type === 'Deposit'){ amountDisplay = fmt(r.amount); totalMoney += Number(r.amount||0); }
     else { amountDisplay = r.amount; totalQty += Number(r.amount||0); }
-    tr.innerHTML = `<td>${r.type}</td><td>${r.date}</td><td>${r.ref}</td><td>${r.details}<div style="font-size:0.9em;color:#cbd5e1;margin-top:4px">${r.meta||''}</div></td><td>${amountDisplay}</td>
+    tr.innerHTML = `<td>${r.type}</td><td>${r.date||''}</td><td>${r.ref}</td><td>${r.details}<div style="font-size:0.9em;color:#cbd5e1;margin-top:4px">${r.meta||''}</div></td><td>${amountDisplay}</td>
       <td>
         ${r.type === 'Sale' ? `<button class="btn btn-secondary" onclick="printSale('${r.ref}')">🖨️</button>` : ''}
         ${r.type === 'Expense' ? `<button class="btn btn-secondary" onclick="printExpense('${r.ref}')">🖨️</button>` : ''}
@@ -910,22 +855,15 @@ function renderRecords(list){
       </td>`;
     tbody.appendChild(tr);
   });
-  const summary = `Total on page (money): ${fmt(totalMoney)} — Total inventory qty on page: ${totalQty} — Showing ${pageRows.length} of ${rows.length} records`;
-  document.getElementById('recordsSummary').innerText = summary;
+
+  document.getElementById('recordsSummary').innerText = `Total on page (money): ${fmt(totalMoney)} — Total qty on page: ${totalQty} — Showing ${pageRows.length} of ${rows.length} records`;
   document.getElementById('recordsPagerInfo').innerText = `Page ${recordsPage} / ${totalPages}`;
 }
-function searchRecords(){
-  recordsPage = 1;
-  renderRecords();
-}
-function printRecords(){
-  const html='<h2>Company Records (current page)</h2>'+document.querySelector('#recordsTable').outerHTML;
-  const w=window.open(''); w.document.write(html); w.print();
-}
+
+function searchRecords(){ recordsPage = 1; renderRecords(); }
+function printRecords(){ const html = '<h2>Company Records (current page)</h2>' + document.querySelector('#recordsTable').outerHTML; const w = window.open(''); w.document.write(html); w.document.close(); w.focus(); w.print(); }
 function deleteRecord(type, ref){
-  // permission check
-  const user = currentUser();
-  if(!user){ alert('must be logged in'); return; }
+  const user = currentUser(); if(!user){ alert('must be logged in'); return; }
   if(!confirm(`Delete this ${type}?`)) return;
   if(type === 'Sale') deleteSale(ref);
   else if(type === 'Expense') deleteExpense(ref);
@@ -933,127 +871,83 @@ function deleteRecord(type, ref){
   else if(type === 'Deposit') deleteDeposit(ref);
   renderAll();
 }
-/* helper prints */
-function printExpense(id){
-  const e = state.expenses.find(x=>x.id===id); if(!e) return alert('Expense not found');
-  const w=window.open(''); w.document.write(`<h2>Expense</h2><p>${e.date}</p><p>${e.category} - ${e.description}</p><p>Amount: ${fmt(e.amount)}</p>`); w.print();
-}
-function printInventoryItem(id){
-  const i=state.inventory.find(x=>x.id===id); if(!i) return alert('Not found');
-  const w=window.open(''); w.document.write(`<h2>Inventory Item</h2><p>${i.name}</p><p>Qty: ${i.qty}</p><p>Cost: ${fmt(i.cost)}</p>`); w.print();
-}
+function printExpense(id){ const e = state.expenses.find(x=>x.id===id); if(!e) return alert('Expense not found'); const w=window.open(''); w.document.write(`<h2>Expense</h2><p>${e.date}</p><p>${e.category} - ${e.description}</p><p>Amount: ${fmt(e.amount)}</p>`); w.print(); }
+function printInventoryItem(id){ const i = state.inventory.find(x=>x.id===id); if(!i) return alert('Not found'); const w = window.open(''); w.document.write(`<h2>Inventory Item</h2><p>${i.name}</p><p>Qty: ${i.qty}</p><p>Cost: ${fmt(i.cost)}</p>`); w.print(); }
 
-/* pagination helpers */
 function recordsNext(){ recordsPage++; renderRecords(); }
 function recordsPrev(){ if(recordsPage>1) recordsPage--; renderRecords(); }
 function recordsJump(){ const v = Number(document.getElementById('recordsGoto').value||1); recordsPage = Math.max(1, v); renderRecords(); }
 
 /* ===========================
-   USERS / SETTINGS (admin only)
+   USERS / SETTINGS
    =========================== */
-function openUserModal(){ document.getElementById('userForm').reset(); document.getElementById('userId').value=''; populateUsersList(); document.getElementById('userModal').style.display='flex'; }
-function closeUserModal(){ document.getElementById('userModal').style.display='none'; }
 function populateUsersList(){
   const el = document.getElementById('usersList'); el.innerHTML='';
   state.users.forEach(u=>{
     const div = document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.padding='6px 0';
-    const left = document.createElement('div'); left.innerHTML = `<strong>${u.username}</strong> <span class="muted">(${u.role})</span> ${u.canViewRecords?'<span class="muted">• records</span>':''}`;
+    const left = document.createElement('div'); left.innerHTML = `<strong>${u.username}</strong> <span class="muted-small">(${u.role})</span> ${u.canViewRecords?'<span class="muted-small">• records</span>':''}`;
     const right = document.createElement('div');
-    const edit = document.createElement('button'); edit.className='btn small'; edit.textContent='Edit'; edit.onclick=()=>{ editUser(u.id); };
+    const edit = document.createElement('button'); edit.className='btn small'; edit.textContent='Edit'; edit.onclick=()=>editUser(u.id);
     const del = document.createElement('button'); del.className='btn small'; del.textContent='Delete'; del.onclick=()=>{ if(confirm('Delete user?')){ state.users = state.users.filter(x=>x.id!==u.id); save(); populateUsersList(); } };
-    right.appendChild(edit); right.appendChild(del);
-    div.appendChild(left); div.appendChild(right);
-    el.appendChild(div);
+    right.appendChild(edit); right.appendChild(del); div.appendChild(left); div.appendChild(right); el.appendChild(div);
   });
 }
+function openUserModal(id){
+  document.getElementById('userForm').reset(); document.getElementById('userId').value=''; populateUsersList(); document.getElementById('userModal').style.display='flex';
+  if(id) editUser(id);
+}
+function closeUserModal(){ document.getElementById('userModal').style.display='none'; }
 function editUser(id){
   const u = state.users.find(x=>x.id===id); if(!u) return;
   document.getElementById('userId').value = u.id;
   document.getElementById('userName').value = u.username;
   document.getElementById('userPass').value = u.password;
-  document.getElementById('userRole').value = u.role;
+  document.getElementById('userRole').value = u.role || 'user';
   document.getElementById('userCanViewRecords').checked = !!u.canViewRecords;
   document.getElementById('userCanCreateSales').checked = (u.canCreateSales !== false);
-  document.getElementById('userModal').style.display = 'flex';
+  document.getElementById('userModal').style.display='flex';
 }
 document.getElementById('userForm').addEventListener('submit', e=>{
   e.preventDefault();
   const id = document.getElementById('userId').value || idf();
   const username = document.getElementById('userName').value.trim();
-  const password = document.getElementById('userPass').value;
+  const password = document.getElementById('userPass').value || 'password';
   const role = document.getElementById('userRole').value;
   const canViewRecords = document.getElementById('userCanViewRecords').checked;
   const canCreateSales = document.getElementById('userCanCreateSales').checked;
-  // avoid duplicate username
   if(state.users.some(u=>u.username === username && u.id !== id)){ alert('Username already exists'); return; }
-  const existingIndex = state.users.findIndex(u=>u.id===id);
-  const userObj = {id, username, password, role, canViewRecords, canCreateSales};
-  if(existingIndex >= 0) state.users[existingIndex] = userObj; else state.users.push(userObj);
+  const idx = state.users.findIndex(u=>u.id===id);
+  const userObj = { id, username, password, role, canViewRecords, canCreateSales };
+  if(idx >= 0) state.users[idx] = userObj; else state.users.push(userObj);
   save(); populateUsersList(); closeUserModal();
 });
 
-/* SETTINGS area render (Admin-only) */
 function renderSettingsAdmin(){
   const container = document.getElementById('settingsAdminArea'); container.innerHTML='';
   const user = currentUser();
   if(!user || user.role !== 'admin'){ container.innerHTML = '<p class="muted">Only admin can manage users.</p>'; return; }
-  const btn = document.createElement('button'); btn.className='btn btn-primary'; btn.textContent='Manage Users'; btn.onclick = openUserModal;
+  const btn = document.createElement('button'); btn.className='btn btn-primary'; btn.textContent='Manage Users'; btn.onclick = ()=>openUserModal();
   container.appendChild(btn);
 }
 
 /* ===========================
-   AUTH UI updates & helpers
-   =========================== */
-function updateUIForAuth(){
-  const user = currentUser();
-  document.getElementById('currentUserDisplay').innerText = user ? `Signed in as: ${user.username} (${user.role})` : 'Not signed in';
-  document.getElementById('systemStatus').innerText = user ? 'Online' : 'Offline';
-  // hide/show new sale button based on permission
-  const newSaleBtn = document.getElementById('newSaleBtn');
-  if(newSaleBtn) newSaleBtn.disabled = !(user && user.canCreateSales);
-  // hide settings admin area / show manage users
-  renderSettingsAdmin();
-  // restrict nav items visibility
-  document.querySelectorAll("#navList .nav-item").forEach(nav=>{
-    if(nav.dataset.view === 'records'){
-      nav.style.display = (user && user.canViewRecords) ? 'flex' : 'none';
-    } else {
-      nav.style.display = 'flex';
-    }
-  });
-  // show login modal if not logged in
-  if(!user) showLogin(); else hideLogin();
-  // quick actions
-  const qa = document.getElementById('quickUserActions'); qa.innerHTML='';
-  if(user){
-    const manageBtn = document.createElement('button'); manageBtn.className='btn small'; manageBtn.textContent='My Profile'; manageBtn.onclick = ()=>{ alert('Profile: '+user.username); };
-    qa.appendChild(manageBtn);
-  }
-}
-
-/* ===========================
-   RENDER ALL (initial)
+   GLOBAL RENDER & INIT
    =========================== */
 function renderAll(){
-  renderSales(); renderInventory(); renderExpenses(); renderEmployees(); renderSuppliers(); renderDeposits(); renderRecords(); renderSettingsAdmin();
+  renderSales();
+  renderInventory();
+  renderExpenses();
+  renderEmployees();
+  renderSuppliers();
+  renderDeposits();
+  renderRecords();
+  populateUsersList();
+  renderSettingsAdmin();
   updateUIForAuth();
 }
 renderAll();
-
-/* ===========================
-   STARTUP: show login if not auth
-   =========================== */
 if(!currentUser()) showLogin(); else hideLogin();
-
-/* ===========================
-   Misc helper prints used earlier
-   =========================== */
-function printEmployees(){const html='<h2>Employees</h2>'+document.querySelector('#employeesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector('#suppliersTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-function printDeposits(){const html='<h2>Deposits</h2>'+document.querySelector('#depositsTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
 </script>
 </body>
 </html>
-
-
