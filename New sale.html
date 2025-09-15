@@ -161,19 +161,27 @@
       </table>
     </section>
 
-    <!-- Deposits -->
-    <section data-view="deposits" class="view card" style="display:none">
-      <h2>Deposits 
-        <button class="btn btn-primary" onclick="openDepositModal()">+ Add Deposit</button>
-        <button class="btn btn-secondary" onclick="printDeposits()">🖨️ Print</button>
-      </h2>
-      <table class="table" id="depositsTable">
-        <thead>
-          <tr><th>Date</th><th>Client</th><th>Amount</th><th>Balance</th><th>Actions</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+   <!-- Deposits -->
+<section data-view="deposits" class="view card" style="display:none">
+  <h2>Deposits 
+    <button class="btn btn-primary" onclick="openDepositModal()">+ Add Deposit</button>
+    <button class="btn btn-secondary" onclick="printDeposits()">🖨️ Print</button>
+  </h2>
+  <table class="table" id="depositsTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Client</th>
+        <th>Item Deposited On</th>
+        <th>Deposit Amount</th>
+        <th>Initial Balance</th>
+        <th>Remaining Balance</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
 
     <!-- Records (NEW - advanced search + pagination) -->
     <section data-view="records" class="view card" style="display:none">
@@ -372,22 +380,22 @@
 </div>
 
 <!-- Deposit Modal -->
-<div id="depositModal" class="modal">
-  <div class="modal-box">
-    <h2>Add Deposit</h2>
+<div id="depositModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Add / Edit Deposit</h3>
     <form id="depositForm">
-      <input type="hidden" id="depositId"/>
-      <label>Date</label><input type="date" id="depositDate" required/>
-      <label>Client</label><input id="depositClient" required/>
-      <label>Amount</label><input type="number" id="depositAmount" required/>
-      <label>Balance</label><input type="number" id="depositBalance"/>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
-      </div>
+      <input type="hidden" id="depositId">
+      <label>Date: <input type="date" id="depositDate" required></label><br>
+      <label>Client: <input type="text" id="depositClient" required></label><br>
+      <label>Item Deposited On: <input type="text" id="depositItem" required></label><br>
+      <label>Initial Balance: <input type="number" id="depositInitial" required></label><br>
+      <label>Deposit Amount: <input type="number" id="depositAmount" required></label><br>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
     </form>
   </div>
 </div>
+
 
 <script>
 /* ===========================
@@ -721,10 +729,17 @@ function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector
    DEPOSITS
    =========================== */
 function renderDeposits(){
-  const tbody=document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
-  state.deposits.forEach(d=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${d.date}</td><td>${d.client}</td><td>${fmt(d.amount)}</td><td>${fmt(d.balance||d.amount)}</td>
+  const tbody = document.querySelector('#depositsTable tbody'); 
+  tbody.innerHTML = '';
+  state.deposits.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${d.date}</td>
+      <td>${d.client}</td>
+      <td>${d.item}</td>
+      <td>${fmt(d.amount)}</td>
+      <td>${fmt(d.initial)}</td>
+      <td>${fmt(d.remaining)}</td>
       <td>
         <button class="btn btn-secondary" onclick="printDeposit('${d.id}')">🖨️ Receipt</button>
         <button class="btn btn-danger" onclick="deleteDeposit('${d.id}')">Delete</button>
@@ -732,18 +747,75 @@ function renderDeposits(){
     tbody.appendChild(tr);
   });
 }
-function openDepositModal(){document.getElementById('depositForm').reset();document.getElementById('depositId').value='';document.getElementById('depositModal').style.display='flex';}
-function closeDepositModal(){document.getElementById('depositModal').style.display='none';}
-document.getElementById('depositForm').addEventListener('submit', e=>{
+
+function openDepositModal(){
+  document.getElementById('depositForm').reset();
+  document.getElementById('depositId').value = '';
+  document.getElementById('depositModal').style.display = 'flex';
+}
+
+function closeDepositModal(){
+  document.getElementById('depositModal').style.display = 'none';
+}
+
+document.getElementById('depositForm').addEventListener('submit', e => {
   e.preventDefault();
-  const id=document.getElementById('depositId').value||idf();
-  const dep={id:id,date:document.getElementById('depositDate').value,client:document.getElementById('depositClient').value,amount:Number(document.getElementById('depositAmount').value),balance:Number(document.getElementById('depositBalance').value||0)};
-  const index=state.deposits.findIndex(x=>x.id===id);
-  if(index>=0) state.deposits[index]=dep; else state.deposits.push(dep);
-  save(); renderDeposits(); renderRecords(); closeDepositModal();
+  const id = document.getElementById('depositId').value || idf();
+  const initial = Number(document.getElementById('depositInitial').value);
+  const amount = Number(document.getElementById('depositAmount').value);
+  const remaining = initial - amount;
+
+  const dep = {
+    id: id,
+    date: document.getElementById('depositDate').value,
+    client: document.getElementById('depositClient').value,
+    item: document.getElementById('depositItem').value,
+    initial: initial,
+    amount: amount,
+    remaining: remaining
+  };
+
+  const index = state.deposits.findIndex(x => x.id === id);
+  if(index >= 0) state.deposits[index] = dep; 
+  else state.deposits.push(dep);
+
+  save(); 
+  renderDeposits(); 
+  renderRecords(); 
+  closeDepositModal();
 });
-function deleteDeposit(id){if(confirm('Delete deposit?')){state.deposits=state.deposits.filter(d=>d.id!==id);save();renderDeposits();renderRecords();} }
-function printDeposit(id){const d=state.deposits.find(d=>d.id===id); if(!d) return; let html=`<h2>Deposit Receipt</h2><p>Client: ${d.client}<br>Date: ${d.date}</p><p>Amount: ${fmt(d.amount)}<br>Balance: ${fmt(d.balance)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
+
+function deleteDeposit(id){
+  if(confirm('Delete deposit?')){
+    state.deposits = state.deposits.filter(d => d.id !== id);
+    save();
+    renderDeposits();
+    renderRecords();
+  }
+}
+
+function printDeposit(id){
+  const d = state.deposits.find(d => d.id === id); 
+  if(!d) return;
+
+  let html = `
+    <h2>Deposit Receipt</h2>
+    <p><strong>Client:</strong> ${d.client}<br>
+    <strong>Date:</strong> ${d.date}</p>
+    <p><strong>Item Deposited On:</strong> ${d.item}</p>
+    <table border="1" cellspacing="0" cellpadding="6">
+      <tr><th>Initial Balance</th><th>Deposit Amount</th><th>Remaining Balance</th></tr>
+      <tr>
+        <td>${fmt(d.initial)}</td>
+        <td>${fmt(d.amount)}</td>
+        <td>${fmt(d.remaining)}</td>
+      </tr>
+    </table>
+  `;
+
+  const w = window.open('');
+  w.document.write(html);
+  w.print();
 
 /* ===========================
    RECORDS (with pagination + filters)
@@ -983,4 +1055,5 @@ function printDeposits(){const html='<h2>Deposits</h2>'+document.querySelector('
 </script>
 </body>
 </html>
+
 
