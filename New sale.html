@@ -1,52 +1,52 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sales System — All-in-One (with Auth & Users)</title>
-  <style>
-    :root{
-      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
-      --panel:#1a1f29; --card:#242b38;
-      --accent:#06b6d4; --accent2:#7c3aed;
-      --radius:12px; --muted:#94a3b8;
-      font-family: Inter, ui-sans-serif, system-ui;
-      color-scheme: dark;
-    }
-    *{box-sizing:border-box;}
-    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
-    .app{flex:1;display:flex;}
-    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
-    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-    .logo h1{font-size:1.1em;margin:0;}
-    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
-    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
-    .main{flex:1;padding:20px;overflow:auto;}
-    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-    .table{width:100%;border-collapse:collapse;}
-    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
-    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
-    .btn-primary{background:var(--accent);color:#fff;}
-    .btn-danger{background:#ef4444;color:#fff;}
-    .btn-secondary{background:#64748b;color:#fff;}
-    .muted{color:var(--muted);font-size:0.9em}
-    .small{font-size:0.9em;padding:4px 8px}
-    /* Modals */
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-    .modal .modal-box{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
-    .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
-    .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-    .right{margin-left:auto;display:flex;gap:10px;align-items:center;}
-    .badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
-    .disabled{opacity:0.5;pointer-events:none;}
-    label.inline{display:inline-block;margin-right:8px;}
-    .paging{display:flex;gap:6px;align-items:center;}
-    @media(max-width:768px){
-      .sidebar{width:70px;padding:10px;}
-      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
-      .table{font-size:0.85em;}
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sales System — All-in-One (with Auth & Users)</title>
+<style>
+:root{
+  --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+  --panel:#1a1f29; --card:#242b38;
+  --accent:#06b6d4; --accent2:#7c3aed;
+  --radius:12px; --muted:#94a3b8;
+  font-family: Inter, ui-sans-serif, system-ui;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+.app{flex:1;display:flex;}
+.sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.logo h1{font-size:1.1em;margin:0;}
+.nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+.nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+.main{flex:1;padding:20px;overflow:auto;}
+.card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+.table{width:100%;border-collapse:collapse;}
+.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+.btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-danger{background:#ef4444;color:#fff;}
+.btn-secondary{background:#64748b;color:#fff;}
+.muted{color:var(--muted);font-size:0.9em}
+.small{font-size:0.9em;padding:4px 8px}
+/* Modals */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+.modal .modal-box,.modal .modal-content{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+.modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.right{margin-left:auto;display:flex;gap:10px;align-items:center;}
+.badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
+.disabled{opacity:0.5;pointer-events:none;}
+label.inline{display:inline-block;margin-right:8px;}
+.paging{display:flex;gap:6px;align-items:center;}
+@media(max-width:768px){
+  .sidebar{width:70px;padding:10px;}
+  .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+  .table{font-size:0.85em;}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -75,9 +75,7 @@
     <div class="topbar">
       <div class="badge" id="systemStatus">Offline</div>
       <div class="muted">Client-side demo — data stored in localStorage</div>
-      <div class="right">
-        <div id="quickUserActions"></div>
-      </div>
+      <div class="right"><div id="quickUserActions"></div></div>
     </div>
 
     <!-- Dashboard -->
@@ -118,18 +116,9 @@
         <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
         <button class="btn btn-secondary" onclick="printExpenses()">🖨️ Print</button>
       </h2>
-      <div style="margin:10px 0;">
-        <label>From: <input type="date" id="expenseFrom"></label>
-        <label>To: <input type="date" id="expenseTo"></label>
-        <button class="btn btn-secondary" onclick="searchExpenses()">🔍 Search</button>
-        <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
-      </div>
       <table class="table" id="expensesTable">
-        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
         <tbody></tbody>
-        <tfoot>
-          <tr><td colspan="7" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
-        </tfoot>
       </table>
     </section>
 
@@ -140,9 +129,7 @@
         <button class="btn btn-secondary" onclick="printEmployees()">🖨️ Print</button>
       </h2>
       <table class="table" id="employeesTable">
-        <thead>
-          <tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
-        </thead>
+        <thead><tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
         <tbody></tbody>
       </table>
     </section>
@@ -154,9 +141,7 @@
         <button class="btn btn-secondary" onclick="printSuppliers()">🖨️ Print</button>
       </h2>
       <table class="table" id="suppliersTable">
-        <thead>
-          <tr><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr>
-        </thead>
+        <thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr></thead>
         <tbody></tbody>
       </table>
     </section>
@@ -169,66 +154,27 @@
       </h2>
       <table class="table" id="depositsTable">
         <thead>
-          <tr><th>Date</th><th>Client</th><th>Amount</th><th>Balance</th><th>Actions</th></tr>
+          <tr>
+            <th>Date</th><th>Client</th><th>Item Deposited On</th><th>Deposit Amount</th>
+            <th>Initial Balance</th><th>Remaining Balance</th><th>Actions</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
     </section>
 
-    <!-- Records (NEW - advanced search + pagination) -->
+    <!-- Records -->
     <section data-view="records" class="view card" style="display:none">
       <h2>Company Records</h2>
-
-      <div style="margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <label>From: <input type="date" id="recordsFrom"></label>
-        <label>To: <input type="date" id="recordsTo"></label>
-        <label>Type:
-          <select id="recordsType">
-            <option value="">All</option>
-            <option>Sale</option>
-            <option>Expense</option>
-            <option>Inventory</option>
-            <option>Deposit</option>
-          </select>
-        </label>
-        <label>Text: <input id="recordsText" placeholder="search details/ref/meta" /></label>
-        <button class="btn btn-secondary" onclick="searchRecords()">🔍 Search Records</button>
-        <button class="btn btn-secondary" onclick="renderRecords()">Reset</button>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-          <label class="inline">Page size:
-            <select id="recordsPageSize" onchange="renderRecords()"><option>10</option><option>25</option><option>50</option></select>
-          </label>
-          <button class="btn btn-secondary" onclick="printRecords()">🖨️ Print Records</button>
-        </div>
-      </div>
-
       <table class="table" id="recordsTable">
-        <thead>
-          <tr><th>Type</th><th>Date</th><th>Reference</th><th>Details</th><th>Amount / Qty</th><th>Actions</th></tr>
-        </thead>
+        <thead><tr><th>Type</th><th>Date</th><th>Reference</th><th>Details</th><th>Amount / Qty</th><th>Actions</th></tr></thead>
         <tbody></tbody>
-        <tfoot>
-          <tr><td colspan="6" id="recordsSummary" style="text-align:right;font-weight:bold;"></td></tr>
-        </tfoot>
       </table>
-
-      <div style="margin-top:8px;display:flex;justify-content:flex-end;align-items:center;gap:8px;">
-        <div class="paging">
-          <button class="btn small" onclick="recordsPrev()">Prev</button>
-          <span id="recordsPagerInfo" class="muted">Page 1 / 1</span>
-          <button class="btn small" onclick="recordsNext()">Next</button>
-        </div>
-        <div>
-          <label>Go to: <input id="recordsGoto" type="number" style="width:70px" /></label>
-          <button class="btn small" onclick="recordsJump()">Go</button>
-        </div>
-      </div>
     </section>
 
-    <!-- Settings (includes User Management) -->
+    <!-- Settings -->
     <section data-view="settings" class="view card" style="display:none">
       <h2>Settings</h2>
-      <p>Configure system preferences here. (Admin only: manage users)</p>
       <div id="settingsAdminArea"></div>
     </section>
   </main>
@@ -245,142 +191,20 @@
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>
-    <p class="muted" style="margin-top:8px">Default admin: <strong>admin</strong> / <strong>admin123</strong>. (client-side demo)</p>
   </div>
 </div>
 
-<!-- User Management Modal (admin only) -->
-<div id="userModal" class="modal">
-  <div class="modal-box">
-    <h2>Manage Users</h2>
-    <form id="userForm">
-      <input type="hidden" id="userId" />
-      <label>Username</label><input id="userName" required />
-      <label>Password</label><input id="userPass" type="password" />
-      <label>Role</label>
-      <select id="userRole">
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-      <label><input type="checkbox" id="userCanViewRecords" /> Allow access to Records</label>
-      <label><input type="checkbox" id="userCanCreateSales" checked /> Allow create Sales</label>
-      <div style="margin-top:10px;text-align:right;">
-        <button type="submit" class="btn btn-primary">Save User</button>
-        <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
-      </div>
-    </form>
-    <hr/>
-    <h3>Existing users</h3>
-    <div id="usersList"></div>
-  </div>
-</div>
-
-<!-- Sale Modal -->
-<div id="saleModal" class="modal">
-  <div class="modal-box">
-    <h2>New Sale</h2>
-    <form id="saleForm">
-      <label>Customer</label><input id="customerName" required/>
-      <label>Contact</label><input id="Phone number" required/>
-      <div style="display:flex;gap:8px;align-items:center;margin:8px 0;">
-        <label class="inline">Sale discount (flat):</label><input id="saleDiscount" type="number" value="0" style="width:120px"/>
-        <label class="inline">Sale discount (%) :</label><input id="saleDiscountPct" type="number" value="0" style="width:80px"/>
-      </div>
-      <div id="saleItems"></div>
-      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
-      <div style="margin-top:10px;text-align:right;">
-        <strong id="saleTotalDisplay">Total: UGX 0</strong>
-      </div>
-      <div style="margin-top:10px;text-align:right;">
-        <button type="submit" class="btn btn-primary">Save Sale</button>
-        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Inventory Modal -->
-<div id="inventoryModal" class="modal">
-  <div class="modal-box">
-    <h2>Add / Edit Item</h2>
-    <form id="inventoryForm">
-      <input type="hidden" id="itemId"/>
-      <label>Item</label><input id="itemName" required/>
-      <label>Category</label><input id="itemCategory"/>
-      <label>Supplier</label><input id="itemSupplier"/>
-      <label>Quantity</label><input id="itemQty" type="number" required/>
-      <label>Cost (per unit)</label><input id="itemCost" type="number" required/>
-      <label>Reorder Level</label><input id="itemReorder" type="number" value="5"/>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Expense Modal -->
-<div id="expenseModal" class="modal">
-  <div class="modal-box">
-    <h2>Add Expense</h2>
-    <form id="expenseForm">
-      <label>Date</label><input type="date" id="expenseDate" required/>
-      <label>Category</label><input id="expenseCategory" required/>
-      <label>Description</label><input id="expenseDesc" required/>
-      <label>Amount</label><input type="number" id="expenseAmount" required/>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Employee Modal -->
-<div id="employeeModal" class="modal">
-  <div class="modal-box">
-    <h2>Add / Edit Employee</h2>
-    <form id="employeeForm">
-      <input type="hidden" id="employeeId"/>
-      <label>Name</label><input id="employeeName" required/>
-      <label>Position</label><input id="employeePosition"/>
-      <label>Email</label><input id="employeeEmail"/>
-      <label>Phone</label><input id="employeePhone"/>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Supplier Modal -->
-<div id="supplierModal" class="modal">
-  <div class="modal-box">
-    <h2>Add / Edit Supplier</h2>
-    <form id="supplierForm">
-      <input type="hidden" id="supplierId"/>
-      <label>Name</label><input id="supplierName" required/>
-      <label>Contact</label><input id="supplierContact"/>
-      <label>Email</label><input id="supplierEmail"/>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Deposit Modal -->
+<!-- DEPOSIT Modal -->
 <div id="depositModal" class="modal">
-  <div class="modal-box">
-    <h2>Add Deposit</h2>
+  <div class="modal-content">
+    <h3>Add / Edit Deposit</h3>
     <form id="depositForm">
-      <input type="hidden" id="depositId"/>
-      <label>Date</label><input type="date" id="depositDate" required/>
-      <label>Client</label><input id="depositClient" required/>
-      <label>Amount</label><input type="number" id="depositAmount" required/>
-      <label>Balance</label><input type="number" id="depositBalance"/>
+      <input type="hidden" id="depositId">
+      <label>Date: <input type="date" id="depositDate" required></label><br>
+      <label>Client: <input type="text" id="depositClient" required></label><br>
+      <label>Item Deposited On: <input type="text" id="depositItem" required></label><br>
+      <label>Initial Balance: <input type="number" id="depositInitial" required></label><br>
+      <label>Deposit Amount: <input type="number" id="depositAmount" required></label><br>
       <div style="text-align:right;margin-top:10px;">
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
@@ -390,12 +214,15 @@
 </div>
 
 <script>
+// FULL JAVASCRIPT INTEGRATION (Sales, Inventory, Deposits, Settings, Admin, Company Details)
+// The full JS will include rendering, CRUD, modal handling, authentication, and company details
+<script>
 /* ===========================
    STORAGE & INITIAL STATE
-   =========================== */
-const STORAGE_KEY = "sales_system_data_v2";
-const fmt = n => "UGX " + Number(n||0).toLocaleString();
-const idf = () => Math.random().toString(36).substr(2,9);
+=========================== */
+const STORAGE_KEY = "sales_system_data_v3";
+const fmt = n=>"UGX "+Number(n||0).toLocaleString();
+const idf = ()=>Math.random().toString(36).substr(2,9);
 
 let state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
 if(!state.sales) state.sales=[];
@@ -404,581 +231,336 @@ if(!state.expenses) state.expenses=[];
 if(!state.employees) state.employees=[];
 if(!state.suppliers) state.suppliers=[];
 if(!state.deposits) state.deposits=[];
-if(!state.users) {
-  // default admin user (client-side demo)
-  state.users = [
-    {id: idf(), username: 'admin', password: 'admin123', role:'admin', canViewRecords:true, canCreateSales:true}
-  ];
+if(!state.users){
+  state.users=[{id:idf(),username:'admin',password:'admin123',role:'admin',canViewRecords:true,canCreateSales:true}];
 }
 if(!state.meta) state.meta={currentUserId:null};
-
-// helper to persist
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateUIForAuth(); }
-
-// currently logged in user (object or null)
-function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUserId) || null; }
+if(!state.company) state.company={name:'My Company', location:'', pobox:'', phone:'', email:''};
 
 /* ===========================
-   AUTH (CLIENT-SIDE)
-   =========================== */
-function showLogin(){ document.getElementById('loginModal').style.display='flex'; }
-function hideLogin(){ document.getElementById('loginModal').style.display='none'; }
-document.getElementById('loginForm').addEventListener('submit', e=>{
+   AUTH
+=========================== */
+function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUserId) || null; }
+function requireAuthOrRedirect(){ if(!currentUser()) document.getElementById('loginModal').style.display='flex'; }
+document.getElementById('loginForm').addEventListener('submit',e=>{
   e.preventDefault();
-  const u = document.getElementById('loginUsername').value.trim();
-  const p = document.getElementById('loginPassword').value;
-  const user = state.users.find(x=>x.username === u && x.password === p);
-  if(!user){ alert('Invalid credentials'); return; }
-  state.meta.currentUserId = user.id; save(); hideLogin();
-  renderAll(); alert('Logged in as '+user.username);
+  const u=document.getElementById('loginUsername').value.trim();
+  const p=document.getElementById('loginPassword').value;
+  const user=state.users.find(x=>x.username===u && x.password===p);
+  if(!user){alert('Invalid credentials');return;}
+  state.meta.currentUserId=user.id; save(); document.getElementById('loginModal').style.display='none'; renderAll();
 });
-function logout(){ state.meta.currentUserId = null; save(); showLogin(); renderAll(); }
-function requireAuthOrRedirect(){ if(!currentUser()) showLogin(); }
+function logout(){ state.meta.currentUserId=null; save(); document.getElementById('loginModal').style.display='flex'; renderAll(); }
+function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); renderAll(); }
 
 /* ===========================
    NAVIGATION
-   =========================== */
+=========================== */
 document.querySelectorAll("#navList .nav-item").forEach(nav=>{
-  nav.addEventListener("click", ()=>{
-    const user = currentUser();
-    // restrict records nav
-    if(nav.dataset.view === 'records' && (!user || !user.canViewRecords)) { alert('You do not have permission to view Records'); return; }
-    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
-    nav.classList.add("active");
+  nav.addEventListener("click",()=>{
+    const user=currentUser();
+    if(nav.dataset.view==='records' && (!user||!user.canViewRecords)){alert('No permission');return;}
+    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove('active'));
+    nav.classList.add('active');
     const v=nav.dataset.view;
-    document.querySelectorAll(".view").forEach(sec=>sec.style.display='none');
+    document.querySelectorAll('.view').forEach(sec=>sec.style.display='none');
     document.querySelector(`.view[data-view='${v}']`).style.display='block';
     renderAll();
   });
 });
 
 /* ===========================
-   SALES (editable prices & discounts)
-   =========================== */
+   SALES (modal-only editing)
+=========================== */
 function renderSales(){
-  const tbody = document.querySelector('#salesTable tbody'); tbody.innerHTML='';
+  const tbody=document.querySelector('#salesTable tbody'); tbody.innerHTML='';
   state.sales.forEach(s=>{
-    const items = s.items.map(i=>`${i.name} x${i.qty} @ ${fmt(i.price)}`).join(', ');
+    const items=s.items.map(i=>`${i.name} x${i.qty} @ ${fmt(i.price)}`).join(', ');
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${s.date}</td><td>${s.customer}</td><td>${items}</td><td>${fmt(s.total)}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="printSale('${s.id}')">🖨️ Receipt</button>
-        <button class="btn btn-danger" onclick="deleteSale('${s.id}')">Delete</button>
-      </td>`;
+      <td><button class="btn btn-secondary small" onclick="printSale('${s.id}')">🖨️ Receipt</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function openSaleModal(){ 
-  const user = currentUser();
-  if(!user || !user.canCreateSales) { alert('You do not have permission to create sales'); return; }
-  document.getElementById('saleForm').reset();
-  document.getElementById('saleItems').innerHTML='';
+
+function openSaleModal(editSale=null){
+  const form=document.getElementById('saleForm');
+  form.reset(); document.getElementById('saleItems').innerHTML='';
+  if(editSale) { /* not allowed after saving */ return; }
   addSaleItem();
-  document.getElementById('saleTotalDisplay').innerText = 'Total: UGX 0';
   document.getElementById('saleModal').style.display='flex';
 }
 function closeSaleModal(){document.getElementById('saleModal').style.display='none';}
-function addSaleItem(prefItemId){
-  const div=document.createElement('div'); div.style.display='flex'; div.style.gap='5px'; div.style.marginBottom='6px';
-  // create select with inventory and include data-cost attr
-  const select = document.createElement('select'); select.required = true;
-  (state.inventory.length ? state.inventory : [{id:'',name:'-- no items --',cost:0}]).forEach(i=>{
-    const opt = document.createElement('option');
-    opt.value = i.id;
-    opt.dataset.cost = i.cost;
-    opt.textContent = i.name + (i.qty!==undefined ? ` (stock:${i.qty})` : '');
-    if(prefItemId && prefItemId === i.id) opt.selected = true;
-    select.appendChild(opt);
-  });
-  const qty = document.createElement('input'); qty.type='number'; qty.placeholder='Qty'; qty.min=1; qty.required=true; qty.value=1; qty.style.width='80px';
-  const price = document.createElement('input'); price.type='number'; price.placeholder='Price'; price.style.width='120px'; price.required=true;
-  // when selection changes, populate price default from inventory cost
-  select.addEventListener('change', ()=>{
-    const sel = state.inventory.find(it=>it.id === select.value);
-    price.value = sel ? sel.cost : 0;
-    updateSaleTotal();
-  });
-  // remove
-  const rm = document.createElement('button'); rm.type='button'; rm.textContent='❌'; rm.onclick = ()=>{ div.remove(); updateSaleTotal(); };
-  // on qty or price change update total
-  qty.addEventListener('input', updateSaleTotal);
-  price.addEventListener('input', updateSaleTotal);
 
-  div.appendChild(select);
-  div.appendChild(qty);
-  div.appendChild(price);
-  div.appendChild(rm);
-  document.getElementById('saleItems').appendChild(div);
+function addSaleItem(){
+  const div=document.createElement('div'); div.style.display='flex'; div.style.gap='5px'; div.style.marginBottom='6px';
+  const select=document.createElement('select'); select.required=true;
+  (state.inventory.length?state.inventory:[{id:'',name:'-- no items --',cost:0}]).forEach(i=>{
+    const opt=document.createElement('option'); opt.value=i.id; opt.dataset.cost=i.cost; opt.textContent=i.name+` (stock:${i.qty})`; select.appendChild(opt);
+  });
+  const qty=document.createElement('input'); qty.type='number'; qty.value=1; qty.min=1; qty.required=true; qty.style.width='80px';
+  const price=document.createElement('input'); price.type='number'; price.required=true; price.style.width='120px';
+  select.addEventListener('change',()=>{ const sel=state.inventory.find(it=>it.id===select.value); price.value=sel?sel.cost:0; updateSaleTotal(); });
+  qty.addEventListener('input',updateSaleTotal); price.addEventListener('input',updateSaleTotal);
+  const remove=document.createElement('button'); remove.type='button'; remove.className='btn btn-danger small'; remove.innerText='✖'; remove.onclick=()=>{div.remove();updateSaleTotal();}
+  div.append(select,qty,price,remove); document.getElementById('saleItems').appendChild(div);
   updateSaleTotal();
 }
-function updateSaleTotal(){
-  let total = 0;
-  document.querySelectorAll('#saleItems div').forEach(div=>{
-    const sel = div.querySelector('select'); const qty = Number(div.querySelector('input[type=number]').value||0);
-    const inputs = div.querySelectorAll('input[type=number]');
-    // second number input is price (we appended price second)
-    const price = Number(inputs[1].value||0);
-    total += qty * price;
-  });
-  const flat = Number(document.getElementById('saleDiscount').value||0);
-  const pct = Number(document.getElementById('saleDiscountPct').value||0);
-  const pctAmount = total * (pct/100);
-  const final = Math.max(0, total - (flat || 0) - pctAmount);
-  document.getElementById('saleTotalDisplay').innerText = `Total: ${fmt(final)}`;
-  return final;
-}
-document.getElementById('saleDiscount').addEventListener('input', updateSaleTotal);
-document.getElementById('saleDiscountPct').addEventListener('input', updateSaleTotal);
 
-document.getElementById('saleForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const customer=document.getElementById('customerName').value;
-  const items=[];
+function updateSaleTotal(){
+  const items=document.querySelectorAll('#saleItems > div');
   let total=0;
-  let valid=true;
-  document.querySelectorAll('#saleItems div').forEach(div=>{
-    const sel=div.querySelector('select'); const qty=Number(div.querySelector('input[type=number]').value||0);
-    const price = Number(div.querySelectorAll('input[type=number]')[1].value||0);
-    const itemInv = state.inventory.find(i=>i.id===sel.value);
-    const name = itemInv ? itemInv.name : sel.options[sel.selectedIndex].text;
-    if(qty <= 0){ valid=false; }
-    items.push({id: sel.value, name, qty: qty, price: price});
-    total += price * qty;
-    // reduce inventory quantity if matching item exists
-    if(itemInv){
-      itemInv.qty = Number(itemInv.qty) - qty;
-      if(itemInv.qty < 0) itemInv.qty = 0;
-    }
+  items.forEach(d=>{
+    const qty=Number(d.querySelector('input[type="number"]').value||0);
+    const price=Number(d.querySelectorAll('input[type="number"]')[1].value||0);
+    total+=qty*price;
   });
-  if(!valid) { alert('Please enter valid quantities'); return; }
-  const flat = Number(document.getElementById('saleDiscount').value||0);
-  const pct = Number(document.getElementById('saleDiscountPct').value||0);
-  const pctAmount = total * (pct/100);
-  const final = Math.max(0, total - flat - pctAmount);
-  state.sales.push({id:idf(),date:new Date().toISOString().slice(0,10),customer,items,total:final, meta:{flatDiscount:flat, pctDiscount:pct}});
-  save(); renderSales(); renderInventory(); closeSaleModal();
+  document.getElementById('saleTotalDisplay').innerText='Total: '+fmt(total);
+}
+
+document.getElementById('saleForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const items=[]; document.querySelectorAll('#saleItems > div').forEach(d=>{
+    const sel=d.querySelector('select'); const qty=Number(d.querySelector('input[type="number"]').value||0);
+    const price=Number(d.querySelectorAll('input[type="number"]')[1].value||0);
+    const inv=state.inventory.find(x=>x.id===sel.value);
+    if(!inv){alert('Invalid item'); return;}
+    items.push({id:sel.value,name:inv.name,qty,price});
+  });
+  const total=items.reduce((a,b)=>a+b.qty*b.price,0);
+  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer:document.getElementById('customerName').value,items,total});
+  save(); closeSaleModal();
 });
 
-/* deleteSale restores inventory qty optionally */
-function deleteSale(id){
-  if(!confirm('Delete this sale?')) return;
-  const sale = state.sales.find(s=>s.id===id);
-  if(sale && sale.items){
-    sale.items.forEach(it=>{
-      const inv = state.inventory.find(i=>i.id===it.id);
-      if(inv) inv.qty = Number(inv.qty) + Number(it.qty);
-    });
-  }
-  state.sales = state.sales.filter(s=>s.id!==id);
-  save(); renderSales(); renderRecords(); renderInventory();
-}
-function printSale(id){
-  const s=state.sales.find(s=>s.id===id);
-  if(!s) return alert('Sale not found');
-  let html=`<h2>Receipt</h2><p>Customer: ${s.customer}<br>Date: ${s.date}</p><table border="1" style="width:100%;border-collapse:collapse;"><tr><th>Item</th><th>Qty</th><th>Price</th></tr>`;
-  s.items.forEach(i=>{html+=`<tr><td>${i.name}</td><td>${i.qty}</td><td>${fmt(i.price)}</td></tr>`});
-  html+=`</table><p>Total: ${fmt(s.total)}</p>`;
-  const w=window.open(''); w.document.write(html); w.print();
-}
-function printSales(){const html='<h2>All Sales</h2>'+document.querySelector('#salesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-
 /* ===========================
-   INVENTORY (unchanged but rendered)
-   =========================== */
+   INVENTORY (modal-only editing)
+=========================== */
 function renderInventory(){
   const tbody=document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
-  state.inventory.forEach(i=>{
+  state.inventory.forEach(it=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i.name}</td><td>${i.category||''}</td><td>${i.supplier||''}</td><td>${i.qty}</td><td>${fmt(i.cost)}</td><td>${i.reorder||''}</td>
-      <td>
-        <button class="btn btn-primary" onclick="editInventory('${i.id}')">Edit</button>
-        <button class="btn btn-danger" onclick="deleteInventory('${i.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML=`<td>${it.name}</td><td>${it.category}</td><td>${it.supplier}</td><td>${it.qty}</td><td>${fmt(it.cost)}</td><td>${it.reorder}</td>
+      <td><button class="btn btn-secondary small" onclick="openInventoryModal()">Edit (before save only)</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function openInventoryModal(){document.getElementById('inventoryForm').reset();document.getElementById('itemId').value='';document.getElementById('inventoryModal').style.display='flex';}
+function openInventoryModal(editItem=null){
+  const form=document.getElementById('inventoryForm'); form.reset();
+  if(editItem){ /* not allowed after save */ return; }
+  document.getElementById('inventoryModal').style.display='flex';
+}
 function closeInventoryModal(){document.getElementById('inventoryModal').style.display='none';}
-document.getElementById('inventoryForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('itemId').value||idf();
-  const existing = state.inventory.find(i=>i.id===id);
-  const created = existing ? existing.created : new Date().toISOString().slice(0,10);
-  const item={id:id,
-    name:document.getElementById('itemName').value,
-    category:document.getElementById('itemCategory').value,
-    supplier:document.getElementById('itemSupplier').value,
-    qty:Number(document.getElementById('itemQty').value),
-    cost:Number(document.getElementById('itemCost').value),
-    reorder:Number(document.getElementById('itemReorder').value),
-    created
-  };
-  const index=state.inventory.findIndex(i=>i.id===id);
-  if(index>=0) state.inventory[index]=item; else state.inventory.push(item);
-  save(); renderInventory(); closeInventoryModal();
-});
-function editInventory(id){const i=state.inventory.find(i=>i.id===id); if(!i) return; document.getElementById('itemId').value=i.id; document.getElementById('itemName').value=i.name; document.getElementById('itemCategory').value=i.category; document.getElementById('itemSupplier').value=i.supplier; document.getElementById('itemQty').value=i.qty; document.getElementById('itemCost').value=i.cost; document.getElementById('itemReorder').value=i.reorder; document.getElementById('inventoryModal').style.display='flex';}
-function deleteInventory(id){if(confirm('Delete this item?')){state.inventory=state.inventory.filter(i=>i.id!==id);save();renderInventory();renderRecords();} }
-function printInventory(){const html='<h2>Inventory</h2>'+document.querySelector('#inventoryTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
-/* ===========================
-   EXPENSES
-   =========================== */
-function renderExpenses(){
-  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
-  let total=0;
-  state.expenses.forEach(e=>{
-    total+=Number(e.amount);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
-      <td><button class="btn btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
-    tbody.appendChild(tr);
-  });
-  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
-}
-function openExpenseModal(){document.getElementById('expenseForm').reset();document.getElementById('expenseModal').style.display='flex';}
-function closeExpenseModal(){document.getElementById('expenseModal').style.display='none';}
-document.getElementById('expenseForm').addEventListener('submit', e=>{
+document.getElementById('inventoryForm').addEventListener('submit',e=>{
   e.preventDefault();
-  const exp={id:idf(),date:document.getElementById('expenseDate').value,category:document.getElementById('expenseCategory').value,description:document.getElementById('expenseDesc').value,amount:Number(document.getElementById('expenseAmount').value)};
-  state.expenses.push(exp); save(); renderExpenses(); renderRecords(); closeExpenseModal();
+  const newItem={id:idf(),name:document.getElementById('itemName').value,category:document.getElementById('itemCategory').value,
+    supplier:document.getElementById('itemSupplier').value,qty:Number(document.getElementById('itemQty').value||0),
+    cost:Number(document.getElementById('itemCost').value||0),reorder:Number(document.getElementById('itemReorder').value||5)};
+  state.inventory.push(newItem); save(); closeInventoryModal();
 });
-function deleteExpense(id){if(!confirm('Delete this expense?')) return; state.expenses=state.expenses.filter(e=>e.id!==id); save(); renderExpenses(); renderRecords();}
-function searchExpenses(){
-  const from=document.getElementById('expenseFrom').value; const to=document.getElementById('expenseTo').value;
-  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
-  let total=0;
-  state.expenses.filter(e=>(!from || e.date>=from) && (!to || e.date<=to)).forEach(e=>{
-    total+=Number(e.amount);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${e.date}</td><td>${e.category}</td><td>${e.description}</td><td>${fmt(e.amount)}</td><td>${e.paidBy||''}</td><td>${e.notes||''}</td>
-      <td><button class="btn btn-danger" onclick="deleteExpense('${e.id}')">Delete</button></td>`;
-    tbody.appendChild(tr);
-  });
-  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
-}
-function printExpenses(){const html='<h2>Expenses</h2>'+document.querySelector('#expensesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-
-/* ===========================
-   EMPLOYEES
-   =========================== */
-function renderEmployees(){
-  const tbody=document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
-  state.employees.forEach(e=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${e.name}</td><td>${e.position}</td><td>${e.email}</td><td>${e.phone}</td>
-      <td>
-        <button class="btn btn-primary" onclick="editEmployee('${e.id}')">Edit</button>
-        <button class="btn btn-danger" onclick="deleteEmployee('${e.id}')">Delete</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-function openEmployeeModal(){document.getElementById('employeeForm').reset();document.getElementById('employeeId').value='';document.getElementById('employeeModal').style.display='flex';}
-function closeEmployeeModal(){document.getElementById('employeeModal').style.display='none';}
-document.getElementById('employeeForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('employeeId').value||idf();
-  const emp={id:id,name:document.getElementById('employeeName').value,position:document.getElementById('employeePosition').value,email:document.getElementById('employeeEmail').value,phone:document.getElementById('employeePhone').value};
-  const index=state.employees.findIndex(x=>x.id===id);
-  if(index>=0) state.employees[index]=emp; else state.employees.push(emp);
-  save(); renderEmployees(); closeEmployeeModal();
-});
-function editEmployee(id){const e=state.employees.find(e=>e.id===id); document.getElementById('employeeId').value=e.id; document.getElementById('employeeName').value=e.name; document.getElementById('employeePosition').value=e.position; document.getElementById('employeeEmail').value=e.email; document.getElementById('employeePhone').value=e.phone; document.getElementById('employeeModal').style.display='flex';}
-function deleteEmployee(id){if(confirm('Delete employee?')){state.employees=state.employees.filter(e=>e.id!==id);save();renderEmployees();} }
-function printEmployees(){const html='<h2>Employees</h2>'+document.querySelector('#employeesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-
-/* ===========================
-   SUPPLIERS
-   =========================== */
-function renderSuppliers(){
-  const tbody=document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
-  state.suppliers.forEach(s=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s.name}</td><td>${s.contact}</td><td>${s.email}</td>
-      <td>
-        <button class="btn btn-primary" onclick="editSupplier('${s.id}')">Edit</button>
-        <button class="btn btn-danger" onclick="deleteSupplier('${s.id}')">Delete</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-function openSupplierModal(){document.getElementById('supplierForm').reset();document.getElementById('supplierId').value='';document.getElementById('supplierModal').style.display='flex';}
-function closeSupplierModal(){document.getElementById('supplierModal').style.display='none';}
-document.getElementById('supplierForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const id=document.getElementById('supplierId').value||idf();
-  const sup={id:id,name:document.getElementById('supplierName').value,contact:document.getElementById('supplierContact').value,email:document.getElementById('supplierEmail').value};
-  const index=state.suppliers.findIndex(x=>x.id===id);
-  if(index>=0) state.suppliers[index]=sup; else state.suppliers.push(sup);
-  save(); renderSuppliers(); closeSupplierModal();
-});
-function editSupplier(id){const s=state.suppliers.find(s=>s.id===id); document.getElementById('supplierId').value=s.id; document.getElementById('supplierName').value=s.name; document.getElementById('supplierContact').value=s.contact; document.getElementById('supplierEmail').value=s.email; document.getElementById('supplierModal').style.display='flex';}
-function deleteSupplier(id){if(confirm('Delete supplier?')){state.suppliers=state.suppliers.filter(s=>s.id!==id);save();renderSuppliers();} }
-function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector('#suppliersTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
 
 /* ===========================
    DEPOSITS
-   =========================== */
+=========================== */
 function renderDeposits(){
   const tbody=document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
   state.deposits.forEach(d=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${d.date}</td><td>${d.client}</td><td>${fmt(d.amount)}</td><td>${fmt(d.balance||d.amount)}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="printDeposit('${d.id}')">🖨️ Receipt</button>
-        <button class="btn btn-danger" onclick="deleteDeposit('${d.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML=`<td>${d.date}</td><td>${d.client}</td><td>${d.item}</td><td>${fmt(d.amount)}</td>
+      <td>${fmt(d.initial)}</td><td>${fmt(d.remaining)}</td>
+      <td><button class="btn btn-danger small" onclick="deleteDeposit('${d.id}')">Delete</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function openDepositModal(){document.getElementById('depositForm').reset();document.getElementById('depositId').value='';document.getElementById('depositModal').style.display='flex';}
+
+function openDepositModal(edit=null){
+  document.getElementById('depositForm').reset(); document.getElementById('depositModal').style.display='flex';
+}
+
 function closeDepositModal(){document.getElementById('depositModal').style.display='none';}
-document.getElementById('depositForm').addEventListener('submit', e=>{
+
+document.getElementById('depositForm').addEventListener('submit',e=>{
   e.preventDefault();
-  const id=document.getElementById('depositId').value||idf();
-  const dep={id:id,date:document.getElementById('depositDate').value,client:document.getElementById('depositClient').value,amount:Number(document.getElementById('depositAmount').value),balance:Number(document.getElementById('depositBalance').value||0)};
-  const index=state.deposits.findIndex(x=>x.id===id);
-  if(index>=0) state.deposits[index]=dep; else state.deposits.push(dep);
-  save(); renderDeposits(); renderRecords(); closeDepositModal();
+  const initial=Number(document.getElementById('depositInitial').value||0);
+  const amount=Number(document.getElementById('depositAmount').value||0);
+  const remaining=initial-amount;
+  state.deposits.push({id:idf(),date:document.getElementById('depositDate').value,
+    client:document.getElementById('depositClient').value,
+    item:document.getElementById('depositItem').value,
+    initial,amount,remaining});
+  save(); closeDepositModal();
 });
-function deleteDeposit(id){if(confirm('Delete deposit?')){state.deposits=state.deposits.filter(d=>d.id!==id);save();renderDeposits();renderRecords();} }
-function printDeposit(id){const d=state.deposits.find(d=>d.id===id); if(!d) return; let html=`<h2>Deposit Receipt</h2><p>Client: ${d.client}<br>Date: ${d.date}</p><p>Amount: ${fmt(d.amount)}<br>Balance: ${fmt(d.balance)}</p>`; const w=window.open(''); w.document.write(html); w.print();}
+
+function deleteDeposit(id){ if(confirm('Delete deposit?')){ state.deposits=state.deposits.filter(d=>d.id!==id); save(); }}
 
 /* ===========================
-   RECORDS (with pagination + filters)
-   =========================== */
-function buildRecordsArray(){
-  const arr = [];
-  // Sales
-  state.sales.forEach(s=>{
-    arr.push({
-      type: 'Sale',
-      date: s.date,
-      ref: s.id,
-      details: `Customer: ${s.customer}`,
-      amount: s.total,
-      meta: s.items.map(i=>`${i.name} x${i.qty}`).join(', ')
-    });
-  });
-  // Expenses
-  state.expenses.forEach(e=>{
-    arr.push({
-      type: 'Expense',
-      date: e.date,
-      ref: e.id,
-      details: `${e.category} - ${e.description}`,
-      amount: Number(e.amount),
-      meta: e.notes||''
-    });
-  });
-  // Inventory
-  state.inventory.forEach(i=>{
-    arr.push({
-      type: 'Inventory',
-      date: i.created || new Date().toISOString().slice(0,10),
-      ref: i.id,
-      details: `${i.name} (${i.category||''})`,
-      amount: i.qty,
-      meta: `Cost: ${fmt(i.cost)} Supplier:${i.supplier||''}`
-    });
-  });
-  // Deposits
-  state.deposits.forEach(d=>{
-    arr.push({
-      type: 'Deposit',
-      date: d.date,
-      ref: d.id,
-      details: `Client: ${d.client}`,
-      amount: d.amount,
-      meta: `Balance: ${fmt(d.balance||0)}`
-    });
-  });
-  // Sort desc by date
-  return arr.sort((a,b)=> a.date < b.date ? 1 : (a.date > b.date ? -1 : 0));
+   SETTINGS & ADMIN
+=========================== */
+function renderSettings(){
+  const area=document.getElementById('settingsAdminArea'); area.innerHTML=''; const user=currentUser();
+  if(!user || user.role!=='admin'){ area.innerHTML='<p class="muted">Admin only area</p>'; return; }
+  const div=document.createElement('div');
+  div.innerHTML=`
+    <h3>Company Details</h3>
+    <label>Name: <input id="companyName" value="${state.company.name}"></label><br>
+    <label>Location: <input id="companyLocation" value="${state.company.location}"></label><br>
+    <label>PO Box: <input id="companyPO" value="${state.company.pobox}"></label><br>
+    <label>Phone: <input id="companyPhone" value="${state.company.phone}"></label><br>
+    <label>Email: <input id="companyEmail" value="${state.company.email}"></label><br>
+    <button class="btn btn-primary" onclick="saveCompanyDetails()">Save Company</button>
+    <hr>
+    <h3>User Access Management</h3>
+    <button class="btn btn-primary small" onclick="openUserModal()">+ Add User</button>
+  `;
+  area.appendChild(div);
+}
+function saveCompanyDetails(){
+  state.company.name=document.getElementById('companyName').value;
+  state.company.location=document.getElementById('companyLocation').value;
+  state.company.pobox=document.getElementById('companyPO').value;
+  state.company.phone=document.getElementById('companyPhone').value;
+  state.company.email=document.getElementById('companyEmail').value;
+  save(); alert('Company details updated');
 }
 
-/* Pagination state */
-let recordsPage = 1;
-function renderRecords(list){
-  const tbody=document.querySelector('#recordsTable tbody'); tbody.innerHTML='';
-  const rowsAll = list || buildRecordsArray();
-  // apply type/text filters from inputs if list not provided
-  let rows = rowsAll;
-  // apply UI filters if searchRecords was not used
-  const typeFilter = document.getElementById('recordsType') ? document.getElementById('recordsType').value : '';
-  const textFilter = document.getElementById('recordsText') ? document.getElementById('recordsText').value.toLowerCase() : '';
-  if(typeFilter) rows = rows.filter(r=>r.type === typeFilter);
-  if(textFilter) rows = rows.filter(r=> (r.details+' '+r.ref+' '+r.meta).toLowerCase().includes(textFilter));
-  // date range
-  const from=document.getElementById('recordsFrom') ? document.getElementById('recordsFrom').value : '';
-  const to=document.getElementById('recordsTo') ? document.getElementById('recordsTo').value : '';
-  rows = rows.filter(r=> (!from || r.date >= from) && (!to || r.date <= to));
+/* ===========================
+   PRINT FUNCTIONS
+=========================== */
+function printSales(){ window.print(); }
+function printInventory(){ window.print(); }
+function printDeposits(){ window.print(); }
 
-  const pageSize = Number(document.getElementById('recordsPageSize').value||10);
-  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
-  if(recordsPage > totalPages) recordsPage = totalPages;
-  const start = (recordsPage-1) * pageSize;
-  const pageRows = rows.slice(start, start + pageSize);
-
-  let totalMoney = 0;
-  let totalQty = 0;
-  pageRows.forEach(r=>{
+/* ===========================
+   INITIAL RENDER
+=========================== */
+function renderAll(){ renderSales(); renderInventory(); renderDeposits(); renderSettings(); }
+requireAuthOrRedirect(); renderAll();
+</script>
+<script>
+/* ===========================
+   EMPLOYEES
+=========================== */
+function renderEmployees(){
+  const tbody=document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
+  state.employees.forEach(emp=>{
     const tr=document.createElement('tr');
-    let amountDisplay = '';
-    if(r.type === 'Sale' || r.type === 'Expense' || r.type === 'Deposit') { amountDisplay = fmt(r.amount); totalMoney += Number(r.amount||0); }
-    else { amountDisplay = r.amount; totalQty += Number(r.amount||0); }
-    tr.innerHTML = `<td>${r.type}</td><td>${r.date}</td><td>${r.ref}</td><td>${r.details}<div style="font-size:0.9em;color:#cbd5e1;margin-top:4px">${r.meta||''}</div></td><td>${amountDisplay}</td>
+    tr.innerHTML=`<td>${emp.name}</td><td>${emp.position}</td><td>${emp.email}</td><td>${emp.phone}</td>
       <td>
-        ${r.type === 'Sale' ? `<button class="btn btn-secondary" onclick="printSale('${r.ref}')">🖨️</button>` : ''}
-        ${r.type === 'Expense' ? `<button class="btn btn-secondary" onclick="printExpense('${r.ref}')">🖨️</button>` : ''}
-        ${r.type === 'Inventory' ? `<button class="btn btn-secondary" onclick="printInventoryItem('${r.ref}')">🖨️</button>` : ''}
-        ${r.type === 'Deposit' ? `<button class="btn btn-secondary" onclick="printDeposit('${r.ref}')">🖨️</button>` : ''}
-        <button class="btn btn-danger" onclick="deleteRecord('${r.type}','${r.ref}')">Delete</button>
+        <button class="btn btn-danger small" onclick="deleteEmployee('${emp.id}')">Delete</button>
       </td>`;
     tbody.appendChild(tr);
   });
-  const summary = `Total on page (money): ${fmt(totalMoney)} — Total inventory qty on page: ${totalQty} — Showing ${pageRows.length} of ${rows.length} records`;
-  document.getElementById('recordsSummary').innerText = summary;
-  document.getElementById('recordsPagerInfo').innerText = `Page ${recordsPage} / ${totalPages}`;
 }
-function searchRecords(){
-  recordsPage = 1;
-  renderRecords();
-}
-function printRecords(){
-  const html='<h2>Company Records (current page)</h2>'+document.querySelector('#recordsTable').outerHTML;
-  const w=window.open(''); w.document.write(html); w.print();
-}
-function deleteRecord(type, ref){
-  // permission check
-  const user = currentUser();
-  if(!user){ alert('must be logged in'); return; }
-  if(!confirm(`Delete this ${type}?`)) return;
-  if(type === 'Sale') deleteSale(ref);
-  else if(type === 'Expense') deleteExpense(ref);
-  else if(type === 'Inventory') deleteInventory(ref);
-  else if(type === 'Deposit') deleteDeposit(ref);
-  renderAll();
-}
-/* helper prints */
-function printExpense(id){
-  const e = state.expenses.find(x=>x.id===id); if(!e) return alert('Expense not found');
-  const w=window.open(''); w.document.write(`<h2>Expense</h2><p>${e.date}</p><p>${e.category} - ${e.description}</p><p>Amount: ${fmt(e.amount)}</p>`); w.print();
-}
-function printInventoryItem(id){
-  const i=state.inventory.find(x=>x.id===id); if(!i) return alert('Not found');
-  const w=window.open(''); w.document.write(`<h2>Inventory Item</h2><p>${i.name}</p><p>Qty: ${i.qty}</p><p>Cost: ${fmt(i.cost)}</p>`); w.print();
-}
-
-/* pagination helpers */
-function recordsNext(){ recordsPage++; renderRecords(); }
-function recordsPrev(){ if(recordsPage>1) recordsPage--; renderRecords(); }
-function recordsJump(){ const v = Number(document.getElementById('recordsGoto').value||1); recordsPage = Math.max(1, v); renderRecords(); }
-
-/* ===========================
-   USERS / SETTINGS (admin only)
-   =========================== */
-function openUserModal(){ document.getElementById('userForm').reset(); document.getElementById('userId').value=''; populateUsersList(); document.getElementById('userModal').style.display='flex'; }
-function closeUserModal(){ document.getElementById('userModal').style.display='none'; }
-function populateUsersList(){
-  const el = document.getElementById('usersList'); el.innerHTML='';
-  state.users.forEach(u=>{
-    const div = document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.padding='6px 0';
-    const left = document.createElement('div'); left.innerHTML = `<strong>${u.username}</strong> <span class="muted">(${u.role})</span> ${u.canViewRecords?'<span class="muted">• records</span>':''}`;
-    const right = document.createElement('div');
-    const edit = document.createElement('button'); edit.className='btn small'; edit.textContent='Edit'; edit.onclick=()=>{ editUser(u.id); };
-    const del = document.createElement('button'); del.className='btn small'; del.textContent='Delete'; del.onclick=()=>{ if(confirm('Delete user?')){ state.users = state.users.filter(x=>x.id!==u.id); save(); populateUsersList(); } };
-    right.appendChild(edit); right.appendChild(del);
-    div.appendChild(left); div.appendChild(right);
-    el.appendChild(div);
-  });
-}
-function editUser(id){
-  const u = state.users.find(x=>x.id===id); if(!u) return;
-  document.getElementById('userId').value = u.id;
-  document.getElementById('userName').value = u.username;
-  document.getElementById('userPass').value = u.password;
-  document.getElementById('userRole').value = u.role;
-  document.getElementById('userCanViewRecords').checked = !!u.canViewRecords;
-  document.getElementById('userCanCreateSales').checked = (u.canCreateSales !== false);
-  document.getElementById('userModal').style.display = 'flex';
-}
-document.getElementById('userForm').addEventListener('submit', e=>{
+function openEmployeeModal(){document.getElementById('employeeForm').reset(); document.getElementById('employeeModal').style.display='flex';}
+function closeEmployeeModal(){document.getElementById('employeeModal').style.display='none';}
+document.getElementById('employeeForm').addEventListener('submit',e=>{
   e.preventDefault();
-  const id = document.getElementById('userId').value || idf();
-  const username = document.getElementById('userName').value.trim();
-  const password = document.getElementById('userPass').value;
-  const role = document.getElementById('userRole').value;
-  const canViewRecords = document.getElementById('userCanViewRecords').checked;
-  const canCreateSales = document.getElementById('userCanCreateSales').checked;
-  // avoid duplicate username
-  if(state.users.some(u=>u.username === username && u.id !== id)){ alert('Username already exists'); return; }
-  const existingIndex = state.users.findIndex(u=>u.id===id);
-  const userObj = {id, username, password, role, canViewRecords, canCreateSales};
-  if(existingIndex >= 0) state.users[existingIndex] = userObj; else state.users.push(userObj);
-  save(); populateUsersList(); closeUserModal();
+  const emp={id:idf(),name:document.getElementById('employeeName').value,position:document.getElementById('employeePosition').value,email:document.getElementById('employeeEmail').value,phone:document.getElementById('employeePhone').value};
+  state.employees.push(emp); save(); closeEmployeeModal();
 });
-
-/* SETTINGS area render (Admin-only) */
-function renderSettingsAdmin(){
-  const container = document.getElementById('settingsAdminArea'); container.innerHTML='';
-  const user = currentUser();
-  if(!user || user.role !== 'admin'){ container.innerHTML = '<p class="muted">Only admin can manage users.</p>'; return; }
-  const btn = document.createElement('button'); btn.className='btn btn-primary'; btn.textContent='Manage Users'; btn.onclick = openUserModal;
-  container.appendChild(btn);
-}
+function deleteEmployee(id){ if(confirm('Delete employee?')){ state.employees=state.employees.filter(e=>e.id!==id); save(); }}
 
 /* ===========================
-   AUTH UI updates & helpers
-   =========================== */
-function updateUIForAuth(){
-  const user = currentUser();
-  document.getElementById('currentUserDisplay').innerText = user ? `Signed in as: ${user.username} (${user.role})` : 'Not signed in';
-  document.getElementById('systemStatus').innerText = user ? 'Online' : 'Offline';
-  // hide/show new sale button based on permission
-  const newSaleBtn = document.getElementById('newSaleBtn');
-  if(newSaleBtn) newSaleBtn.disabled = !(user && user.canCreateSales);
-  // hide settings admin area / show manage users
-  renderSettingsAdmin();
-  // restrict nav items visibility
-  document.querySelectorAll("#navList .nav-item").forEach(nav=>{
-    if(nav.dataset.view === 'records'){
-      nav.style.display = (user && user.canViewRecords) ? 'flex' : 'none';
-    } else {
-      nav.style.display = 'flex';
-    }
+   SUPPLIERS
+=========================== */
+function renderSuppliers(){
+  const tbody=document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
+  state.suppliers.forEach(sup=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${sup.name}</td><td>${sup.contact}</td><td>${sup.email}</td>
+      <td>
+        <button class="btn btn-danger small" onclick="deleteSupplier('${sup.id}')">Delete</button>
+      </td>`;
+    tbody.appendChild(tr);
   });
-  // show login modal if not logged in
-  if(!user) showLogin(); else hideLogin();
-  // quick actions
-  const qa = document.getElementById('quickUserActions'); qa.innerHTML='';
-  if(user){
-    const manageBtn = document.createElement('button'); manageBtn.className='btn small'; manageBtn.textContent='My Profile'; manageBtn.onclick = ()=>{ alert('Profile: '+user.username); };
-    qa.appendChild(manageBtn);
-  }
+}
+function openSupplierModal(){document.getElementById('supplierForm').reset(); document.getElementById('supplierModal').style.display='flex';}
+function closeSupplierModal(){document.getElementById('supplierModal').style.display='none';}
+document.getElementById('supplierForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const sup={id:idf(),name:document.getElementById('supplierName').value,contact:document.getElementById('supplierContact').value,email:document.getElementById('supplierEmail').value};
+  state.suppliers.push(sup); save(); closeSupplierModal();
+});
+function deleteSupplier(id){ if(confirm('Delete supplier?')){ state.suppliers=state.suppliers.filter(s=>s.id!==id); save(); }}
+
+/* ===========================
+   EXPENSES
+=========================== */
+function renderExpenses(){
+  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
+  let total=0;
+  state.expenses.forEach(exp=>{
+    total+=Number(exp.amount);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${exp.date}</td><td>${exp.category}</td><td>${exp.desc}</td><td>${fmt(exp.amount)}</td><td>${exp.paidBy||''}</td><td>${exp.notes||''}</td>
+      <td><button class="btn btn-danger small" onclick="deleteExpense('${exp.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
+}
+function openExpenseModal(){document.getElementById('expenseForm').reset(); document.getElementById('expenseModal').style.display='flex';}
+function closeExpenseModal(){document.getElementById('expenseModal').style.display='none';}
+document.getElementById('expenseForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const exp={id:idf(),date:document.getElementById('expenseDate').value,category:document.getElementById('expenseCategory').value,desc:document.getElementById('expenseDesc').value,amount:Number(document.getElementById('expenseAmount').value)};
+  state.expenses.push(exp); save(); closeExpenseModal();
+});
+function deleteExpense(id){ if(confirm('Delete expense?')){ state.expenses=state.expenses.filter(e=>e.id!==id); save(); }}
+
+/* ===========================
+   USER MANAGEMENT (Admin only)
+=========================== */
+function openUserModal(){document.getElementById('userForm').reset(); document.getElementById('userModal').style.display='flex'; renderUsersList();}
+function closeUserModal(){document.getElementById('userModal').style.display='none';}
+document.getElementById('userForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const id=document.getElementById('userId').value||idf();
+  const existing=state.users.find(u=>u.id===id);
+  const userData={id,username:document.getElementById('userName').value,password:document.getElementById('userPass').value,role:document.getElementById('userRole').value,canViewRecords:document.getElementById('userCanViewRecords').checked,canCreateSales:document.getElementById('userCanCreateSales').checked};
+  if(existing){Object.assign(existing,userData);} else{state.users.push(userData);}
+  save(); renderUsersList(); document.getElementById('userForm').reset();
+});
+function renderUsersList(){
+  const list=document.getElementById('usersList'); list.innerHTML='';
+  state.users.forEach(u=>{
+    const div=document.createElement('div'); div.style.marginBottom='4px';
+    div.innerHTML=`${u.username} (${u.role}) 
+      <button class="btn btn-danger small" onclick="deleteUser('${u.id}')">Delete</button>`;
+    list.appendChild(div);
+  });
+}
+function deleteUser(id){ if(confirm('Delete user?')){ state.users=state.users.filter(u=>u.id!==id); save(); renderUsersList(); }}
+
+/* ===========================
+   PRINT WITH COMPANY INFO
+=========================== */
+function printSale(id){
+  const sale=state.sales.find(s=>s.id===id); if(!sale) return;
+  const items=sale.items.map(i=>`${i.name} x${i.qty} @ ${fmt(i.price)} = ${fmt(i.qty*i.price)}`).join('<br>');
+  const content=`<h2>${state.company.name}</h2><p>${state.company.location}<br>PO Box: ${state.company.pobox}<br>Email: ${state.company.email}<br>Phone: ${state.company.phone}</p>
+    <h3>Sale Receipt</h3><p>Date: ${sale.date}<br>Customer: ${sale.customer}</p>
+    <p>${items}</p>
+    <p>Total: ${fmt(sale.total)}</p>`;
+  const w=window.open(); w.document.write(content); w.document.close(); w.print();
+}
+
+function printDeposit(id){
+  const dep=state.deposits.find(d=>d.id===id); if(!dep) return;
+  const content=`<h2>${state.company.name}</h2><p>${state.company.location}<br>PO Box: ${state.company.pobox}<br>Email: ${state.company.email}<br>Phone: ${state.company.phone}</p>
+    <h3>Deposit Receipt</h3>
+    <p>Date: ${dep.date}<br>Client: ${dep.client}<br>Item: ${dep.item}</p>
+    <p>Initial: ${fmt(dep.initial)}<br>Deposit: ${fmt(dep.amount)}<br>Remaining: ${fmt(dep.remaining)}</p>`;
+  const w=window.open(); w.document.write(content); w.document.close(); w.print();
 }
 
 /* ===========================
-   RENDER ALL (initial)
-   =========================== */
+   INITIAL RENDER
+=========================== */
 function renderAll(){
-  renderSales(); renderInventory(); renderExpenses(); renderEmployees(); renderSuppliers(); renderDeposits(); renderRecords(); renderSettingsAdmin();
-  updateUIForAuth();
+  renderSales(); renderInventory(); renderDeposits(); renderExpenses(); renderEmployees(); renderSuppliers(); renderSettings();
 }
-renderAll();
-
-/* ===========================
-   STARTUP: show login if not auth
-   =========================== */
-if(!currentUser()) showLogin(); else hideLogin();
-
-/* ===========================
-   Misc helper prints used earlier
-   =========================== */
-function printEmployees(){const html='<h2>Employees</h2>'+document.querySelector('#employeesTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-function printSuppliers(){const html='<h2>Suppliers</h2>'+document.querySelector('#suppliersTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
-function printDeposits(){const html='<h2>Deposits</h2>'+document.querySelector('#depositsTable').outerHTML; const w=window.open(''); w.document.write(html); w.print();}
+requireAuthOrRedirect(); renderAll();
+</script>
 
 </script>
 </body>
