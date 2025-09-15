@@ -1,52 +1,52 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sales System — All-in-One (with Auth & Users)</title>
-<style>
-:root{
-  --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
-  --panel:#1a1f29; --card:#242b38;
-  --accent:#06b6d4; --accent2:#7c3aed;
-  --radius:12px; --muted:#94a3b8;
-  font-family: Inter, ui-sans-serif, system-ui;
-  color-scheme: dark;
-}
-*{box-sizing:border-box;}
-body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
-.app{flex:1;display:flex;}
-.sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
-.logo h1{font-size:1.1em;margin:0;}
-.nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
-.nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
-.main{flex:1;padding:20px;overflow:auto;}
-.card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-.table{width:100%;border-collapse:collapse;}
-.table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
-.btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-danger{background:#ef4444;color:#fff;}
-.btn-secondary{background:#64748b;color:#fff;}
-.muted{color:var(--muted);font-size:0.9em}
-.small{font-size:0.9em;padding:4px 8px}
-/* Modals */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
-.modal .modal-box,.modal .modal-content{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
-.modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
-.topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.right{margin-left:auto;display:flex;gap:10px;align-items:center;}
-.badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
-.disabled{opacity:0.5;pointer-events:none;}
-label.inline{display:inline-block;margin-right:8px;}
-.paging{display:flex;gap:6px;align-items:center;}
-@media(max-width:768px){
-  .sidebar{width:70px;padding:10px;}
-  .sidebar .logo h1,.sidebar .nav-item div{display:none;}
-  .table{font-size:0.85em;}
-}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sales System — All-in-One (with Auth & Users)</title>
+  <style>
+    :root{
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --panel:#1a1f29; --card:#242b38;
+      --accent:#06b6d4; --accent2:#7c3aed;
+      --radius:12px; --muted:#94a3b8;
+      font-family: Inter, ui-sans-serif, system-ui;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+    .app{flex:1;display:flex;}
+    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .logo h1{font-size:1.1em;margin:0;}
+    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+    .main{flex:1;padding:20px;overflow:auto;}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+    .table{width:100%;border-collapse:collapse;}
+    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-danger{background:#ef4444;color:#fff;}
+    .btn-secondary{background:#64748b;color:#fff;}
+    .muted{color:var(--muted);font-size:0.9em}
+    .small{font-size:0.9em;padding:4px 8px}
+    /* Modals */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    .modal .modal-box{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+    .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
+    .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .right{margin-left:auto;display:flex;gap:10px;align-items:center;}
+    .badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
+    .disabled{opacity:0.5;pointer-events:none;}
+    label.inline{display:inline-block;margin-right:8px;}
+    .paging{display:flex;gap:6px;align-items:center;}
+    @media(max-width:768px){
+      .sidebar{width:70px;padding:10px;}
+      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+      .table{font-size:0.85em;}
+    }
+  </style>
 </head>
 <body>
 <div class="app">
@@ -75,7 +75,9 @@ label.inline{display:inline-block;margin-right:8px;}
     <div class="topbar">
       <div class="badge" id="systemStatus">Offline</div>
       <div class="muted">Client-side demo — data stored in localStorage</div>
-      <div class="right"><div id="quickUserActions"></div></div>
+      <div class="right">
+        <div id="quickUserActions"></div>
+      </div>
     </div>
 
     <!-- Dashboard -->
@@ -116,9 +118,18 @@ label.inline{display:inline-block;margin-right:8px;}
         <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
         <button class="btn btn-secondary" onclick="printExpenses()">🖨️ Print</button>
       </h2>
+      <div style="margin:10px 0;">
+        <label>From: <input type="date" id="expenseFrom"></label>
+        <label>To: <input type="date" id="expenseTo"></label>
+        <button class="btn btn-secondary" onclick="searchExpenses()">🔍 Search</button>
+        <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
+      </div>
       <table class="table" id="expensesTable">
-        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Paid By</th><th>Notes</th><th>Actions</th></tr></thead>
         <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="7" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
+        </tfoot>
       </table>
     </section>
 
@@ -129,7 +140,9 @@ label.inline{display:inline-block;margin-right:8px;}
         <button class="btn btn-secondary" onclick="printEmployees()">🖨️ Print</button>
       </h2>
       <table class="table" id="employeesTable">
-        <thead><tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
+        </thead>
         <tbody></tbody>
       </table>
     </section>
@@ -141,7 +154,9 @@ label.inline{display:inline-block;margin-right:8px;}
         <button class="btn btn-secondary" onclick="printSuppliers()">🖨️ Print</button>
       </h2>
       <table class="table" id="suppliersTable">
-        <thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr>
+        </thead>
         <tbody></tbody>
       </table>
     </section>
@@ -155,8 +170,13 @@ label.inline{display:inline-block;margin-right:8px;}
       <table class="table" id="depositsTable">
         <thead>
           <tr>
-            <th>Date</th><th>Client</th><th>Item Deposited On</th><th>Deposit Amount</th>
-            <th>Initial Balance</th><th>Remaining Balance</th><th>Actions</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Item Deposited On</th>
+            <th>Deposit Amount</th>
+            <th>Initial Balance</th>
+            <th>Remaining Balance</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -166,21 +186,68 @@ label.inline{display:inline-block;margin-right:8px;}
     <!-- Records -->
     <section data-view="records" class="view card" style="display:none">
       <h2>Company Records</h2>
+      <div style="margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label>From: <input type="date" id="recordsFrom"></label>
+        <label>To: <input type="date" id="recordsTo"></label>
+        <label>Type:
+          <select id="recordsType">
+            <option value="">All</option>
+            <option>Sale</option>
+            <option>Expense</option>
+            <option>Inventory</option>
+            <option>Deposit</option>
+          </select>
+        </label>
+        <label>Text: <input id="recordsText" placeholder="search details/ref/meta" /></label>
+        <button class="btn btn-secondary" onclick="searchRecords()">🔍 Search Records</button>
+        <button class="btn btn-secondary" onclick="renderRecords()">Reset</button>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+          <label class="inline">Page size:
+            <select id="recordsPageSize" onchange="renderRecords()"><option>10</option><option>25</option><option>50</option></select>
+          </label>
+          <button class="btn btn-secondary" onclick="printRecords()">🖨️ Print Records</button>
+        </div>
+      </div>
       <table class="table" id="recordsTable">
-        <thead><tr><th>Type</th><th>Date</th><th>Reference</th><th>Details</th><th>Amount / Qty</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr><th>Type</th><th>Date</th><th>Reference</th><th>Details</th><th>Amount / Qty</th><th>Actions</th></tr>
+        </thead>
         <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="6" id="recordsSummary" style="text-align:right;font-weight:bold;"></td></tr>
+        </tfoot>
       </table>
+      <div style="margin-top:8px;display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+        <div class="paging">
+          <button class="btn small" onclick="recordsPrev()">Prev</button>
+          <span id="recordsPagerInfo" class="muted">Page 1 / 1</span>
+          <button class="btn small" onclick="recordsNext()">Next</button>
+        </div>
+        <div>
+          <label>Go to: <input id="recordsGoto" type="number" style="width:70px" /></label>
+          <button class="btn small" onclick="recordsJump()">Go</button>
+        </div>
+      </div>
     </section>
 
     <!-- Settings -->
     <section data-view="settings" class="view card" style="display:none">
       <h2>Settings</h2>
+      <p>Configure system preferences here. (Admin only: manage users)</p>
+      <div>
+        <label>Company Name: <input id="companyName" /></label>
+        <label>Location: <input id="companyLocation" /></label>
+        <label>PO Box: <input id="companyPOBox" /></label>
+        <label>Email: <input id="companyEmail" /></label>
+        <label>Phone: <input id="companyPhone" /></label>
+        <button class="btn btn-primary" onclick="saveCompanySettings()">Save Company Info</button>
+      </div>
       <div id="settingsAdminArea"></div>
     </section>
   </main>
 </div>
 
-<!-- LOGIN Modal -->
+<!-- Login Modal -->
 <div id="loginModal" class="modal" style="display:flex">
   <div class="modal-box">
     <h2>Login</h2>
@@ -191,38 +258,17 @@ label.inline{display:inline-block;margin-right:8px;}
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>
+    <p class="muted" style="margin-top:8px">Default admin: <strong>admin</strong> / <strong>admin123</strong>. (client-side demo)</p>
   </div>
 </div>
-
-<!-- DEPOSIT Modal -->
-<div id="depositModal" class="modal">
-  <div class="modal-content">
-    <h3>Add / Edit Deposit</h3>
-    <form id="depositForm">
-      <input type="hidden" id="depositId">
-      <label>Date: <input type="date" id="depositDate" required></label><br>
-      <label>Client: <input type="text" id="depositClient" required></label><br>
-      <label>Item Deposited On: <input type="text" id="depositItem" required></label><br>
-      <label>Initial Balance: <input type="number" id="depositInitial" required></label><br>
-      <label>Deposit Amount: <input type="number" id="depositAmount" required></label><br>
-      <div style="text-align:right;margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
-// FULL JAVASCRIPT INTEGRATION (Sales, Inventory, Deposits, Settings, Admin, Company Details)
-// The full JS will include rendering, CRUD, modal handling, authentication, and company details
-<script>
+
 /* ===========================
    STORAGE & INITIAL STATE
 =========================== */
-const STORAGE_KEY = "sales_system_data_v3";
-const fmt = n=>"UGX "+Number(n||0).toLocaleString();
-const idf = ()=>Math.random().toString(36).substr(2,9);
+const STORAGE_KEY = "sales_system_data_v2_full";
+const fmt = n => "UGX " + Number(n||0).toLocaleString();
+const idf = () => Math.random().toString(36).substr(2,9);
 
 let state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
 if(!state.sales) state.sales=[];
@@ -231,403 +277,486 @@ if(!state.expenses) state.expenses=[];
 if(!state.employees) state.employees=[];
 if(!state.suppliers) state.suppliers=[];
 if(!state.deposits) state.deposits=[];
-if(!state.users){
-  state.users=[{id:idf(),username:'admin',password:'admin123',role:'admin',canViewRecords:true,canCreateSales:true}];
+if(!state.users) {
+  state.users = [
+    {id: idf(), username: 'admin', password: 'admin123', role:'admin', canViewRecords:true, canCreateSales:true}
+  ];
 }
 if(!state.meta) state.meta={currentUserId:null};
-if(!state.company) state.company={name:'My Company', location:'', pobox:'', phone:'', email:''};
+if(!state.company) state.company={name:'My Company',location:'',POBox:'',email:'',phone:''};
+
+function save(){ 
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
+  updateUIForAuth(); 
+}
+
+/* ===========================
+   CURRENT USER
+=========================== */
+function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUserId) || null; }
 
 /* ===========================
    AUTH
 =========================== */
-function currentUser(){ return state.users.find(u=>u.id===state.meta.currentUserId) || null; }
-function requireAuthOrRedirect(){ if(!currentUser()) document.getElementById('loginModal').style.display='flex'; }
-document.getElementById('loginForm').addEventListener('submit',e=>{
+function showLogin(){ document.getElementById('loginModal').style.display='flex'; }
+function hideLogin(){ document.getElementById('loginModal').style.display='none'; }
+document.getElementById('loginForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const u=document.getElementById('loginUsername').value.trim();
-  const p=document.getElementById('loginPassword').value;
-  const user=state.users.find(x=>x.username===u && x.password===p);
-  if(!user){alert('Invalid credentials');return;}
-  state.meta.currentUserId=user.id; save(); document.getElementById('loginModal').style.display='none'; renderAll();
+  const u = document.getElementById('loginUsername').value.trim();
+  const p = document.getElementById('loginPassword').value;
+  const user = state.users.find(x=>x.username===u && x.password===p);
+  if(!user){ alert('Invalid credentials'); return; }
+  state.meta.currentUserId=user.id; save(); hideLogin(); renderAll();
 });
-function logout(){ state.meta.currentUserId=null; save(); document.getElementById('loginModal').style.display='flex'; renderAll(); }
-function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); renderAll(); }
+function logout(){ state.meta.currentUserId=null; save(); showLogin(); renderAll(); }
 
 /* ===========================
    NAVIGATION
 =========================== */
 document.querySelectorAll("#navList .nav-item").forEach(nav=>{
-  nav.addEventListener("click",()=>{
+  nav.addEventListener("click", ()=>{
     const user=currentUser();
-    if(nav.dataset.view==='records' && (!user||!user.canViewRecords)){alert('No permission');return;}
-    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove('active'));
-    nav.classList.add('active');
+    if(nav.dataset.view==='records' && (!user || !user.canViewRecords)) { alert('No access to Records'); return; }
+    document.querySelectorAll("#navList .nav-item").forEach(n=>n.classList.remove("active"));
+    nav.classList.add("active");
     const v=nav.dataset.view;
-    document.querySelectorAll('.view').forEach(sec=>sec.style.display='none');
+    document.querySelectorAll(".view").forEach(sec=>sec.style.display='none');
     document.querySelector(`.view[data-view='${v}']`).style.display='block';
     renderAll();
   });
 });
 
 /* ===========================
-   SALES (modal-only editing)
+   RENDER ALL
+=========================== */
+function renderAll(){
+  updateUIForAuth();
+  renderSales();
+  renderInventory();
+  renderExpenses();
+  renderEmployees();
+  renderSuppliers();
+  renderDeposits();
+  renderRecords();
+  populateSettings();
+}
+
+/* ===========================
+   UI & AUTH UPDATE
+=========================== */
+function updateUIForAuth(){
+  const user=currentUser();
+  document.getElementById('currentUserDisplay').innerText=user ? `${user.username} (${user.role})` : '';
+  if(!user) showLogin();
+}
+
+/* ===========================
+   SALES FUNCTIONS
 =========================== */
 function renderSales(){
   const tbody=document.querySelector('#salesTable tbody'); tbody.innerHTML='';
   state.sales.forEach(s=>{
     const items=s.items.map(i=>`${i.name} x${i.qty} @ ${fmt(i.price)}`).join(', ');
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${s.date}</td><td>${s.customer}</td><td>${items}</td><td>${fmt(s.total)}</td>
-      <td><button class="btn btn-secondary small" onclick="printSale('${s.id}')">🖨️ Receipt</button></td>`;
+    tr.innerHTML=`
+      <td>${s.date}</td>
+      <td>${s.customer}</td>
+      <td>${items}</td>
+      <td>${fmt(s.total)}</td>
+      <td>
+        <button class="btn btn-secondary" onclick="printSale('${s.id}')">🖨️ Receipt</button>
+      </td>`;
     tbody.appendChild(tr);
   });
 }
 
-function openSaleModal(editSale=null){
-  const form=document.getElementById('saleForm');
-  form.reset(); document.getElementById('saleItems').innerHTML='';
-  if(editSale) { /* not allowed after saving */ return; }
+function openSaleModal(){
+  const user=currentUser();
+  if(!user || !user.canCreateSales){ alert('No permission to create sales'); return; }
+  document.getElementById('saleForm').reset();
+  document.getElementById('saleItems').innerHTML='';
   addSaleItem();
+  document.getElementById('saleTotalDisplay').innerText='Total: UGX 0';
   document.getElementById('saleModal').style.display='flex';
 }
-function closeSaleModal(){document.getElementById('saleModal').style.display='none';}
 
-function addSaleItem(){
+function closeSaleModal(){ document.getElementById('saleModal').style.display='none'; }
+
+function addSaleItem(prefItemId){
   const div=document.createElement('div'); div.style.display='flex'; div.style.gap='5px'; div.style.marginBottom='6px';
   const select=document.createElement('select'); select.required=true;
-  (state.inventory.length?state.inventory:[{id:'',name:'-- no items --',cost:0}]).forEach(i=>{
-    const opt=document.createElement('option'); opt.value=i.id; opt.dataset.cost=i.cost; opt.textContent=i.name+` (stock:${i.qty})`; select.appendChild(opt);
+  (state.inventory.length ? state.inventory : [{id:'',name:'-- no items --',cost:0}]).forEach(i=>{
+    const opt=document.createElement('option');
+    opt.value=i.id; opt.dataset.cost=i.cost;
+    opt.textContent=i.name + (i.qty!==undefined ? ` (stock:${i.qty})` : '');
+    if(prefItemId && prefItemId===i.id) opt.selected=true;
+    select.appendChild(opt);
   });
-  const qty=document.createElement('input'); qty.type='number'; qty.value=1; qty.min=1; qty.required=true; qty.style.width='80px';
+  const qty=document.createElement('input'); qty.type='number'; qty.min=1; qty.value=1; qty.required=true; qty.style.width='80px';
   const price=document.createElement('input'); price.type='number'; price.required=true; price.style.width='120px';
-  select.addEventListener('change',()=>{ const sel=state.inventory.find(it=>it.id===select.value); price.value=sel?sel.cost:0; updateSaleTotal(); });
-  qty.addEventListener('input',updateSaleTotal); price.addEventListener('input',updateSaleTotal);
-  const remove=document.createElement('button'); remove.type='button'; remove.className='btn btn-danger small'; remove.innerText='✖'; remove.onclick=()=>{div.remove();updateSaleTotal();}
-  div.append(select,qty,price,remove); document.getElementById('saleItems').appendChild(div);
+  // Update price when select changes
+  select.addEventListener('change', ()=>{
+    const sel=state.inventory.find(it=>it.id===select.value);
+    price.value=sel ? sel.cost : 0;
+    updateSaleTotal();
+  });
+  qty.addEventListener('input', updateSaleTotal);
+  price.addEventListener('input', updateSaleTotal);
+  div.appendChild(select); div.appendChild(qty); div.appendChild(price);
+  document.getElementById('saleItems').appendChild(div);
   updateSaleTotal();
 }
 
 function updateSaleTotal(){
-  const items=document.querySelectorAll('#saleItems > div');
+  const itemsDiv=document.getElementById('saleItems');
   let total=0;
-  items.forEach(d=>{
-    const qty=Number(d.querySelector('input[type="number"]').value||0);
-    const price=Number(d.querySelectorAll('input[type="number"]')[1].value||0);
+  Array.from(itemsDiv.children).forEach(div=>{
+    const qty=Number(div.querySelector('input[type="number"]').value);
+    const price=Number(div.querySelector('input[placeholder="Price"]').value);
     total+=qty*price;
   });
+  const discountFlat=Number(document.getElementById('saleDiscount').value||0);
+  const discountPct=Number(document.getElementById('saleDiscountPct').value||0);
+  total=total-discountFlat;
+  total=total-(total*(discountPct/100));
   document.getElementById('saleTotalDisplay').innerText='Total: '+fmt(total);
 }
 
-document.getElementById('saleForm').addEventListener('submit',e=>{
+// Save sale (deduct inventory)
+document.getElementById('saleForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const items=[]; document.querySelectorAll('#saleItems > div').forEach(d=>{
-    const sel=d.querySelector('select'); const qty=Number(d.querySelector('input[type="number"]').value||0);
-    const price=Number(d.querySelectorAll('input[type="number"]')[1].value||0);
-    const inv=state.inventory.find(x=>x.id===sel.value);
-    if(!inv){alert('Invalid item'); return;}
-    items.push({id:sel.value,name:inv.name,qty,price});
+  const customer=document.getElementById('customerName').value;
+  const itemsDiv=document.getElementById('saleItems');
+  const items=[]; let canSave=true;
+  Array.from(itemsDiv.children).forEach(div=>{
+    const select=div.querySelector('select');
+    const itemObj=state.inventory.find(i=>i.id===select.value);
+    const qty=Number(div.querySelector('input[type="number"]').value);
+    const price=Number(div.querySelector('input[placeholder="Price"]').value);
+    if(itemObj.qty<qty){ alert(`Not enough stock for ${itemObj.name}. Available: ${itemObj.qty}`); canSave=false; return; }
+    items.push({id:itemObj.id,name:itemObj.name,qty,price});
   });
-  const total=items.reduce((a,b)=>a+b.qty*b.price,0);
-  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer:document.getElementById('customerName').value,items,total});
-  save(); closeSaleModal();
+  if(!canSave) return;
+  let total=0; items.forEach(i=>total+=i.qty*i.price);
+  const discountFlat=Number(document.getElementById('saleDiscount').value||0);
+  const discountPct=Number(document.getElementById('saleDiscountPct').value||0);
+  total=total-discountFlat;
+  total=total-(total*(discountPct/100));
+  // Reduce inventory
+  items.forEach(i=>{
+    const inv=state.inventory.find(inv=>inv.id===i.id);
+    if(inv) inv.qty-=i.qty;
+  });
+  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer,items,total});
+  save(); closeSaleModal(); renderAll();
 });
 
 /* ===========================
-   INVENTORY (modal-only editing)
+   INVENTORY FUNCTIONS
 =========================== */
 function renderInventory(){
   const tbody=document.querySelector('#inventoryTable tbody'); tbody.innerHTML='';
-  state.inventory.forEach(it=>{
+  state.inventory.forEach(item=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${it.name}</td><td>${it.category}</td><td>${it.supplier}</td><td>${it.qty}</td><td>${fmt(it.cost)}</td><td>${it.reorder}</td>
-      <td><button class="btn btn-secondary small" onclick="openInventoryModal()">Edit (before save only)</button></td>`;
-    tbody.appendChild(tr);
-  });
+    tr.innerHTML=`
+      <td>${item.name}</td>
+      <td>${item.category||''}</td>
+      <td>${item.supplier||''}</td>
+      <td>${item.qty}</td>
+      <td>${fmt(item.cost)}</td>
+      <td>${item.reorder}</td>
+      <td>
+        <button class="btn btn-secondary" onclick="openInventoryModal('${item.id}')">Edit</button>
+      </td>`;
+    tbody.appendChild
+  tbody.appendChild(tr);
+});
+
 }
-function openInventoryModal(editItem=null){
-  const form=document.getElementById('inventoryForm'); form.reset();
-  if(editItem){ /* not allowed after save */ return; }
+
+function openInventoryModal(itemId){
+  const form=document.getElementById('inventoryForm');
+  form.reset();
+  if(itemId){
+    const item=state.inventory.find(i=>i.id===itemId);
+    if(item){
+      document.getElementById('itemId').value=item.id;
+      document.getElementById('itemName').value=item.name;
+      document.getElementById('itemCategory').value=item.category;
+      document.getElementById('itemSupplier').value=item.supplier;
+      document.getElementById('itemQty').value=item.qty;
+      document.getElementById('itemCost').value=item.cost;
+      document.getElementById('itemReorder').value=item.reorder;
+    }
+  }
   document.getElementById('inventoryModal').style.display='flex';
 }
+
 function closeInventoryModal(){document.getElementById('inventoryModal').style.display='none';}
 
-document.getElementById('inventoryForm').addEventListener('submit',e=>{
+// Save Inventory Item
+document.getElementById('inventoryForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const newItem={id:idf(),name:document.getElementById('itemName').value,category:document.getElementById('itemCategory').value,
-    supplier:document.getElementById('itemSupplier').value,qty:Number(document.getElementById('itemQty').value||0),
-    cost:Number(document.getElementById('itemCost').value||0),reorder:Number(document.getElementById('itemReorder').value||5)};
-  state.inventory.push(newItem); save(); closeInventoryModal();
+  const id=document.getElementById('itemId').value || idf();
+  const name=document.getElementById('itemName').value;
+  const category=document.getElementById('itemCategory').value;
+  const supplier=document.getElementById('itemSupplier').value;
+  const qty=Number(document.getElementById('itemQty').value);
+  const cost=Number(document.getElementById('itemCost').value);
+  const reorder=Number(document.getElementById('itemReorder').value);
+  
+  const existing=state.inventory.find(i=>i.id===id);
+  if(existing){
+    existing.name=name; existing.category=category; existing.supplier=supplier;
+    existing.qty=qty; existing.cost=cost; existing.reorder=reorder;
+  } else {
+    state.inventory.push({id,name,category,supplier,qty,cost,reorder});
+  }
+  save(); closeInventoryModal(); renderInventory();
 });
 
 /* ===========================
-   DEPOSITS
+   DEPOSITS FUNCTIONS
 =========================== */
 function renderDeposits(){
   const tbody=document.querySelector('#depositsTable tbody'); tbody.innerHTML='';
   state.deposits.forEach(d=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${d.date}</td><td>${d.client}</td><td>${d.item}</td><td>${fmt(d.amount)}</td>
-      <td>${fmt(d.initial)}</td><td>${fmt(d.remaining)}</td>
-      <td><button class="btn btn-danger small" onclick="deleteDeposit('${d.id}')">Delete</button></td>`;
+    tr.innerHTML=`
+      <td>${d.date}</td>
+      <td>${d.client}</td>
+      <td>${d.item}</td>
+      <td>${fmt(d.amount)}</td>
+      <td>${fmt(d.initial)}</td>
+      <td>${fmt(d.remaining)}</td>
+      <td></td>`;
     tbody.appendChild(tr);
   });
 }
 
-function openDepositModal(edit=null){
-  document.getElementById('depositForm').reset(); document.getElementById('depositModal').style.display='flex';
+function openDepositModal(depositId){
+  const form=document.getElementById('depositForm');
+  form.reset();
+  if(depositId){
+    const dep=state.deposits.find(d=>d.id===depositId);
+    if(dep){
+      document.getElementById('depositId').value=dep.id;
+      document.getElementById('depositDate').value=dep.date;
+      document.getElementById('depositClient').value=dep.client;
+      document.getElementById('depositItem').value=dep.item;
+      document.getElementById('depositInitial').value=dep.initial;
+      document.getElementById('depositAmount').value=dep.amount;
+    }
+  }
+  document.getElementById('depositModal').style.display='flex';
 }
 
 function closeDepositModal(){document.getElementById('depositModal').style.display='none';}
 
-document.getElementById('depositForm').addEventListener('submit',e=>{
+// Save Deposit
+document.getElementById('depositForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const initial=Number(document.getElementById('depositInitial').value||0);
-  const amount=Number(document.getElementById('depositAmount').value||0);
+  const id=document.getElementById('depositId').value||idf();
+  const date=document.getElementById('depositDate').value;
+  const client=document.getElementById('depositClient').value;
+  const item=document.getElementById('depositItem').value;
+  const initial=Number(document.getElementById('depositInitial').value);
+  const amount=Number(document.getElementById('depositAmount').value);
   const remaining=initial-amount;
-  state.deposits.push({id:idf(),date:document.getElementById('depositDate').value,
-    client:document.getElementById('depositClient').value,
-    item:document.getElementById('depositItem').value,
-    initial,amount,remaining});
-  save(); closeDepositModal();
+
+  const existing=state.deposits.find(d=>d.id===id);
+  if(existing){
+    existing.date=date; existing.client=client; existing.item=item;
+    existing.initial=initial; existing.amount=amount; existing.remaining=remaining;
+  } else {
+    state.deposits.push({id,date,client,item,initial,amount,remaining});
+  }
+  save(); closeDepositModal(); renderDeposits();
 });
 
-function deleteDeposit(id){ if(confirm('Delete deposit?')){ state.deposits=state.deposits.filter(d=>d.id!==id); save(); }}
-
 /* ===========================
-   SETTINGS & ADMIN
-=========================== */
-function renderSettings(){
-  const area=document.getElementById('settingsAdminArea'); area.innerHTML=''; const user=currentUser();
-  if(!user || user.role!=='admin'){ area.innerHTML='<p class="muted">Admin only area</p>'; return; }
-  const div=document.createElement('div');
-  div.innerHTML=`
-    <h3>Company Details</h3>
-    <label>Name: <input id="companyName" value="${state.company.name}"></label><br>
-    <label>Location: <input id="companyLocation" value="${state.company.location}"></label><br>
-    <label>PO Box: <input id="companyPO" value="${state.company.pobox}"></label><br>
-    <label>Phone: <input id="companyPhone" value="${state.company.phone}"></label><br>
-    <label>Email: <input id="companyEmail" value="${state.company.email}"></label><br>
-    <button class="btn btn-primary" onclick="saveCompanyDetails()">Save Company</button>
-    <hr>
-    <h3>User Access Management</h3>
-    <button class="btn btn-primary small" onclick="openUserModal()">+ Add User</button>
-  `;
-  area.appendChild(div);
-}
-function saveCompanyDetails(){
-  state.company.name=document.getElementById('companyName').value;
-  state.company.location=document.getElementById('companyLocation').value;
-  state.company.pobox=document.getElementById('companyPO').value;
-  state.company.phone=document.getElementById('companyPhone').value;
-  state.company.email=document.getElementById('companyEmail').value;
-  save(); alert('Company details updated');
-}
-
-/* ===========================
-   PRINT FUNCTIONS
-=========================== */
-function printSales(){ window.print(); }
-function printInventory(){ window.print(); }
-function printDeposits(){ window.print(); }
-
-/* ===========================
-   INITIAL RENDER
-=========================== */
-function renderAll(){ renderSales(); renderInventory(); renderDeposits(); renderSettings(); }
-requireAuthOrRedirect(); renderAll();
-</script>
-<script>
-/* ===========================
-   EMPLOYEES
+   EMPLOYEES FUNCTIONS
 =========================== */
 function renderEmployees(){
   const tbody=document.querySelector('#employeesTable tbody'); tbody.innerHTML='';
   state.employees.forEach(emp=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${emp.name}</td><td>${emp.position}</td><td>${emp.email}</td><td>${emp.phone}</td>
-      <td>
-        <button class="btn btn-danger small" onclick="deleteEmployee('${emp.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML=`
+      <td>${emp.name}</td>
+      <td>${emp.position||''}</td>
+      <td>${emp.email||''}</td>
+      <td>${emp.phone||''}</td>
+      <td></td>`;
     tbody.appendChild(tr);
   });
 }
-function openEmployeeModal(){document.getElementById('employeeForm').reset(); document.getElementById('employeeModal').style.display='flex';}
+
+function openEmployeeModal(empId){
+  const form=document.getElementById('employeeForm'); form.reset();
+  if(empId){
+    const emp=state.employees.find(e=>e.id===empId);
+    if(emp){
+      document.getElementById('employeeId').value=emp.id;
+      document.getElementById('employeeName').value=emp.name;
+      document.getElementById('employeePosition').value=emp.position;
+      document.getElementById('employeeEmail').value=emp.email;
+      document.getElementById('employeePhone').value=emp.phone;
+    }
+  }
+  document.getElementById('employeeModal').style.display='flex';
+}
+
 function closeEmployeeModal(){document.getElementById('employeeModal').style.display='none';}
-document.getElementById('employeeForm').addEventListener('submit',e=>{
+
+document.getElementById('employeeForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const emp={id:idf(),name:document.getElementById('employeeName').value,position:document.getElementById('employeePosition').value,email:document.getElementById('employeeEmail').value,phone:document.getElementById('employeePhone').value};
-  state.employees.push(emp); save(); closeEmployeeModal();
+  const id=document.getElementById('employeeId').value||idf();
+  const name=document.getElementById('employeeName').value;
+  const position=document.getElementById('employeePosition').value;
+  const email=document.getElementById('employeeEmail').value;
+  const phone=document.getElementById('employeePhone').value;
+  const existing=state.employees.find(e=>e.id===id);
+  if(existing){
+    existing.name=name; existing.position=position; existing.email=email; existing.phone=phone;
+  } else {
+    state.employees.push({id,name,position,email,phone});
+  }
+  save(); closeEmployeeModal(); renderEmployees();
 });
-function deleteEmployee(id){ if(confirm('Delete employee?')){ state.employees=state.employees.filter(e=>e.id!==id); save(); }}
 
 /* ===========================
-   SUPPLIERS
+   SUPPLIERS FUNCTIONS
 =========================== */
 function renderSuppliers(){
   const tbody=document.querySelector('#suppliersTable tbody'); tbody.innerHTML='';
   state.suppliers.forEach(sup=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${sup.name}</td><td>${sup.contact}</td><td>${sup.email}</td>
-      <td>
-        <button class="btn btn-danger small" onclick="deleteSupplier('${sup.id}')">Delete</button>
-      </td>`;
+    tr.innerHTML=`
+      <td>${sup.name}</td>
+      <td>${sup.contact||''}</td>
+      <td>${sup.email||''}</td>
+      <td></td>`;
     tbody.appendChild(tr);
   });
 }
-function openSupplierModal(){document.getElementById('supplierForm').reset(); document.getElementById('supplierModal').style.display='flex';}
+
+function openSupplierModal(supId){
+  const form=document.getElementById('supplierForm'); form.reset();
+  if(supId){
+    const sup=state.suppliers.find(s=>s.id===supId);
+    if(sup){
+      document.getElementById('supplierId').value=sup.id;
+      document.getElementById('supplierName').value=sup.name;
+      document.getElementById('supplierContact').value=sup.contact;
+      document.getElementById('supplierEmail').value=sup.email;
+    }
+  }
+  document.getElementById('supplierModal').style.display='flex';
+}
+
 function closeSupplierModal(){document.getElementById('supplierModal').style.display='none';}
-document.getElementById('supplierForm').addEventListener('submit',e=>{
+
+document.getElementById('supplierForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const sup={id:idf(),name:document.getElementById('supplierName').value,contact:document.getElementById('supplierContact').value,email:document.getElementById('supplierEmail').value};
-  state.suppliers.push(sup); save(); closeSupplierModal();
+  const id=document.getElementById('supplierId').value||idf();
+  const name=document.getElementById('supplierName').value;
+  const contact=document.getElementById('supplierContact').value;
+  const email=document.getElementById('supplierEmail').value;
+  const existing=state.suppliers.find(s=>s.id===id);
+  if(existing){
+    existing.name=name; existing.contact=contact; existing.email=email;
+  } else {
+    state.suppliers.push({id,name,contact,email});
+  }
+  save(); closeSupplierModal(); renderSuppliers();
 });
-function deleteSupplier(id){ if(confirm('Delete supplier?')){ state.suppliers=state.suppliers.filter(s=>s.id!==id); save(); }}
 
 /* ===========================
-   EXPENSES
+   SETTINGS / COMPANY DETAILS
 =========================== */
-function renderExpenses(){
-  const tbody=document.querySelector('#expensesTable tbody'); tbody.innerHTML='';
-  let total=0;
-  state.expenses.forEach(exp=>{
-    total+=Number(exp.amount);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${exp.date}</td><td>${exp.category}</td><td>${exp.desc}</td><td>${fmt(exp.amount)}</td><td>${exp.paidBy||''}</td><td>${exp.notes||''}</td>
-      <td><button class="btn btn-danger small" onclick="deleteExpense('${exp.id}')">Delete</button></td>`;
-    tbody.appendChild(tr);
-  });
-  document.getElementById('expenseTotal').innerText='Total: '+fmt(total);
+function populateSettings(){
+  const user=currentUser();
+  const adminArea=document.getElementById('settingsAdminArea');
+  if(!user || user.role!=='admin'){ adminArea.innerHTML='<p>Only admin can manage users and company details.</p>'; return; }
+
+  adminArea.innerHTML=`
+    <h3>Company Details</h3>
+    <label>Name: <input id="companyName" value="${state.company.name}"></label><br>
+    <label>Location: <input id="companyLocation" value="${state.company.location}"></label><br>
+    <label>PO Box: <input id="companyPOBox" value="${state.company.POBox}"></label><br>
+    <label>Email: <input id="companyEmail" value="${state.company.email}"></label><br>
+    <label>Phone: <input id="companyPhone" value="${state.company.phone}"></label><br>
+    <button class="btn btn-primary" onclick="saveCompanyDetails()">Save Company Details</button>
+    <h3>Manage Users</h3>
+    <button class="btn btn-primary" onclick="openUserModal()">+ Add User</button>
+    <div id="usersList"></div>
+  `;
+  renderUsers();
 }
-function openExpenseModal(){document.getElementById('expenseForm').reset(); document.getElementById('expenseModal').style.display='flex';}
-function closeExpenseModal(){document.getElementById('expenseModal').style.display='none';}
-document.getElementById('expenseForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const exp={id:idf(),date:document.getElementById('expenseDate').value,category:document.getElementById('expenseCategory').value,desc:document.getElementById('expenseDesc').value,amount:Number(document.getElementById('expenseAmount').value)};
-  state.expenses.push(exp); save(); closeExpenseModal();
-});
-function deleteExpense(id){ if(confirm('Delete expense?')){ state.expenses=state.expenses.filter(e=>e.id!==id); save(); }}
+
+function saveCompanyDetails(){
+  state.company.name=document.getElementById('companyName').value;
+  state.company.location=document.getElementById('companyLocation').value;
+  state.company.POBox=document.getElementById('companyPOBox').value;
+  state.company.email=document.getElementById('companyEmail').value;
+  state.company.phone=document.getElementById('companyPhone').value;
+  save();
+  alert('Company details saved.');
+}
 
 /* ===========================
-   USER MANAGEMENT (Admin only)
+   USERS MANAGEMENT
 =========================== */
-function openUserModal(){document.getElementById('userForm').reset(); document.getElementById('userModal').style.display='flex'; renderUsersList();}
-function closeUserModal(){document.getElementById('userModal').style.display='none';}
-document.getElementById('userForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const id=document.getElementById('userId').value||idf();
-  const existing=state.users.find(u=>u.id===id);
-  const userData={id,username:document.getElementById('userName').value,password:document.getElementById('userPass').value,role:document.getElementById('userRole').value,canViewRecords:document.getElementById('userCanViewRecords').checked,canCreateSales:document.getElementById('userCanCreateSales').checked};
-  if(existing){Object.assign(existing,userData);} else{state.users.push(userData);}
-  save(); renderUsersList(); document.getElementById('userForm').reset();
-});
-function renderUsersList(){
+function renderUsers(){
   const list=document.getElementById('usersList'); list.innerHTML='';
   state.users.forEach(u=>{
-    const div=document.createElement('div'); div.style.marginBottom='4px';
-    div.innerHTML=`${u.username} (${u.role}) 
-      <button class="btn btn-danger small" onclick="deleteUser('${u.id}')">Delete</button>`;
+    const div=document.createElement('div');
+    div.innerHTML=`${u.username} (${u.role}) - <button class="btn btn-secondary" onclick="editUser('${u.id}')">Edit</button>`;
     list.appendChild(div);
   });
 }
-function deleteUser(id){ if(confirm('Delete user?')){ state.users=state.users.filter(u=>u.id!==id); save(); renderUsersList(); }}
 
-/* ===========================
-   PRINT WITH COMPANY INFO
-=========================== */
-function printSale(id){
-  const sale=state.sales.find(s=>s.id===id); if(!sale) return;
-  const items=sale.items.map(i=>`${i.name} x${i.qty} @ ${fmt(i.price)} = ${fmt(i.qty*i.price)}`).join('<br>');
-  const content=`<h2>${state.company.name}</h2><p>${state.company.location}<br>PO Box: ${state.company.pobox}<br>Email: ${state.company.email}<br>Phone: ${state.company.phone}</p>
-    <h3>Sale Receipt</h3><p>Date: ${sale.date}<br>Customer: ${sale.customer}</p>
-    <p>${items}</p>
-    <p>Total: ${fmt(sale.total)}</p>`;
-  const w=window.open(); w.document.write(content); w.document.close(); w.print();
+function openUserModal(){
+  document.getElementById('userForm').reset();
+  document.getElementById('userModal').style.display='flex';
 }
 
-function printDeposit(id){
-  const dep=state.deposits.find(d=>d.id===id); if(!dep) return;
-  const content=`<h2>${state.company.name}</h2><p>${state.company.location}<br>PO Box: ${state.company.pobox}<br>Email: ${state.company.email}<br>Phone: ${state.company.phone}</p>
-    <h3>Deposit Receipt</h3>
-    <p>Date: ${dep.date}<br>Client: ${dep.client}<br>Item: ${dep.item}</p>
-    <p>Initial: ${fmt(dep.initial)}<br>Deposit: ${fmt(dep.amount)}<br>Remaining: ${fmt(dep.remaining)}</p>`;
-  const w=window.open(); w.document.write(content); w.document.close(); w.print();
-}
+function closeUserModal(){document.getElementById('userModal').style.display='none';}
 
-/* ===========================
-   INITIAL RENDER
-=========================== */
-function renderAll(){
-  renderSales(); renderInventory(); renderDeposits(); renderExpenses(); renderEmployees(); renderSuppliers(); renderSettings();
-}
-requireAuthOrRedirect(); renderAll();
-</script>
-<script>
-/* ===========================
-   SALES + INVENTORY INTEGRATION
-=========================== */
-
-// Update sale total in modal
-function updateSaleTotal(){
-  const itemsDiv = document.getElementById('saleItems');
-  let total=0;
-  Array.from(itemsDiv.children).forEach(div=>{
-    const qty = Number(div.querySelector('input[type="number"]').value);
-    const price = Number(div.querySelector('input[placeholder="Price"]').value);
-    total += qty*price;
-  });
-  // Apply discount flat
-  const discountFlat = Number(document.getElementById('saleDiscount').value||0);
-  // Apply discount %
-  const discountPct = Number(document.getElementById('saleDiscountPct').value||0);
-  total = total - discountFlat;
-  total = total - (total * (discountPct/100));
-  document.getElementById('saleTotalDisplay').innerText = 'Total: '+fmt(total);
-}
-
-// Save sale and reduce inventory
-document.getElementById('saleForm').addEventListener('submit', e=>{
+document.getElementById('userForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const customer = document.getElementById('customerName').value;
-  const itemsDiv = document.getElementById('saleItems');
-  const items=[];
-  let canSave=true;
-  
-  Array.from(itemsDiv.children).forEach(div=>{
-    const select = div.querySelector('select');
-    const itemObj = state.inventory.find(i=>i.id===select.value);
-    const qty = Number(div.querySelector('input[type="number"]').value);
-    const price = Number(div.querySelector('input[placeholder="Price"]').value);
-    
-    if(itemObj.qty<qty){
-      alert(`Not enough stock for ${itemObj.name}. Available: ${itemObj.qty}`);
-      canSave=false;
-      return;
-    }
-    
-    items.push({id:itemObj.id,name:itemObj.name,qty,price});
-  });
-  if(!canSave) return;
+  const id=document.getElementById('userId').value||idf();
+  const username=document.getElementById('userName').value;
+  const password=document.getElementById('userPass').value||'123456';
+  const role=document.getElementById('userRole').value;
+  const canViewRecords=document.getElementById('userCanViewRecords').checked;
+  const canCreateSales=document.getElementById('userCanCreateSales').checked;
 
-  // calculate total
-  let total=0; items.forEach(i=>total+=i.qty*i.price);
-  const discountFlat = Number(document.getElementById('saleDiscount').value||0);
-  const discountPct = Number(document.getElementById('saleDiscountPct').value||0);
-  total = total - discountFlat;
-  total = total - (total*(discountPct/100));
-
-  // reduce inventory
-  items.forEach(i=>{
-    const inv = state.inventory.find(inv=>inv.id===i.id);
-    if(inv) inv.qty -= i.qty;
-  });
-
-  // save sale
-  state.sales.push({id:idf(),date:new Date().toLocaleDateString(),customer,items,total});
-  save(); closeSaleModal(); renderAll();
+  const existing=state.users.find(u=>u.id===id);
+  if(existing){
+    existing.username=username; existing.password=password; existing.role=role;
+    existing.canViewRecords=canViewRecords; existing.canCreateSales=canCreateSales;
+  } else {
+    state.users.push({id,username,password,role,canViewRecords,canCreateSales});
+  }
+  save(); closeUserModal(); renderUsers();
 });
-</script>
 
-</script>
-</body>
-</html>
+function editUser(id){
+  const user=state.users.find(u=>u.id===id);
+  if(!user) return;
+  document.getElementById('userId').value=user.id;
+  document.getElementById('userName').value=user.username;
+  document.getElementById('userPass').value=user.password;
+  document.getElementById('userRole').value=user.role;
+  document.getElementById('userCanViewRecords').checked=user.canViewRecords;
+  document.getElementById('userCanCreateSales').checked=user.canCreateSales;
+  openUserModal();
+}
 
+/* ===========================
+   INIT
+=========================== */
+requireAuthOrRedirect();
+renderAll();
+</script>
