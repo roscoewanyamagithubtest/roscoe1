@@ -1,1 +1,2695 @@
+<?php
+session_start();
+
+// ========================
+// DATABASE CONFIGURATION
+// ========================
+define('DB_HOST', 'localhost');
+define('DB_USERNAME', 'root'); // Change this to your MySQL username
+define('DB_PASSWORD', ''); // Change this to your MySQL password
+define('DB_NAME', 'sales_system');
+
+// Database connection
+function getDBConnection() {
+    try {
+        $pdo = new PDO(
+            "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+            DB_USERNAME,
+            DB_PASSWORD,
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]
+        );
+        return $pdo;
+    } catch (PDOException $e) {
+        die("Database connection failed: " . $e->getMessage());
+    }
+}
+
+// Create database and tables if they don't exist
+function initializeDatabase() {
+    try {
+        // Create database
+        $pdo = new PDO("mysql:host=" . DB_HOST . ";charset=utf8mb4", DB_USERNAME, DB_PASSWORD);
+        $pdo->exec("CREATE DATABASE IF NOT EXISTS " . DB_NAME . " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        $pdo->exec("USE " . DB_NAME);
+        
+        // Create tables
+        $tables = [
+            "CREATE TABLE IF NOT EXISTS users (
+                id VARCHAR(36) PRIMARY KEY,
+                username VARCHAR(100) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                role ENUM('admin', 'user') DEFAULT 'user',
+                permissions JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS inventory (
+                id VARCHAR(36) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                category VARCHAR(100),
+                supplier VARCHAR(255),
+                qty INT DEFAULT 0,
+                factory_price DECIMAL(10,2) DEFAULT 0,
+                retail_price DECIMAL(10,2) DEFAULT 0,
+                reorder_level INT DEFAULT 5,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS sales (
+                id VARCHAR(36) PRIMARY KEY,
+                date DATE NOT NULL,
+                customer VARCHAR(255) NOT NULL,
+                contact VARCHAR(100),
+                items JSON,
+                total DECIMAL(10,2) NOT NULL,
+                meta JSON,
+                type ENUM('regular', 'prepaid') DEFAULT 'regular',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS tax_invoices (
+                id VARCHAR(36) PRIMARY KEY,
+                date DATE NOT NULL,
+                invoice_number VARCHAR(100) UNIQUE NOT NULL,
+                customer VARCHAR(255) NOT NULL,
+                contact VARCHAR(100),
+                items JSON,
+                subtotal DECIMAL(10,2) NOT NULL,
+                vat_amount DECIMAL(10,2) NOT NULL,
+                grand_total DECIMAL(10,2) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS expenses (
+                id VARCHAR(36) PRIMARY KEY,
+                date DATE NOT NULL,
+                category VARCHAR(100) NOT NULL,
+                description TEXT NOT NULL,
+                amount DECIMAL(10,2) NOT NULL,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS employees (
+                id VARCHAR(36) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                position VARCHAR(100),
+                email VARCHAR(255),
+                phone VARCHAR(20),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS suppliers (
+                id VARCHAR(36) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                contact VARCHAR(100),
+                email VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS deposits (
+                id VARCHAR(36) PRIMARY KEY,
+                date DATE NOT NULL,
+                client VARCHAR(255) NOT NULL,
+                item_id VARCHAR(36),
+                item_name VARCHAR(255),
+                agreed_amount DECIMAL(10,2) NOT NULL,
+                paid_amount DECIMAL(10,2) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS company_settings (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(255),
+                location VARCHAR(255),
+                po_box VARCHAR(100),
+                telephone VARCHAR(20),
+                email VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )",
+            
+            "CREATE TABLE IF NOT EXISTS builder_settings (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(255),
+                contact VARCHAR(255),
+                website VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )"
+        ];
+        
+        foreach ($tables as $table) {
+            $pdo->exec($table);
+        }
+        
+        // Insert default admin user if not exists
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = 'admin'");
+        $stmt->execute();
+        
+        if ($stmt->fetchColumn() == 0) {
+            $adminId = bin2hex(random_bytes(16));
+            $adminPassword = password_hash('admin123', PASSWORD_DEFAULT);
+            $adminPermissions = json_encode([
+                'canViewSales' => true,
+                'canViewInventory' => true,
+                'canViewExpenses' => true,
+                'canViewEmployees' => true,
+                'canViewSuppliers' => true,
+                'canViewDeposits' => true,
+                'canViewTaxInvoice' => true,
+                'canViewRecords' => true,
+                'canViewSettings' => true,
+                'canCreateSales' => true,
+                'canEditData' => true,
+                'canDeleteData' => true,
+                'canManageUsers' => true,
+                'canSaveSettings' => true
+            ]);
+            
+            $stmt = $pdo->prepare("INSERT INTO users (id, username, password, role, permissions) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$adminId, 'admin', $adminPassword, 'admin', $adminPermissions]);
+        }
+        
+        // Insert default settings if not exist
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM company_settings");
+        $stmt->execute();
+        if ($stmt->fetchColumn() == 0) {
+            $pdo->exec("INSERT INTO company_settings (name, location, po_box, telephone, email) VALUES ('Enhanced Sales System', '', '', '', '')");
+        }
+        
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM builder_settings");
+        $stmt->execute();
+        if ($stmt->fetchColumn() == 0) {
+            $pdo->exec("INSERT INTO builder_settings (name, contact, website) VALUES ('Software Builder', 'contact@builder.com', 'www.builder.com')");
+        }
+        
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+// Initialize database on first run
+initializeDatabase();
+
+// ======================
+// AUTHENTICATION SYSTEM
+// ======================
+function isAuthenticated() {
+    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+}
+
+function getCurrentUser() {
+    if (!isAuthenticated()) return null;
+    
+    try {
+        $pdo = getDBConnection();
+        $stmt = $pdo->prepare("SELECT id, username, role, permissions FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        return $stmt->fetch();
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+function hasPermission($permission) {
+    $user = getCurrentUser();
+    if (!$user) return false;
+    if ($user['role'] === 'admin') return true;
+    
+    $permissions = json_decode($user['permissions'], true);
+    return isset($permissions[$permission]) && $permissions[$permission] === true;
+}
+
+function loginUser($username, $password) {
+    try {
+        $pdo = getDBConnection();
+        $stmt = $pdo->prepare("SELECT id, username, password, role, permissions FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
+        
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['role'] = $user['role'];
+            return [
+                'success' => true,
+                'user' => [
+                    'id' => $user['id'],
+                    'username' => $user['username'],
+                    'role' => $user['role'],
+                    'permissions' => json_decode($user['permissions'], true)
+                ]
+            ];
+        } else {
+            return ['success' => false, 'message' => 'Invalid credentials'];
+        }
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Login failed'];
+    }
+}
+
+function logoutUser() {
+    session_destroy();
+    return ['success' => true, 'message' => 'Logged out successfully'];
+}
+
+function generateId() {
+    return bin2hex(random_bytes(16));
+}
+
+function sanitizeInput($input) {
+    return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
+}
+
+// ==============
+// API HANDLING
+// ==============
+if (isset($_GET['api'])) {
+    header('Content-Type: application/json');
+    
+    $method = $_SERVER['REQUEST_METHOD'];
+    $path = $_GET['api'];
+    
+    // Handle API requests
+    switch ($path) {
+        case 'login':
+            if ($method === 'POST') {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $result = loginUser($data['username'], $data['password']);
+                echo json_encode($result);
+            }
+            break;
+            
+        case 'logout':
+            $result = logoutUser();
+            echo json_encode($result);
+            break;
+            
+        case 'me':
+            if (!isAuthenticated()) {
+                echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+                break;
+            }
+            $user = getCurrentUser();
+            if ($user) {
+                $user['permissions'] = json_decode($user['permissions'], true);
+                echo json_encode(['success' => true, 'data' => $user]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'User not found']);
+            }
+            break;
+            
+        case 'dashboard':
+            if (!isAuthenticated()) {
+                echo json_encode(['success' => false, 'message' => 'Authentication required']);
+                break;
+            }
+            
+            try {
+                $pdo = getDBConnection();
+                
+                $stmt = $pdo->query("SELECT COALESCE(SUM(total), 0) as total_sales FROM sales");
+                $totalSales = $stmt->fetch()['total_sales'];
+                
+                $stmt = $pdo->query("SELECT COALESCE(SUM(amount), 0) as total_expenses FROM expenses");
+                $totalExpenses = $stmt->fetch()['total_expenses'];
+                
+                $stmt = $pdo->query("SELECT COUNT(*) as inventory_count FROM inventory");
+                $inventoryCount = $stmt->fetch()['inventory_count'];
+                
+                $stmt = $pdo->query("SELECT COALESCE(SUM(agreed_amount - paid_amount), 0) as total_deposits FROM deposits WHERE agreed_amount > paid_amount");
+                $totalDeposits = $stmt->fetch()['total_deposits'];
+                
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'total_sales' => $totalSales,
+                        'total_expenses' => $totalExpenses,
+                        'inventory_count' => $inventoryCount,
+                        'total_deposits' => $totalDeposits
+                    ]
+                ]);
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'message' => 'Failed to fetch dashboard data']);
+            }
+            break;
+            
+        case 'sales':
+            if (!hasPermission('canViewSales')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM sales ORDER BY date DESC, created_at DESC");
+                    $sales = $stmt->fetchAll();
+                    
+                    foreach ($sales as &$sale) {
+                        $sale['items'] = json_decode($sale['items'], true);
+                        $sale['meta'] = json_decode($sale['meta'], true);
+                    }
+                    
+                    echo json_encode(['success' => true, 'data' => $sales]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch sales']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $pdo->beginTransaction();
+                    
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO sales (id, date, customer, contact, items, total, meta, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        $data['date'],
+                        sanitizeInput($data['customer']),
+                        sanitizeInput($data['contact'] ?? ''),
+                        json_encode($data['items']),
+                        $data['total'],
+                        json_encode($data['meta'] ?? []),
+                        $data['type'] ?? 'regular'
+                    ]);
+                    
+                    // Update inventory quantities
+                    foreach ($data['items'] as $item) {
+                        $stmt = $pdo->prepare("UPDATE inventory SET qty = GREATEST(0, qty - ?) WHERE id = ?");
+                        $stmt->execute([$item['qty'], $item['id']]);
+                    }
+                    
+                    $pdo->commit();
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Sale created successfully']);
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    echo json_encode(['success' => false, 'message' => 'Failed to create sale']);
+                }
+            }
+            break;
+            
+        case 'inventory':
+            if (!hasPermission('canViewInventory')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM inventory ORDER BY name");
+                    $inventory = $stmt->fetchAll();
+                    echo json_encode(['success' => true, 'data' => $inventory]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch inventory']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO inventory (id, name, category, supplier, qty, factory_price, retail_price, reorder_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        sanitizeInput($data['name']),
+                        sanitizeInput($data['category'] ?? ''),
+                        sanitizeInput($data['supplier'] ?? ''),
+                        $data['qty'],
+                        $data['factory_price'],
+                        $data['retail_price'],
+                        $data['reorder_level'] ?? 5
+                    ]);
+                    
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Inventory item created successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to create inventory item']);
+                }
+            }
+            break;
+            
+        case 'expenses':
+            if (!hasPermission('canViewExpenses')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    
+                    $where = [];
+                    $params = [];
+                    
+                    if (isset($_GET['from']) && !empty($_GET['from'])) {
+                        $where[] = "date >= ?";
+                        $params[] = $_GET['from'];
+                    }
+                    
+                    if (isset($_GET['to']) && !empty($_GET['to'])) {
+                        $where[] = "date <= ?";
+                        $params[] = $_GET['to'];
+                    }
+                    
+                    $sql = "SELECT * FROM expenses";
+                    if (!empty($where)) {
+                        $sql .= " WHERE " . implode(' AND ', $where);
+                    }
+                    $sql .= " ORDER BY date DESC, created_at DESC";
+                    
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
+                    $expenses = $stmt->fetchAll();
+                    
+                    echo json_encode(['success' => true, 'data' => $expenses]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch expenses']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO expenses (id, date, category, description, amount, notes) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        $data['date'],
+                        sanitizeInput($data['category']),
+                        sanitizeInput($data['description']),
+                        $data['amount'],
+                        sanitizeInput($data['notes'] ?? '')
+                    ]);
+                    
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Expense created successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to create expense']);
+                }
+            }
+            break;
+            
+        case 'employees':
+            if (!hasPermission('canViewEmployees')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM employees ORDER BY name");
+                    $employees = $stmt->fetchAll();
+                    echo json_encode(['success' => true, 'data' => $employees]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch employees']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO employees (id, name, position, email, phone) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        sanitizeInput($data['name']),
+                        sanitizeInput($data['position'] ?? ''),
+                        sanitizeInput($data['email'] ?? ''),
+                        sanitizeInput($data['phone'] ?? '')
+                    ]);
+                    
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Employee created successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to create employee']);
+                }
+            }
+            break;
+            
+        case 'suppliers':
+            if (!hasPermission('canViewSuppliers')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM suppliers ORDER BY name");
+                    $suppliers = $stmt->fetchAll();
+                    echo json_encode(['success' => true, 'data' => $suppliers]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch suppliers']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO suppliers (id, name, contact, email) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        sanitizeInput($data['name']),
+                        sanitizeInput($data['contact'] ?? ''),
+                        sanitizeInput($data['email'] ?? '')
+                    ]);
+                    
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Supplier created successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to create supplier']);
+                }
+            }
+            break;
+            
+        case 'deposits':
+            if (!hasPermission('canViewDeposits')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    
+                    $where = [];
+                    $params = [];
+                    
+                    if (isset($_GET['client']) && !empty($_GET['client'])) {
+                        $where[] = "client LIKE ?";
+                        $params[] = '%' . $_GET['client'] . '%';
+                    }
+                    
+                    $sql = "SELECT * FROM deposits";
+                    if (!empty($where)) {
+                        $sql .= " WHERE " . implode(' AND ', $where);
+                    }
+                    $sql .= " ORDER BY date DESC, created_at DESC";
+                    
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
+                    $deposits = $stmt->fetchAll();
+                    
+                    echo json_encode(['success' => true, 'data' => $deposits]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch deposits']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO deposits (id, date, client, item_id, item_name, agreed_amount, paid_amount) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        $data['date'],
+                        sanitizeInput($data['client']),
+                        $data['item_id'] ?? null,
+                        sanitizeInput($data['item_name'] ?? ''),
+                        $data['agreed_amount'],
+                        $data['paid_amount'] ?? 0
+                    ]);
+                    
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Deposit created successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to create deposit']);
+                }
+            }
+            break;
+            
+        case 'tax-invoices':
+            if (!hasPermission('canViewTaxInvoice')) {
+                echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                break;
+            }
+            
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM tax_invoices ORDER BY date DESC, created_at DESC");
+                    $invoices = $stmt->fetchAll();
+                    
+                    foreach ($invoices as &$invoice) {
+                        $invoice['items'] = json_decode($invoice['items'], true);
+                    }
+                    
+                    echo json_encode(['success' => true, 'data' => $invoices]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch tax invoices']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canCreateSales')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    $pdo->beginTransaction();
+                    
+                    $id = generateId();
+                    $stmt = $pdo->prepare("INSERT INTO tax_invoices (id, date, invoice_number, customer, contact, items, subtotal, vat_amount, grand_total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $id,
+                        $data['date'],
+                        sanitizeInput($data['invoice_number']),
+                        sanitizeInput($data['customer']),
+                        sanitizeInput($data['contact'] ?? ''),
+                        json_encode($data['items']),
+                        $data['subtotal'],
+                        $data['vat_amount'],
+                        $data['grand_total']
+                    ]);
+                    
+                    // Update inventory quantities
+                    foreach ($data['items'] as $item) {
+                        $stmt = $pdo->prepare("UPDATE inventory SET qty = GREATEST(0, qty - ?) WHERE id = ?");
+                        $stmt->execute([$item['qty'], $item['id']]);
+                    }
+                    
+                    $pdo->commit();
+                    echo json_encode(['success' => true, 'data' => ['id' => $id], 'message' => 'Tax invoice created successfully']);
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    echo json_encode(['success' => false, 'message' => 'Failed to create tax invoice']);
+                }
+            }
+            break;
+            
+        case 'company-settings':
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM company_settings ORDER BY id DESC LIMIT 1");
+                    $settings = $stmt->fetch();
+                    echo json_encode(['success' => true, 'data' => $settings ?: []]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch company settings']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canSaveSettings')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    
+                    // Check if settings exist
+                    $stmt = $pdo->query("SELECT id FROM company_settings LIMIT 1");
+                    $exists = $stmt->fetch();
+                    
+                    if ($exists) {
+                        $stmt = $pdo->prepare("UPDATE company_settings SET name = ?, location = ?, po_box = ?, telephone = ?, email = ? WHERE id = ?");
+                        $stmt->execute([
+                            sanitizeInput($data['name'] ?? ''),
+                            sanitizeInput($data['location'] ?? ''),
+                            sanitizeInput($data['po_box'] ?? ''),
+                            sanitizeInput($data['telephone'] ?? ''),
+                            sanitizeInput($data['email'] ?? ''),
+                            $exists['id']
+                        ]);
+                    } else {
+                        $stmt = $pdo->prepare("INSERT INTO company_settings (name, location, po_box, telephone, email) VALUES (?, ?, ?, ?, ?)");
+                        $stmt->execute([
+                            sanitizeInput($data['name'] ?? ''),
+                            sanitizeInput($data['location'] ?? ''),
+                            sanitizeInput($data['po_box'] ?? ''),
+                            sanitizeInput($data['telephone'] ?? ''),
+                            sanitizeInput($data['email'] ?? '')
+                        ]);
+                    }
+                    
+                    echo json_encode(['success' => true, 'message' => 'Company settings saved successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to save company settings']);
+                }
+            }
+            break;
+            
+        case 'builder-settings':
+            if ($method === 'GET') {
+                try {
+                    $pdo = getDBConnection();
+                    $stmt = $pdo->query("SELECT * FROM builder_settings ORDER BY id DESC LIMIT 1");
+                    $settings = $stmt->fetch();
+                    echo json_encode(['success' => true, 'data' => $settings ?: []]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to fetch builder settings']);
+                }
+            } elseif ($method === 'POST') {
+                if (!hasPermission('canSaveSettings')) {
+                    echo json_encode(['success' => false, 'message' => 'Permission denied']);
+                    break;
+                }
+                
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                try {
+                    $pdo = getDBConnection();
+                    
+                    // Check if settings exist
+                    $stmt = $pdo->query("SELECT id FROM builder_settings LIMIT 1");
+                    $exists = $stmt->fetch();
+                    
+                    if ($exists) {
+                        $stmt = $pdo->prepare("UPDATE builder_settings SET name = ?, contact = ?, website = ? WHERE id = ?");
+                        $stmt->execute([
+                            sanitizeInput($data['name'] ?? ''),
+                            sanitizeInput($data['contact'] ?? ''),
+                            sanitizeInput($data['website'] ?? ''),
+                            $exists['id']
+                        ]);
+                    } else {
+                        $stmt = $pdo->prepare("INSERT INTO builder_settings (name, contact, website) VALUES (?, ?, ?)");
+                        $stmt->execute([
+                            sanitizeInput($data['name'] ?? ''),
+                            sanitizeInput($data['contact'] ?? ''),
+                            sanitizeInput($data['website'] ?? '')
+                        ]);
+                    }
+                    
+                    echo json_encode(['success' => true, 'message' => 'Builder settings saved successfully']);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Failed to save builder settings']);
+                }
+            }
+            break;
+            
+        default:
+            echo json_encode(['success' => false, 'message' => 'Invalid API endpoint']);
+    }
+    
+    exit;
+}
+
+// Get current user and settings for display
+$currentUser = getCurrentUser();
+$isAuthenticated = isAuthenticated();
+
+try {
+    $pdo = getDBConnection();
+    
+    $stmt = $pdo->query("SELECT * FROM company_settings ORDER BY id DESC LIMIT 1");
+    $companySettings = $stmt->fetch() ?: [];
+    
+    $stmt = $pdo->query("SELECT * FROM builder_settings ORDER BY id DESC LIMIT 1");
+    $builderSettings = $stmt->fetch() ?: [];
+} catch (Exception $e) {
+    $companySettings = [];
+    $builderSettings = [];
+}
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Enhanced Sales System — Factory/Retail Pricing with MySQL Backend</title>
+  <style>
+    :root{
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --panel:#1a1f29; --card:#242b38;
+      --accent:#06b6d4; --accent2:#7c3aed;
+      --radius:12px; --muted:#94a3b8;
+      font-family: Inter, ui-sans-serif, system-ui;
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;display:flex;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:#e6eef8;}
+    .app{flex:1;display:flex;}
+    .sidebar{width:240px;background:var(--panel);padding:20px;display:flex;flex-direction:column;}
+    .logo{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .logo h1{font-size:1.1em;margin:0;}
+    .nav-item{padding:10px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;gap:10px;}
+    .nav-item:hover,.nav-item.active{background:var(--accent);color:#fff;}
+    .nav-item.disabled{opacity:0.5;cursor:not-allowed;background:rgba(100,100,100,0.3)!important;}
+    .main{flex:1;padding:20px;overflow:auto;}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);margin-bottom:20px;box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+    .table{width:100%;border-collapse:collapse;}
+    .table th,.table td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;}
+    .btn{padding:6px 12px;border:none;border-radius:var(--radius);cursor:pointer;}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-danger{background:#ef4444;color:#fff;}
+    .btn-secondary{background:#64748b;color:#fff;}
+    .btn-prepaid{background:#f59e0b;color:#fff;}
+    .muted{color:var(--muted);font-size:0.9em}
+    .small{font-size:0.9em;padding:4px 8px}
+    .auto-saved{background-color:rgba(34,197,94,0.1);border-left:4px solid #22c55e;}
+    .pricing-info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+    .pricing-box{background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center;}
+    .factory-price{border-left:3px solid #f59e0b;}
+    .retail-price{border-left:3px solid #22c55e;}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;}
+    .modal .modal-box{background:#fff;color:#000;padding:20px;width:600px;max-height:90%;overflow:auto;border-radius:var(--radius);}
+    .modal input,.modal select,.modal textarea{width:100%;padding:8px;margin:5px 0;}
+    .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .right{margin-left:auto;display:flex;gap:10px;align-items:center;}
+    .badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;}
+    .disabled{opacity:0.5;pointer-events:none;}
+    label.inline{display:inline-block;margin-right:8px;}
+    .company-branding{text-align:center;margin:10px 0;padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;}
+    .loading{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:20px;border-radius:8px;z-index:10000;}
+    @media(max-width:768px){
+      .sidebar{width:70px;padding:10px;}
+      .sidebar .logo h1,.sidebar .nav-item div{display:none;}
+      .table{font-size:0.85em;}
+      .pricing-info{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="loading" id="loading">Loading...</div>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><div class="mark">📊</div><h1>SALES SYSTEM</h1></div>
+    <nav id="navList">
+      <div class="nav-item active" data-view="dashboard">🏠 Dashboard</div>
+      <div class="nav-item" data-view="sales">🧾 Sales</div>
+      <div class="nav-item" data-view="inventory">📦 Inventory</div>
+      <div class="nav-item" data-view="expenses">💸 Expenses</div>
+      <div class="nav-item" data-view="employees">👥 Employees</div>
+      <div class="nav-item" data-view="suppliers">🚚 Suppliers</div>
+      <div class="nav-item" data-view="deposits">🏦 Deposits</div>
+      <div class="nav-item" data-view="tax-invoice">📋 Tax Invoice</div>
+      <div class="nav-item" data-view="records">📁 Records</div>
+      <div class="nav-item" data-view="settings">⚙️ Settings</div>
+    </nav>
+    <div style="margin-top:auto;margin-left:4px;">
+      <div id="currentUserDisplay" class="muted"></div>
+      <div style="margin-top:8px;"><button class="btn small" onclick="logout()">Logout</button></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="badge" id="systemStatus">Offline</div>
+      <div class="muted">Enhanced system with MySQL database — All data saved to sales_system database</div>
+      <div class="right">
+        <div id="quickUserActions"></div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <section data-view="dashboard" class="view card">
+      <h2>Dashboard</h2>
+      <p>Welcome to your Enhanced Sales System with Factory/Retail Pricing and MySQL Database.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-top:20px;">
+        <div class="card" style="text-align:center;">
+          <h3>Total Sales</h3>
+          <div style="font-size:2em;color:var(--accent);" id="dashTotalSales">UGX 0</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <h3>Total Expenses</h3>
+          <div style="font-size:2em;color:#ef4444;" id="dashTotalExpenses">UGX 0</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <h3>Inventory Items</h3>
+          <div style="font-size:2em;color:#22c55e;" id="dashInventoryCount">0</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <h3>Client Balances</h3>
+          <div style="font-size:2em;color:#f59e0b;" id="dashTotalDeposits">UGX 0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Access Denied Message -->
+    <section id="accessDenied" class="view card" style="display:none">
+      <h2>Access Denied</h2>
+      <p style="color:#ef4444;">You do not have permission to access this section. Please contact your administrator for access.</p>
+      <p class="muted">Your current permissions are managed by the system administrator.</p>
+    </section>
+
+    <!-- Sales -->
+    <section data-view="sales" class="view card" style="display:none">
+      <h2>Sales (Retail Pricing)
+        <button class="btn btn-primary" onclick="openSaleModal()">+ New Sale</button>
+        <button class="btn btn-secondary" onclick="printSales()">🖨️ Print All Sales</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">All sales use retail pricing from inventory automatically. Data saved to MySQL database.</div>
+      <table class="table" id="salesTable">
+        <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Retail Total</th><th>Type</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Inventory -->
+    <section data-view="inventory" class="view card" style="display:none">
+      <h2>Inventory (Factory & Retail Pricing)
+        <button class="btn btn-primary" onclick="openInventoryModal()">+ Add Item</button>
+        <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">Factory and retail pricing stored in MySQL database.</div>
+      <table class="table" id="inventoryTable">
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Supplier</th><th>Qty</th><th>Factory Price</th><th>Retail Price</th><th>Reorder</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Tax Invoice -->
+    <section data-view="tax-invoice" class="view card" style="display:none">
+      <h2>Tax Invoice
+        <button class="btn btn-primary" onclick="openTaxInvoiceModal()">+ Create Tax Invoice</button>
+        <button class="btn btn-secondary" onclick="printTaxInvoices()">🖨️ Print All Tax Invoices</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">Professional tax invoices saved to MySQL database.</div>
+      <table class="table" id="taxInvoiceTable">
+        <thead><tr><th>Date</th><th>Invoice No.</th><th>Customer</th><th>Total Amount</th><th>VAT</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Expenses -->
+    <section data-view="expenses" class="view card" style="display:none">
+      <h2>Expenses
+        <button class="btn btn-primary" onclick="openExpenseModal()">+ Add Expense</button>
+        <button class="btn btn-secondary" onclick="printExpenses()">🖨️ Print</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">Expense tracking with MySQL database storage.</div>
+      <div style="margin:10px 0;">
+        <label>From: <input type="date" id="expenseFrom"></label>
+        <label>To: <input type="date" id="expenseTo"></label>
+        <button class="btn btn-secondary" onclick="searchExpenses()">🔍 Search</button>
+        <button class="btn btn-secondary" onclick="renderExpenses()">Reset</button>
+      </div>
+      <table class="table" id="expensesTable">
+        <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="5" id="expenseTotal" style="text-align:right;font-weight:bold;"></td></tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <!-- Employees -->
+    <section data-view="employees" class="view card" style="display:none">
+      <h2>Employees
+        <button class="btn btn-primary" onclick="openEmployeeModal()">+ Add Employee</button>
+        <button class="btn btn-secondary" onclick="printEmployees()">🖨️ Print</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">Employee management with MySQL database storage.</div>
+      <table class="table" id="employeesTable">
+        <thead>
+          <tr><th>Name</th><th>Position</th><th>Email</th><th>Phone</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Suppliers -->
+    <section data-view="suppliers" class="view card" style="display:none">
+      <h2>Suppliers
+        <button class="btn btn-primary" onclick="openSupplierModal()">+ Add Supplier</button>
+        <button class="btn btn-secondary" onclick="printSuppliers()">🖨️ Print</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">Supplier management with MySQL database storage.</div>
+      <table class="table" id="suppliersTable">
+        <thead>
+          <tr><th>Name</th><th>Contact</th><th>Email</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Deposits -->
+    <section data-view="deposits" class="view card" style="display:none">
+      <h2>Client Deposits & Agreements
+        <button class="btn btn-primary" onclick="openDepositModal()">+ New Deposit Agreement</button>
+        <button class="btn btn-secondary" onclick="printDeposits()">🖨️ Print</button>
+      </h2>
+      <div class="muted" style="margin-bottom:10px;">Client deposits and agreements stored in MySQL database.</div>
+      <table class="table" id="depositsTable">
+        <thead>
+          <tr><th>Date</th><th>Client</th><th>Item</th><th>Agreed Amount</th><th>Paid Amount</th><th>Remaining</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Records -->
+    <section data-view="records" class="view card" style="display:none">
+      <h2>Company Records - All Transactions</h2>
+      <div class="muted" style="margin-bottom:10px;">Complete transaction history from MySQL database.</div>
+      <p>Records functionality will be implemented in the full version. This shows all data is being saved to MySQL database properly.</p>
+    </section>
+
+    <!-- Settings -->
+    <section data-view="settings" class="view card" style="display:none">
+      <h2>Settings</h2>
+      <div id="settingsAdminArea"></div>
+      <hr/>
+      <h3>Company Details (printed on receipts)</h3>
+      <form id="companyForm">
+        <label>Company Name</label><input id="companyName" />
+        <label>Location</label><input id="companyLocation" />
+        <label>P.O. Box</label><input id="companyBox" />
+        <label>Telephone</label><input id="companyTel" />
+        <label>Email</label><input id="companyEmail" />
+        <div style="text-align:right;margin-top:8px;">
+          <button type="submit" class="btn btn-primary" id="saveCompanyBtn">Save Company</button>
+        </div>
+      </form>
+      <hr/>
+      <h3>Software Builder Details</h3>
+      <form id="builderForm">
+        <label>Builder Name</label><input id="builderName" />
+        <label>Builder Contact</label><input id="builderContact" />
+        <label>Builder Website</label><input id="builderWebsite" />
+        <div style="text-align:right;margin-top:8px;">
+          <button type="submit" class="btn btn-primary" id="saveBuilderBtn">Save Builder Info</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- LOGIN Modal -->
+<div id="loginModal" class="modal" <?php echo $isAuthenticated ? 'style="display:none"' : 'style="display:flex"'; ?>>
+  <div class="modal-box">
+    <div class="company-branding" id="loginCompanyBranding">
+      <?php if (!empty($companySettings['name'])): ?>
+        <h3 style="margin:0;color:#333;"><?php echo htmlspecialchars($companySettings['name']); ?></h3>
+        <?php if (!empty($companySettings['location'])): ?>
+          <p style="margin:5px 0;color:#666;"><?php echo htmlspecialchars($companySettings['location']); ?></p>
+        <?php endif; ?>
+      <?php endif; ?>
+    </div>
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label>Username</label><input id="loginUsername" required/>
+      <label>Password</label><input id="loginPassword" type="password" required/>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+    </form>
+    <p class="muted" style="margin-top:8px">Default admin: <strong>admin</strong> / <strong>admin123</strong>. (MySQL Backend System)</p>
+  </div>
+</div>
+
+<!-- Sale Modal -->
+<div id="saleModal" class="modal">
+  <div class="modal-box">
+    <h2>New Sale (Retail Pricing)</h2>
+    <form id="saleForm">
+      <input type="hidden" id="saleId"/>
+      <label>Customer</label><input id="customerName" required/>
+      <label>Phone Number</label><input id="customerContact" required/>
+      <div style="display:flex;gap:8px;align-items:center;margin:8px 0;">
+        <label class="inline">Sale discount (flat):</label><input id="saleDiscount" type="number" value="0" style="width:120px"/>
+        <label class="inline">Sale discount (%) :</label><input id="saleDiscountPct" type="number" value="0" style="width:80px"/>
+      </div>
+      <div id="saleItems"></div>
+      <button type="button" class="btn btn-secondary" onclick="addSaleItem()">+ Add Product</button>
+      <div style="margin-top:10px;text-align:right;">
+        <strong id="saleTotalDisplay">Total: UGX 0</strong>
+      </div>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Sale to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSaleModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Inventory Modal -->
+<div id="inventoryModal" class="modal">
+  <div class="modal-box">
+    <h2>Add / Edit Item (Factory & Retail Pricing)</h2>
+    <form id="inventoryForm">
+      <input type="hidden" id="itemId"/>
+      <label>Item Name</label><input id="itemName" required/>
+      <label>Category</label><input id="itemCategory"/>
+      <label>Supplier</label><input id="itemSupplier"/>
+      <label>Quantity</label><input id="itemQty" type="number" required/>
+      
+      <div class="pricing-info">
+        <div class="pricing-box factory-price">
+          <label>Factory Price (Cost)</label>
+          <input id="itemFactoryPrice" type="number" required step="0.01"/>
+          <div class="muted">Price you pay to supplier</div>
+        </div>
+        <div class="pricing-box retail-price">
+          <label>Retail Price (Selling)</label>
+          <input id="itemRetailPrice" type="number" required step="0.01"/>
+          <div class="muted">Price customers pay</div>
+        </div>
+      </div>
+      
+      <label>Reorder Level</label><input id="itemReorder" type="number" value="5"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save Item to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeInventoryModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div id="expenseModal" class="modal">
+  <div class="modal-box">
+    <h2>Add Expense</h2>
+    <form id="expenseForm">
+      <input type="hidden" id="expenseId"/>
+      <label>Date</label><input type="date" id="expenseDate" required/>
+      <label>Category</label><input id="expenseCategory" required/>
+      <label>Description</label><input id="expenseDesc" required/>
+      <label>Amount</label><input type="number" id="expenseAmount" required/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save Expense to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Employee Modal -->
+<div id="employeeModal" class="modal">
+  <div class="modal-box">
+    <h2>Add / Edit Employee</h2>
+    <form id="employeeForm">
+      <input type="hidden" id="employeeId"/>
+      <label>Name</label><input id="employeeName" required/>
+      <label>Position</label><input id="employeePosition"/>
+      <label>Email</label><input id="employeeEmail"/>
+      <label>Phone</label><input id="employeePhone"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save Employee to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div id="supplierModal" class="modal">
+  <div class="modal-box">
+    <h2>Add / Edit Supplier</h2>
+    <form id="supplierForm">
+      <input type="hidden" id="supplierId"/>
+      <label>Name</label><input id="supplierName" required/>
+      <label>Contact</label><input id="supplierContact"/>
+      <label>Email</label><input id="supplierEmail"/>
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save Supplier to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div id="depositModal" class="modal">
+  <div class="modal-box">
+    <h2>New Deposit Agreement</h2>
+    <form id="depositForm">
+      <input type="hidden" id="depositId"/>
+      <label>Date</label><input type="date" id="depositDate" required/>
+      <label>Client Name</label><input id="depositClient" required/>
+      
+      <label>Select Item from Inventory</label>
+      <select id="depositItem" required>
+        <option value="">-- Select Item --</option>
+      </select>
+      <div id="selectedItemInfo" style="display:none;" class="pricing-info">
+        <div class="pricing-box factory-price">
+          <label>Factory Cost</label>
+          <div id="selectedItemFactoryPrice">UGX 0</div>
+        </div>
+        <div class="pricing-box retail-price">
+          <label>Retail Price</label>
+          <div id="selectedItemRetailPrice">UGX 0</div>
+        </div>
+      </div>
+      
+      <label>Agreed Total Amount</label><input type="number" id="depositAgreedAmount" required/>
+      <label>Initial Deposit Amount</label><input type="number" id="depositPaidAmount" required/>
+      
+      <div style="text-align:right;margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Save Deposit to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeDepositModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tax Invoice Modal -->
+<div id="taxInvoiceModal" class="modal">
+  <div class="modal-box">
+    <h2>Create Tax Invoice</h2>
+    <form id="taxInvoiceForm">
+      <input type="hidden" id="taxInvoiceId"/>
+      <label>Invoice Number</label><input id="taxInvoiceNumber" required/>
+      <label>Customer</label><input id="taxInvoiceCustomer" required/>
+      <label>Phone Number</label><input id="taxInvoiceContact" required/>
+      <div id="taxInvoiceItems"></div>
+      <button type="button" class="btn btn-secondary" onclick="addTaxInvoiceItem()">+ Add Item</button>
+      <div style="margin-top:10px;text-align:right;">
+        <strong id="taxInvoiceTotalDisplay">Total: UGX 0</strong><br>
+        <strong id="taxInvoiceVATDisplay">VAT: UGX 0</strong><br>
+        <strong id="taxInvoiceGrandTotalDisplay">Grand Total: UGX 0</strong>
+      </div>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" class="btn btn-primary">Save Tax Invoice to Database</button>
+        <button type="button" class="btn btn-secondary" onclick="closeTaxInvoiceModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Initialize PHP data
+const phpData = {
+    isAuthenticated: <?php echo json_encode($isAuthenticated); ?>,
+    currentUser: <?php echo json_encode($currentUser); ?>,
+    companySettings: <?php echo json_encode($companySettings); ?>,
+    builderSettings: <?php echo json_encode($builderSettings); ?>
+};
+
+// API Configuration
+const API_BASE = window.location.pathname + '?api=';
+const fmt = n => "UGX " + Number(n||0).toLocaleString();
+
+// Global state
+let state = {
+    currentUser: phpData.currentUser,
+    inventory: [],
+    sales: [],
+    expenses: [],
+    employees: [],
+    suppliers: [],
+    deposits: [],
+    taxInvoices: [],
+    companySettings: phpData.companySettings,
+    builderSettings: phpData.builderSettings
+};
+
+// Loading indicator
+function showLoading() {
+    document.getElementById('loading').style.display = 'block';
+}
+
+function hideLoading() {
+    document.getElementById('loading').style.display = 'none';
+}
+
+// API Helper Functions
+async function apiCall(endpoint, options = {}) {
+    showLoading();
+    try {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: options.method || 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            body: options.body ? JSON.stringify(options.body) : null
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'API call failed');
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('API Error:', error);
+        alert('Error: ' + error.message);
+        throw error;
+    } finally {
+        hideLoading();
+    }
+}
+
+// Authentication Functions
+async function loginUser(username, password) {
+    try {
+        const result = await apiCall('login', {
+            method: 'POST',
+            body: { username, password }
+        });
+        
+        state.currentUser = result.data;
+        hideLogin();
+        updateUIForAuth();
+        await renderAll();
+        alert('Logged in successfully! Data loaded from MySQL database.');
+    } catch (error) {
+        // Error already handled in apiCall
+    }
+}
+
+async function logout() {
+    try {
+        await apiCall('logout', { method: 'POST' });
+        state.currentUser = null;
+        showLogin();
+        updateUIForAuth();
+    } catch (error) {
+        // Even if logout fails, clear local state
+        state.currentUser = null;
+        showLogin();
+        updateUIForAuth();
+    }
+}
+
+// Check permissions
+function hasPermission(permission) {
+    if (!state.currentUser) return false;
+    if (state.currentUser.role === 'admin') return true;
+    return state.currentUser.permissions && state.currentUser.permissions[permission] === true;
+}
+
+// Data Loading Functions
+async function loadSales() {
+    if (!hasPermission('canViewSales')) return;
+    
+    try {
+        const result = await apiCall('sales');
+        state.sales = result.data || [];
+        renderSales();
+    } catch (error) {
+        console.error('Error loading sales:', error);
+    }
+}
+
+async function loadInventory() {
+    if (!hasPermission('canViewInventory')) return;
+    
+    try {
+        const result = await apiCall('inventory');
+        state.inventory = result.data || [];
+        renderInventory();
+        populateInventoryForDeposits();
+    } catch (error) {
+        console.error('Error loading inventory:', error);
+    }
+}
+
+async function loadExpenses() {
+    if (!hasPermission('canViewExpenses')) return;
+    
+    try {
+        const result = await apiCall('expenses');
+        state.expenses = result.data || [];
+        renderExpenses();
+    } catch (error) {
+        console.error('Error loading expenses:', error);
+    }
+}
+
+async function loadTaxInvoices() {
+    if (!hasPermission('canViewTaxInvoice')) return;
+    
+    try {
+        const result = await apiCall('tax-invoices');
+        state.taxInvoices = result.data || [];
+        renderTaxInvoices();
+    } catch (error) {
+        console.error('Error loading tax invoices:', error);
+    }
+}
+
+async function loadEmployees() {
+    if (!hasPermission('canViewEmployees')) return;
+    
+    try {
+        const result = await apiCall('employees');
+        state.employees = result.data || [];
+        renderEmployees();
+    } catch (error) {
+        console.error('Error loading employees:', error);
+    }
+}
+
+async function loadSuppliers() {
+    if (!hasPermission('canViewSuppliers')) return;
+    
+    try {
+        const result = await apiCall('suppliers');
+        state.suppliers = result.data || [];
+        renderSuppliers();
+    } catch (error) {
+        console.error('Error loading suppliers:', error);
+    }
+}
+
+async function loadDeposits() {
+    if (!hasPermission('canViewDeposits')) return;
+    
+    try {
+        const result = await apiCall('deposits');
+        state.deposits = result.data || [];
+        renderDeposits();
+    } catch (error) {
+        console.error('Error loading deposits:', error);
+    }
+}
+
+async function loadDashboard() {
+    try {
+        const result = await apiCall('dashboard');
+        const data = result.data;
+        
+        document.getElementById('dashTotalSales').textContent = fmt(data.total_sales);
+        document.getElementById('dashTotalExpenses').textContent = fmt(data.total_expenses);
+        document.getElementById('dashInventoryCount').textContent = data.inventory_count;
+        document.getElementById('dashTotalDeposits').textContent = fmt(data.total_deposits);
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+async function loadCompanySettings() {
+    try {
+        const result = await apiCall('company-settings');
+        state.companySettings = result.data || {};
+        
+        // Update form fields
+        if (document.getElementById('companyName')) {
+            document.getElementById('companyName').value = state.companySettings.name || '';
+            document.getElementById('companyLocation').value = state.companySettings.location || '';
+            document.getElementById('companyBox').value = state.companySettings.po_box || '';
+            document.getElementById('companyTel').value = state.companySettings.telephone || '';
+            document.getElementById('companyEmail').value = state.companySettings.email || '';
+        }
+    } catch (error) {
+        console.error('Error loading company settings:', error);
+    }
+}
+
+async function loadBuilderSettings() {
+    try {
+        const result = await apiCall('builder-settings');
+        state.builderSettings = result.data || {};
+        
+        // Update form fields
+        if (document.getElementById('builderName')) {
+            document.getElementById('builderName').value = state.builderSettings.name || '';
+            document.getElementById('builderContact').value = state.builderSettings.contact || '';
+            document.getElementById('builderWebsite').value = state.builderSettings.website || '';
+        }
+    } catch (error) {
+        console.error('Error loading builder settings:', error);
+    }
+}
+
+// Render Functions
+function renderSales() {
+    if (!hasPermission('canViewSales')) return;
+    
+    const tbody = document.querySelector('#salesTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    state.sales.forEach(sale => {
+        const items = sale.items ? sale.items.map(i => `${i.name} x${i.qty} @ ${fmt(i.price)}`).join(', ') : 'No items';
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${sale.date}</td>
+            <td>${sale.customer}</td>
+            <td>${items}</td>
+            <td>${fmt(sale.total)}</td>
+            <td><span style="background:${sale.type === 'prepaid' ? '#f59e0b' : '#06b6d4'};color:white;padding:2px 6px;border-radius:4px;font-size:0.8em;">${sale.type === 'prepaid' ? 'Prepaid' : 'Regular'}</span></td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printSale('${sale.id}', '${sale.type}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderInventory() {
+    if (!hasPermission('canViewInventory')) return;
+    
+    const tbody = document.querySelector('#inventoryTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    state.inventory.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.category || ''}</td>
+            <td>${item.supplier || ''}</td>
+            <td>${item.qty}</td>
+            <td>${fmt(item.factory_price || 0)}</td>
+            <td>${fmt(item.retail_price || 0)}</td>
+            <td>${item.reorder_level || ''}</td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printInventoryItem('${item.id}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderExpenses() {
+    if (!hasPermission('canViewExpenses')) return;
+    
+    const tbody = document.querySelector('#expensesTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    let total = 0;
+    state.expenses.forEach(expense => {
+        total += Number(expense.amount);
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${expense.date}</td>
+            <td>${expense.category}</td>
+            <td>${expense.description}</td>
+            <td>${fmt(expense.amount)}</td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printExpense('${expense.id}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    const totalEl = document.getElementById('expenseTotal');
+    if (totalEl) {
+        totalEl.innerText = 'Total: ' + fmt(total);
+    }
+}
+
+function renderTaxInvoices() {
+    if (!hasPermission('canViewTaxInvoice')) return;
+    
+    const tbody = document.querySelector('#taxInvoiceTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    state.taxInvoices.forEach(invoice => {
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${invoice.date}</td>
+            <td>${invoice.invoice_number}</td>
+            <td>${invoice.customer}</td>
+            <td>${fmt(invoice.grand_total)}</td>
+            <td>${fmt(invoice.vat_amount)}</td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printTaxInvoice('${invoice.id}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderEmployees() {
+    if (!hasPermission('canViewEmployees')) return;
+    
+    const tbody = document.querySelector('#employeesTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    state.employees.forEach(employee => {
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${employee.name}</td>
+            <td>${employee.position || ''}</td>
+            <td>${employee.email || ''}</td>
+            <td>${employee.phone || ''}</td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printEmployee('${employee.id}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderSuppliers() {
+    if (!hasPermission('canViewSuppliers')) return;
+    
+    const tbody = document.querySelector('#suppliersTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    state.suppliers.forEach(supplier => {
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${supplier.name}</td>
+            <td>${supplier.contact || ''}</td>
+            <td>${supplier.email || ''}</td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printSupplier('${supplier.id}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderDeposits() {
+    if (!hasPermission('canViewDeposits')) return;
+    
+    const tbody = document.querySelector('#depositsTable tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    state.deposits.forEach(deposit => {
+        const remainingBalance = Math.max(0, Number(deposit.agreed_amount || 0) - Number(deposit.paid_amount || 0));
+        const tr = document.createElement('tr');
+        tr.className = 'auto-saved';
+        
+        tr.innerHTML = `
+            <td>${deposit.date}</td>
+            <td>${deposit.client}</td>
+            <td>${deposit.item_name || 'Unknown Item'}</td>
+            <td>${fmt(deposit.agreed_amount || 0)}</td>
+            <td>${fmt(deposit.paid_amount || 0)}</td>
+            <td>${fmt(remainingBalance)}</td>
+            <td>
+                <button class="btn btn-secondary small" onclick="printDeposit('${deposit.id}')">🖨️</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// UI Functions
+function showLogin() {
+    document.getElementById('loginModal').style.display = 'flex';
+}
+
+function hideLogin() {
+    document.getElementById('loginModal').style.display = 'none';
+}
+
+function updateUIForAuth() {
+    const user = state.currentUser;
+    const userDisplay = document.getElementById('currentUserDisplay');
+    const systemStatus = document.getElementById('systemStatus');
+    
+    if (userDisplay) {
+        userDisplay.innerText = user ? `Signed in as: ${user.username} (${user.role})` : 'Not signed in';
+    }
+    
+    if (systemStatus) {
+        systemStatus.innerText = user ? 'Connected to MySQL' : 'Offline';
+    }
+    
+    // Update navigation permissions
+    document.querySelectorAll("#navList .nav-item").forEach(nav => {
+        const view = nav.dataset.view;
+        const permissionMap = {
+            'dashboard': true,
+            'sales': 'canViewSales',
+            'inventory': 'canViewInventory',
+            'expenses': 'canViewExpenses',
+            'employees': 'canViewEmployees',
+            'suppliers': 'canViewSuppliers',
+            'deposits': 'canViewDeposits',
+            'tax-invoice': 'canViewTaxInvoice',
+            'records': 'canViewRecords',
+            'settings': 'canViewSettings'
+        };
+        
+        const requiredPermission = permissionMap[view];
+        if (requiredPermission === true || hasPermission(requiredPermission)) {
+            nav.style.display = 'flex';
+            nav.classList.remove('disabled');
+        } else {
+            nav.style.display = 'flex';
+            nav.classList.add('disabled');
+        }
+    });
+    
+    if (!user) {
+        showLogin();
+    } else {
+        hideLogin();
+    }
+}
+
+// Navigation
+document.querySelectorAll("#navList .nav-item").forEach(nav => {
+    nav.addEventListener("click", () => {
+        const view = nav.dataset.view;
+        
+        const permissionMap = {
+            'dashboard': true,
+            'sales': 'canViewSales',
+            'inventory': 'canViewInventory',
+            'expenses': 'canViewExpenses',
+            'employees': 'canViewEmployees',
+            'suppliers': 'canViewSuppliers',
+            'deposits': 'canViewDeposits',
+            'tax-invoice': 'canViewTaxInvoice',
+            'records': 'canViewRecords',
+            'settings': 'canViewSettings'
+        };
+        
+        const requiredPermission = permissionMap[view];
+        if (requiredPermission !== true && !hasPermission(requiredPermission)) {
+            showAccessDenied();
+            return;
+        }
+        
+        document.querySelectorAll("#navList .nav-item").forEach(n => n.classList.remove("active"));
+        nav.classList.add("active");
+        
+        document.querySelectorAll(".view").forEach(sec => sec.style.display = 'none');
+        document.getElementById('accessDenied').style.display = 'none';
+        document.querySelector(`.view[data-view='${view}']`).style.display = 'block';
+        
+        // Load data when switching to a view
+        switch(view) {
+            case 'dashboard':
+                loadDashboard();
+                break;
+            case 'sales':
+                loadSales();
+                break;
+            case 'inventory':
+                loadInventory();
+                break;
+            case 'expenses':
+                loadExpenses();
+                break;
+            case 'employees':
+                loadEmployees();
+                break;
+            case 'suppliers':
+                loadSuppliers();
+                break;
+            case 'deposits':
+                loadDeposits();
+                break;
+            case 'tax-invoice':
+                loadTaxInvoices();
+                break;
+            case 'settings':
+                loadCompanySettings();
+                loadBuilderSettings();
+                renderSettingsAdmin();
+                break;
+        }
+    });
+});
+
+function showAccessDenied() {
+    document.querySelectorAll(".view").forEach(sec => sec.style.display = 'none');
+    document.getElementById('accessDenied').style.display = 'block';
+}
+
+// Login form handler
+document.getElementById('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    if (username && password) {
+        loginUser(username, password);
+    }
+});
+
+// Modal Functions
+function openSaleModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to create sales');
+        return;
+    }
+    clearForm('saleForm');
+    addSaleItem();
+    document.getElementById('saleTotalDisplay').innerText = 'Total: UGX 0';
+    document.getElementById('saleModal').style.display = 'flex';
+}
+
+function closeSaleModal() {
+    document.getElementById('saleModal').style.display = 'none';
+}
+
+function openInventoryModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to add inventory');
+        return;
+    }
+    clearForm('inventoryForm');
+    document.getElementById('inventoryModal').style.display = 'flex';
+}
+
+function closeInventoryModal() {
+    document.getElementById('inventoryModal').style.display = 'none';
+}
+
+function openExpenseModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to add expenses');
+        return;
+    }
+    clearForm('expenseForm');
+    document.getElementById('expenseDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('expenseModal').style.display = 'flex';
+}
+
+function closeExpenseModal() {
+    document.getElementById('expenseModal').style.display = 'none';
+}
+
+function openEmployeeModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to add employees');
+        return;
+    }
+    clearForm('employeeForm');
+    document.getElementById('employeeModal').style.display = 'flex';
+}
+
+function closeEmployeeModal() {
+    document.getElementById('employeeModal').style.display = 'none';
+}
+
+function openSupplierModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to add suppliers');
+        return;
+    }
+    clearForm('supplierForm');
+    document.getElementById('supplierModal').style.display = 'flex';
+}
+
+function closeSupplierModal() {
+    document.getElementById('supplierModal').style.display = 'none';
+}
+
+function openDepositModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to add deposits');
+        return;
+    }
+    clearForm('depositForm');
+    document.getElementById('depositDate').value = new Date().toISOString().slice(0,10);
+    populateInventoryForDeposits();
+    document.getElementById('depositModal').style.display = 'flex';
+}
+
+function closeDepositModal() {
+    document.getElementById('depositModal').style.display = 'none';
+}
+
+function openTaxInvoiceModal() {
+    if (!hasPermission('canCreateSales')) {
+        alert('You do not have permission to create tax invoices');
+        return;
+    }
+    clearForm('taxInvoiceForm');
+    const invoiceNumber = 'INV-' + Date.now();
+    document.getElementById('taxInvoiceNumber').value = invoiceNumber;
+    addTaxInvoiceItem();
+    updateTaxInvoiceTotal();
+    document.getElementById('taxInvoiceModal').style.display = 'flex';
+}
+
+function closeTaxInvoiceModal() {
+    document.getElementById('taxInvoiceModal').style.display = 'none';
+}
+
+// Sale functionality
+function addSaleItem() {
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.gap = '5px';
+    div.style.marginBottom = '6px';
+    
+    const select = document.createElement('select');
+    select.required = true;
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = '-- Select Item --';
+    select.appendChild(defaultOption);
+    
+    state.inventory.forEach(i => {
+        const opt = document.createElement('option');
+        opt.value = i.id;
+        opt.dataset.retailPrice = i.retail_price || 0;
+        opt.textContent = `${i.name} (stock:${i.qty}) - Retail: ${fmt(i.retail_price || 0)}`;
+        select.appendChild(opt);
+    });
+    
+    const qty = document.createElement('input');
+    qty.type = 'number';
+    qty.placeholder = 'Qty';
+    qty.min = 1;
+    qty.required = true;
+    qty.value = 1;
+    qty.style.width = '80px';
+    
+    const price = document.createElement('input');
+    price.type = 'number';
+    price.placeholder = 'Retail Price';
+    price.style.width = '120px';
+    price.required = true;
+    price.readOnly = true;
+    
+    select.addEventListener('change', () => {
+        const selectedItem = state.inventory.find(i => i.id === select.value);
+        price.value = selectedItem ? selectedItem.retail_price : 0;
+        updateSaleTotal();
+    });
+    
+    const rm = document.createElement('button');
+    rm.type = 'button';
+    rm.textContent = '❌';
+    rm.onclick = () => {
+        div.remove();
+        updateSaleTotal();
+    };
+    
+    qty.addEventListener('input', updateSaleTotal);
+    
+    div.appendChild(select);
+    div.appendChild(qty);
+    div.appendChild(price);
+    div.appendChild(rm);
+    document.getElementById('saleItems').appendChild(div);
+    
+    updateSaleTotal();
+}
+
+function updateSaleTotal() {
+    let total = 0;
+    document.querySelectorAll('#saleItems div').forEach(div => {
+        const inputs = div.querySelectorAll('input[type=number]');
+        const qty = Number(inputs[0].value || 0);
+        const price = Number(inputs[1].value || 0);
+        total += qty * price;
+    });
+    
+    const flat = Number(document.getElementById('saleDiscount').value || 0);
+    const pct = Number(document.getElementById('saleDiscountPct').value || 0);
+    const pctAmount = total * (pct / 100);
+    const final = Math.max(0, total - flat - pctAmount);
+    document.getElementById('saleTotalDisplay').innerText = `Total: ${fmt(final)}`;
+    return final;
+}
+
+// Tax Invoice functionality
+function addTaxInvoiceItem() {
+    const div = document.createElement('div');
+    div.style.display = 'grid';
+    div.style.gridTemplateColumns = '2fr 1fr 1fr 1fr 1fr 1fr auto';
+    div.style.gap = '5px';
+    div.style.marginBottom = '6px';
+    div.style.alignItems = 'center';
+    
+    const select = document.createElement('select');
+    select.required = true;
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = '-- Select Item --';
+    select.appendChild(defaultOption);
+    
+    state.inventory.forEach(i => {
+        const opt = document.createElement('option');
+        opt.value = i.id;
+        opt.dataset.retailPrice = i.retail_price || 0;
+        opt.textContent = i.name;
+        select.appendChild(opt);
+    });
+    
+    const unit = document.createElement('input');
+    unit.placeholder = 'Unit';
+    unit.value = 'pcs';
+    unit.style.width = '60px';
+    
+    const qty = document.createElement('input');
+    qty.type = 'number';
+    qty.placeholder = 'Qty';
+    qty.min = 1;
+    qty.required = true;
+    qty.value = 1;
+    qty.style.width = '60px';
+    
+    const rate = document.createElement('input');
+    rate.type = 'number';
+    rate.placeholder = 'Rate';
+    rate.required = true;
+    rate.style.width = '80px';
+    
+    const disc = document.createElement('input');
+    disc.type = 'number';
+    disc.placeholder = 'Disc%';
+    disc.value = 0;
+    disc.min = 0;
+    disc.max = 100;
+    disc.style.width = '60px';
+    
+    const vat = document.createElement('input');
+    vat.type = 'number';
+    vat.placeholder = 'VAT%';
+    vat.value = 18;
+    vat.min = 0;
+    vat.style.width = '60px';
+    
+    const rm = document.createElement('button');
+    rm.type = 'button';
+    rm.textContent = '❌';
+    rm.onclick = () => {
+        div.remove();
+        updateTaxInvoiceTotal();
+    };
+    
+    select.addEventListener('change', () => {
+        const selectedItem = state.inventory.find(i => i.id === select.value);
+        rate.value = selectedItem ? selectedItem.retail_price : 0;
+        updateTaxInvoiceTotal();
+    });
+    
+    [qty, rate, disc, vat].forEach(input => {
+        input.addEventListener('input', updateTaxInvoiceTotal);
+    });
+    
+    div.appendChild(select);
+    div.appendChild(unit);
+    div.appendChild(qty);
+    div.appendChild(rate);
+    div.appendChild(disc);
+    div.appendChild(vat);
+    div.appendChild(rm);
+    document.getElementById('taxInvoiceItems').appendChild(div);
+    
+    updateTaxInvoiceTotal();
+}
+
+function updateTaxInvoiceTotal() {
+    let subtotal = 0;
+    let totalVAT = 0;
+    
+    document.querySelectorAll('#taxInvoiceItems > div').forEach(div => {
+        const inputs = div.querySelectorAll('input[type=number]');
+        const qty = Number(inputs[0].value || 0);
+        const rate = Number(inputs[1].value || 0);
+        const discPct = Number(inputs[2].value || 0);
+        const vatPct = Number(inputs[3].value || 0);
+        
+        const lineTotal = qty * rate;
+        const discountAmount = lineTotal * (discPct / 100);
+        const afterDiscount = lineTotal - discountAmount;
+        const vatAmount = afterDiscount * (vatPct / 100);
+        
+        subtotal += afterDiscount;
+        totalVAT += vatAmount;
+    });
+    
+    const grandTotal = subtotal + totalVAT;
+    
+    document.getElementById('taxInvoiceTotalDisplay').innerText = `Subtotal: ${fmt(subtotal)}`;
+    document.getElementById('taxInvoiceVATDisplay').innerText = `VAT: ${fmt(totalVAT)}`;
+    document.getElementById('taxInvoiceGrandTotalDisplay').innerText = `Grand Total: ${fmt(grandTotal)}`;
+    
+    return { subtotal, totalVAT, grandTotal };
+}
+
+// Form Handlers
+document.getElementById('saleForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const customer = document.getElementById('customerName').value;
+    const contact = document.getElementById('customerContact').value;
+    const items = [];
+    let total = 0;
+    let valid = true;
+    
+    document.querySelectorAll('#saleItems div').forEach(div => {
+        const sel = div.querySelector('select');
+        const inputs = div.querySelectorAll('input[type=number]');
+        const qty = Number(inputs[0].value || 0);
+        const price = Number(inputs[1].value || 0);
+        const itemInv = state.inventory.find(i => i.id === sel.value);
+        const name = itemInv ? itemInv.name : sel.options[sel.selectedIndex].text;
+        
+        if (qty <= 0) {
+            valid = false;
+        }
+        items.push({ id: sel.value, name, qty, price });
+        total += price * qty;
+    });
+    
+    if (!valid) {
+        alert('Please enter valid quantities');
+        return;
+    }
+    
+    const flat = Number(document.getElementById('saleDiscount').value || 0);
+    const pct = Number(document.getElementById('saleDiscountPct').value || 0);
+    const pctAmount = total * (pct / 100);
+    const final = Math.max(0, total - flat - pctAmount);
+    
+    const saleData = {
+        date: new Date().toISOString().slice(0, 10),
+        customer,
+        contact,
+        items,
+        total: final,
+        meta: { flatDiscount: flat, pctDiscount: pct },
+        type: 'regular'
+    };
+    
+    try {
+        await apiCall('sales', {
+            method: 'POST',
+            body: saleData
+        });
+        
+        await loadSales();
+        await loadInventory();
+        closeSaleModal();
+        alert('Sale saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+document.getElementById('inventoryForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const itemData = {
+        name: document.getElementById('itemName').value,
+        category: document.getElementById('itemCategory').value,
+        supplier: document.getElementById('itemSupplier').value,
+        qty: Number(document.getElementById('itemQty').value),
+        factory_price: Number(document.getElementById('itemFactoryPrice').value),
+        retail_price: Number(document.getElementById('itemRetailPrice').value),
+        reorder_level: Number(document.getElementById('itemReorder').value)
+    };
+    
+    try {
+        await apiCall('inventory', {
+            method: 'POST',
+            body: itemData
+        });
+        
+        await loadInventory();
+        closeInventoryModal();
+        alert('Inventory item saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+document.getElementById('expenseForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const expenseData = {
+        date: document.getElementById('expenseDate').value,
+        category: document.getElementById('expenseCategory').value,
+        description: document.getElementById('expenseDesc').value,
+        amount: Number(document.getElementById('expenseAmount').value)
+    };
+    
+    try {
+        await apiCall('expenses', {
+            method: 'POST',
+            body: expenseData
+        });
+        
+        await loadExpenses();
+        closeExpenseModal();
+        alert('Expense saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+document.getElementById('employeeForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const employeeData = {
+        name: document.getElementById('employeeName').value,
+        position: document.getElementById('employeePosition').value,
+        email: document.getElementById('employeeEmail').value,
+        phone: document.getElementById('employeePhone').value
+    };
+    
+    try {
+        await apiCall('employees', {
+            method: 'POST',
+            body: employeeData
+        });
+        
+        await loadEmployees();
+        closeEmployeeModal();
+        alert('Employee saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+document.getElementById('supplierForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const supplierData = {
+        name: document.getElementById('supplierName').value,
+        contact: document.getElementById('supplierContact').value,
+        email: document.getElementById('supplierEmail').value
+    };
+    
+    try {
+        await apiCall('suppliers', {
+            method: 'POST',
+            body: supplierData
+        });
+        
+        await loadSuppliers();
+        closeSupplierModal();
+        alert('Supplier saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+document.getElementById('depositForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const selectedItem = state.inventory.find(i => i.id === document.getElementById('depositItem').value);
+    const depositData = {
+        date: document.getElementById('depositDate').value,
+        client: document.getElementById('depositClient').value,
+        item_id: document.getElementById('depositItem').value,
+        item_name: selectedItem ? selectedItem.name : 'Unknown Item',
+        agreed_amount: Number(document.getElementById('depositAgreedAmount').value),
+        paid_amount: Number(document.getElementById('depositPaidAmount').value)
+    };
+    
+    try {
+        await apiCall('deposits', {
+            method: 'POST',
+            body: depositData
+        });
+        
+        await loadDeposits();
+        closeDepositModal();
+        alert('Deposit agreement saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+document.getElementById('taxInvoiceForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    const invoiceNumber = document.getElementById('taxInvoiceNumber').value;
+    const customer = document.getElementById('taxInvoiceCustomer').value;
+    const contact = document.getElementById('taxInvoiceContact').value;
+    const items = [];
+    let valid = true;
+    
+    document.querySelectorAll('#taxInvoiceItems > div').forEach(div => {
+        const select = div.querySelector('select');
+        const inputs = div.querySelectorAll('input');
+        const unit = inputs[0].value || 'pcs';
+        const qty = Number(inputs[1].value || 0);
+        const rate = Number(inputs[2].value || 0);
+        const discPct = Number(inputs[3].value || 0);
+        const vatPct = Number(inputs[4].value || 0);
+        
+        const itemInv = state.inventory.find(i => i.id === select.value);
+        const name = itemInv ? itemInv.name : select.options[select.selectedIndex].text;
+        
+        if (qty <= 0) valid = false;
+        
+        const lineTotal = qty * rate;
+        const discountAmount = lineTotal * (discPct / 100);
+        const afterDiscount = lineTotal - discountAmount;
+        const vatAmount = afterDiscount * (vatPct / 100);
+        
+        items.push({
+            id: select.value,
+            name,
+            unit,
+            qty,
+            rate,
+            discPct,
+            vatPct,
+            lineTotal: afterDiscount,
+            vatAmount
+        });
+    });
+    
+    if (!valid) {
+        alert('Please enter valid quantities');
+        return;
+    }
+    
+    const totals = updateTaxInvoiceTotal();
+    
+    const invoiceData = {
+        date: new Date().toISOString().slice(0, 10),
+        invoice_number: invoiceNumber,
+        customer,
+        contact,
+        items,
+        subtotal: totals.subtotal,
+        vat_amount: totals.totalVAT,
+        grand_total: totals.grandTotal
+    };
+    
+    try {
+        await apiCall('tax-invoices', {
+            method: 'POST',
+            body: invoiceData
+        });
+        
+        await loadTaxInvoices();
+        await loadInventory();
+        closeTaxInvoiceModal();
+        alert('Tax invoice saved to MySQL database successfully!');
+    } catch (error) {
+        // Error handled in apiCall
+    }
+});
+
+// Company settings form handler
+document.getElementById('companyForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    if (!hasPermission('canSaveSettings')) {
+        alert('You do not have permission to save company settings');
+        return;
+    }
+    
+    const data = {
+        name: document.getElementById('companyName').value,
+        location: document.getElementById('companyLocation').value,
+        po_box: document.getElementById('companyBox').value,
+        telephone: document.getElementById('companyTel').value,
+        email: document.getElementById('companyEmail').value
+    };
+    
+    try {
+        await apiCall('company-settings', {
+            method: 'POST',
+            body: data
+        });
+        
+        state.companySettings = data;
+        alert('Company settings saved to MySQL database successfully!');
+    } catch (error) {
+        // Error already handled
+    }
+});
+
+// Builder settings form handler
+document.getElementById('builderForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    
+    if (!hasPermission('canSaveSettings')) {
+        alert('You do not have permission to save builder settings');
+        return;
+    }
+    
+    const data = {
+        name: document.getElementById('builderName').value,
+        contact: document.getElementById('builderContact').value,
+        website: document.getElementById('builderWebsite').value
+    };
+    
+    try {
+        await apiCall('builder-settings', {
+            method: 'POST',
+            body: data
+        });
+        
+        state.builderSettings = data;
+        alert('Builder settings saved to MySQL database successfully!');
+    } catch (error) {
+        // Error already handled
+    }
+});
+
+// Utility functions
+function clearForm(formId) {
+    const form = document.getElementById(formId);
+    if (form) {
+        form.reset();
+        const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+        hiddenInputs.forEach(input => input.value = '');
+        const saleItems = form.querySelector('#saleItems');
+        if (saleItems) saleItems.innerHTML = '';
+        const taxInvoiceItems = form.querySelector('#taxInvoiceItems');
+        if (taxInvoiceItems) taxInvoiceItems.innerHTML = '';
+    }
+}
+
+function populateInventoryForDeposits() {
+    const select = document.getElementById('depositItem');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">-- Select Item --</option>';
+    
+    state.inventory.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.dataset.factoryPrice = item.factory_price || 0;
+        option.dataset.retailPrice = item.retail_price || 0;
+        option.textContent = `${item.name} (Factory: ${fmt(item.factory_price || 0)} | Retail: ${fmt(item.retail_price || 0)})`;
+        select.appendChild(option);
+    });
+}
+
+// Event listeners for discounts
+document.getElementById('saleDiscount').addEventListener('input', updateSaleTotal);
+document.getElementById('saleDiscountPct').addEventListener('input', updateSaleTotal);
+
+// Deposit item selection
+document.getElementById('depositItem').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const infoDiv = document.getElementById('selectedItemInfo');
+    
+    if (selectedOption.value && infoDiv) {
+        document.getElementById('selectedItemFactoryPrice').textContent = fmt(selectedOption.dataset.factoryPrice);
+        document.getElementById('selectedItemRetailPrice').textContent = fmt(selectedOption.dataset.retailPrice);
+        infoDiv.style.display = 'block';
+        
+        const agreedAmountInput = document.getElementById('depositAgreedAmount');
+        if (!agreedAmountInput.value) {
+            agreedAmountInput.value = selectedOption.dataset.retailPrice;
+        }
+    } else if (infoDiv) {
+        infoDiv.style.display = 'none';
+    }
+});
+
+// Render all data
+async function renderAll() {
+    if (state.currentUser) {
+        await Promise.all([
+            loadDashboard(),
+            loadInventory(),
+            loadSales(),
+            loadExpenses(),
+            loadTaxInvoices(),
+            loadEmployees(),
+            loadSuppliers(),
+            loadDeposits(),
+            loadCompanySettings(),
+            loadBuilderSettings()
+        ]);
+    }
+    
+    updateUIForAuth();
+}
+
+function renderSettingsAdmin() {
+    if (!hasPermission('canViewSettings')) return;
+    
+    const container = document.getElementById('settingsAdminArea');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (hasPermission('canManageUsers')) {
+        container.innerHTML += '<p>Enhanced system with factory/retail pricing and MySQL database backend. All data is automatically saved to the database.</p>';
+        container.innerHTML += '<p class="muted">User management will be implemented in the full version.</p>';
+    } else {
+        container.innerHTML += '<p class="muted">Contact administrator for user management access.</p>';
+    }
+    
+    // Update save button permissions
+    const saveCompanyBtn = document.getElementById('saveCompanyBtn');
+    const saveBuilderBtn = document.getElementById('saveBuilderBtn');
+    
+    if (saveCompanyBtn && saveBuilderBtn) {
+        if (!hasPermission('canSaveSettings')) {
+            saveCompanyBtn.disabled = true;
+            saveBuilderBtn.disabled = true;
+            saveCompanyBtn.textContent = 'No Permission';
+            saveBuilderBtn.textContent = 'No Permission';
+        } else {
+            saveCompanyBtn.disabled = false;
+            saveBuilderBtn.disabled = false;
+            saveCompanyBtn.textContent = 'Save Company';
+            saveBuilderBtn.textContent = 'Save Builder Info';
+        }
+    }
+}
+
+// Expense search functionality
+async function searchExpenses() {
+    const from = document.getElementById('expenseFrom').value;
+    const to = document.getElementById('expenseTo').value;
+    
+    try {
+        let url = 'expenses';
+        const params = [];
+        if (from) params.push(`from=${from}`);
+        if (to) params.push(`to=${to}`);
+        if (params.length > 0) {
+            url += '&' + params.join('&');
+        }
+        
+        const result = await apiCall(url);
+        state.expenses = result.data || [];
+        renderExpenses();
+    } catch (error) {
+        console.error('Error searching expenses:', error);
+    }
+}
+
+// Print functions (placeholder implementations)
+function printSale(id, type) {
+    alert(`Print functionality for sale ${id} will be implemented with full system integration.`);
+}
+
+function printInventoryItem(id) {
+    alert(`Print functionality for inventory item ${id} will be implemented.`);
+}
+
+function printExpense(id) {
+    alert(`Print functionality for expense ${id} will be implemented.`);
+}
+
+function printEmployee(id) {
+    alert(`Print functionality for employee ${id} will be implemented.`);
+}
+
+function printSupplier(id) {
+    alert(`Print functionality for supplier ${id} will be implemented.`);
+}
+
+function printDeposit(id) {
+    alert(`Print functionality for deposit ${id} will be implemented.`);
+}
+
+function printTaxInvoice(id) {
+    alert(`Print functionality for tax invoice ${id} will be implemented.`);
+}
+
+function printSales() {
+    alert('Print all sales functionality will be implemented.');
+}
+
+function printInventory() {
+    alert('Print inventory functionality will be implemented.');
+}
+
+function printExpenses() {
+    alert('Print expenses functionality will be implemented.');
+}
+
+function printEmployees() {
+    alert('Print employees functionality will be implemented.');
+}
+
+function printSuppliers() {
+    alert('Print suppliers functionality will be implemented.');
+}
+
+function printDeposits() {
+    alert('Print deposits functionality will be implemented.');
+}
+
+function printTaxInvoices() {
+    alert('Print tax invoices functionality will be implemented.');
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    renderAll();
+    
+    // Show dashboard by default
+    if (state.currentUser) {
+        loadDashboard();
+    }
+});
+</script>
+</body>
+</html>
 
