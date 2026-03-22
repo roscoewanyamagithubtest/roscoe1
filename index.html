@@ -1,230 +1,178 @@
+import MetaTrader5 as mt5
+import pandas as pd
+from flask import Flask, render_template_string, jsonify, request
+import threading
+import time
+import hashlib
+
+app = Flask(__name__)
+
+# --- CONFIGURATION ---
+SYMBOL = "EURUSD"
+RISK_PCT = 1.0
+RR_RATIO = 2.0
+DAILY_LOSS_LIMIT = 3.0
+PORT = 8080
+ACCESS_PASSWORD = "YourSecretPassword123" # CHANGE THIS
+
+# --- THE UNIFIED DASHBOARD (HTML/CSS/JS) ---
+HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Sales System - Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive Meta -->
-
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: url('2.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #333;
-      line-height: 1.6;
-    }
-
-    /* Overlay for readability */
-    .overlay {
-      background-color: rgba(255, 255, 255, 0.92);
-      min-height: 100vh;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    h1, h2, h3 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 2rem;
-      background: linear-gradient(to right, greenyellow, limegreen);
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .form-container {
-      max-width: 420px;
-      margin: auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .form-container h2 {
-      margin-bottom: 15px;
-      font-size: 1.5rem;
-    }
-
-    label {
-      font-weight: 600;
-      margin-top: 10px;
-      display: block;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #28a745;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #218838;
-    }
-
-    .toggle-btn {
-      margin-top: 15px;
-      color: blue;
-      text-align: center;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
-
-    .section {
-      margin: 25px auto;
-      max-width: 700px;
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .record-log {
-      max-height: 200px;
-      overflow-y: auto;
-      background: #fff;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-top: 10px;
-      font-size: 0.95rem;
-    }
-
-    textarea {
-      min-height: 100px;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    /* Logo Globe */
-    .logo-container {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: radial-gradient(circle at center, #ADFF2F 60%, #FF0000 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: blink 2s infinite;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-
-    .logo-text {
-      font-size: 11px;
-      color: white;
-      text-align: center;
-      font-weight: bold;
-      text-shadow: 1px 1px 2px #000;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      h1 { font-size: 1.5rem; }
-      .form-container, .section { width: 95%; padding: 15px; }
-      button { font-size: 0.95rem; }
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 1.2rem; }
-      .logo-container { width: 70px; height: 70px; }
-      .logo-text { font-size: 9px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoscoeBot Pro | Unified Terminal</title>
+    <style>
+        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --blue: #58a6ff; --green: #238636; --red: #da3633; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 90%; max-width: 500px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 25px; box-shadow: 0 10px 50px rgba(0,0,0,0.7); }
+        h1 { color: var(--blue); margin: 0 0 5px 0; font-size: 28px; letter-spacing: -1px; }
+        .status-bar { display: flex; align-items: center; justify-content: center; font-size: 13px; margin-bottom: 20px; color: #8b949e; }
+        .dot { height: 10px; width: 10px; background: #444; border-radius: 50%; margin-right: 8px; transition: 0.3s; }
+        .dot.active { background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .btn { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; color: white; }
+        .btn-start { background: var(--green); }
+        .btn-close { background: var(--red); }
+        .btn-auth { background: var(--blue); }
+        .news-banner { display: none; background: rgba(241, 224, 90, 0.1); border: 1px solid #f1e05a; color: #f1e05a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; font-weight: 500; }
+        #log-window { background: #010409; border: 1px solid var(--border); border-radius: 8px; height: 150px; overflow-y: auto; text-align: left; padding: 15px; font-family: monospace; font-size: 12px; margin-top: 20px; line-height: 1.5; color: #7d8590; }
+        input[type="password"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #0d1117; color: white; margin-bottom: 10px; box-sizing: border-box; }
+        .auth-screen { display: block; }
+        .main-screen { display: none; }
+    </style>
 </head>
 <body>
-  <!-- Globe Logo -->
-  <div class="logo-container">
-    <div class="logo-text">SALES<br>SYSTEM</div>
-  </div>
+    <div class="container">
+        <div id="auth-screen" class="auth-screen">
+            <h1>RoscoeBot Login</h1>
+            <p style="color:#8b949e">Enter security key to access bridge</p>
+            <input type="password" id="pass" placeholder="Password">
+            <button class="btn btn-auth" onclick="authenticate()">UNLOCK TERMINAL</button>
+        </div>
 
-  <div class="overlay">
-    <!-- Login/Signup Form -->
-    <div class="form-container" id="auth-box">
-      <h2 id="formTitle">Sign In</h2>
-      <form id="authForm">
-        <label for="username">Username</label>
-        <input type="text" id="username" required placeholder="Enter username">
+        <div id="main-screen" class="main-screen">
+            <h1>RoscoeBot Pro</h1>
+            <div class="status-bar"><span id="indicator" class="dot"></span> <span id="status-text">MT5 Disconnected</span></div>
+            
+            <div id="news-alert" class="news-banner">⚠️ HIGH IMPACT NEWS DETECTED - LOGIC PAUSED</div>
 
-        <label for="password">Password</label>
-        <input type="password" id="password" required placeholder="Enter password">
+            <button class="btn btn-start" onclick="trigger('start')">START SMC ENGINE</button>
+            <button class="btn btn-close" onclick="trigger('close_all')">EMERGENCY: LIQUIDATE ALL</button>
+            <button class="btn" style="background:#21262d" onclick="trigger('stop')">SHUTDOWN SYSTEM</button>
 
-        <button><a href="New sale.html" style="color:white; text-decoration:none;">Sign In</a></button>
-      </form>
-      <div class="toggle-btn" id="toggleAuth">New user? Sign Up</div>
+            <div id="log-window">System Ready...</div>
+        </div>
     </div>
 
-    <!-- Dashboard -->
-    <div class="section" id="mainApp" style="display:none;">
-      <h2>Sales System Dashboard</h2>
+    <script>
+        let sessionKey = "";
 
-      <!-- Invoice Section -->
-      <div>
-        <h3>New Invoice</h3>
-        <input type="text" id="invoiceDetails" placeholder="Invoice details">
-        <button onclick="saveRecord('Invoice', invoiceDetails.value)">Save Invoice</button>
-      </div>
+        async function authenticate() {
+            const p = document.getElementById('pass').value;
+            const res = await fetch('/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({pass: p}) });
+            const data = await res.json();
+            if(data.success) {
+                sessionKey = p;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-screen').style.display = 'block';
+            } else { alert("Wrong Password!"); }
+        }
 
-      <!-- Expense Section -->
-      <div>
-        <h3>New Expense</h3>
-        <input type="text" id="expenseDetails" placeholder="Expense details">
-        <button onclick="saveRecord('Expense', expenseDetails.value)">Save Expense</button>
-      </div>
+        async function trigger(action) {
+            const res = await fetch(`/${action}?pass=${sessionKey}`);
+            const data = await res.json();
+            const logs = document.getElementById('log-window');
+            logs.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${data.message}`;
+            logs.scrollTop = logs.scrollHeight;
 
-      <!-- Sales Section -->
-      <div>
-        <h3>New Sale</h3>
-        <input type="text" id="saleDetails" placeholder="Sale details">
-        <button onclick="saveRecord('Sale', saleDetails.value)">Save Sale</button>
-      </div>
-
-      <!-- Record Tracking -->
-      <div class="section">
-        <h3>Record Tracking</h3>
-        <div class="record-log" id="recordLog"></div>
-      </div>
-
-      <!-- Receipt Generator -->
-      <div class="section">
-        <h3>Generate Receipt</h3>
-        <textarea id="receiptContent" placeholder="Enter receipt text..."></textarea>
-        <button onclick="generateReceipt()">Generate Receipt</button>
-        <pre id="receiptOutput"></pre>
-      </div>
-    </div>
-  </div>
+            if(data.running) {
+                document.getElementById('indicator').classList.add('active');
+                document.getElementById('status-text').innerText = "MT5 Active | Trading...";
+            } else {
+                document.getElementById('indicator').classList.remove('active');
+                document.getElementById('status-text').innerText = "MT5 Disconnected";
+            }
+            document.getElementById('news-alert').style.display = data.news_impact ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>
+"""
+
+# --- BACKEND ENGINE ---
+class RoscoeEngine:
+    def __init__(self):
+        self.running = False
+        self.starting_equity = 0
+
+    def check_news(self):
+        # MT5 built-in calendar check for High impact
+        news = mt5.calendar_get()
+        if not news: return False
+        now = time.time()
+        for event in news:
+            if event.importance == mt5.CALENDAR_IMPORTANCE_HIGH:
+                if abs(event.time - now) < 1800: return True # 30 min window
+        return False
+
+    def monitor_loop(self):
+        while self.running:
+            # Daily Loss Protector
+            acc = mt5.account_info()
+            if acc and (self.starting_equity - acc.equity) >= (self.starting_equity * DAILY_LOSS_LIMIT / 100):
+                self.running = False
+                self.close_all_logic()
+                break
+            time.sleep(10)
+
+    def close_all_logic(self):
+        positions = mt5.positions_get(symbol=SYMBOL)
+        if not positions: return "No active positions."
+        for pos in positions:
+            tick = mt5.symbol_info_tick(SYMBOL)
+            request = {
+                "action": mt5.TRADE_ACTION_DEAL, "position": pos.ticket, "symbol": SYMBOL,
+                "volume": pos.volume, "type": mt5.ORDER_TYPE_SELL if pos.type == mt5.POSITION_TYPE_BUY else mt5.ORDER_TYPE_BUY,
+                "price": tick.bid if pos.type == mt5.POSITION_TYPE_BUY else tick.ask,
+                "magic": 123, "comment": "RoscoeBot Close", "type_time": mt5.ORDER_TIME_GTC, "type_filling": mt5.ORDER_FILLING_IOC,
+            }
+            mt5.order_send(request)
+        return "All positions closed."
+
+engine = RoscoeEngine()
+
+# --- WEB SERVER ROUTES ---
+@app.route('/')
+def home(): return render_template_string(HTML_PAGE)
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    return jsonify({"success": data.get('pass') == ACCESS_PASSWORD})
+
+@app.route('/start')
+def start():
+    if request.args.get('pass') != ACCESS_PASSWORD: return jsonify({"message": "Unauthorized"})
+    if not mt5.initialize(): return jsonify({"message": "MT5 Fail", "running": False})
+    engine.running = True
+    engine.starting_equity = mt5.account_info().equity
+    threading.Thread(target=engine.monitor_loop).start()
+    return jsonify({"message": "SMC Bridge Online", "running": True, "news_impact": engine.check_news()})
+
+@app.route('/close_all')
+def close():
+    if request.args.get('pass') != ACCESS_PASSWORD: return jsonify({"message": "Unauthorized"})
+    msg = engine.close_all_logic()
+    return jsonify({"message": msg, "running": engine.running})
+
+@app.route('/stop')
+def stop():
+    engine.running = False
+    mt5.shutdown()
+    return jsonify({"message": "System Shutdown", "running": False})
+
+if __name__ == "__main__":
+    print(f"RoscoeBot Pro LIVE on Port {PORT}")
+    app.run(host='0.0.0.0', port=PORT)
+                  
